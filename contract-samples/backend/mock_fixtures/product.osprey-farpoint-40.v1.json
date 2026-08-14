@@ -1,0 +1,20 @@
+{
+  "product_id": "osprey-farpoint-40",
+  "brand": "Osprey",
+  "display_name": "Osprey Farpoint 40",
+  "source": "url",
+  "source_url": "https://www.osprey.com/farpoint-40",
+  "fetched_at": "2026-08-15T10:04:00Z",
+  "raw_text": "Osprey Farpoint 40 Travel Pack. 40 liters of clamshell-opening organization. AirScape suspended mesh back panel keeps you cool and comfortable. Padded, stowable harness and hipbelt transfer load to your hips for all-day carry comfort. Adjustable torso fit. Dimensions 55 x 35 x 25 cm. Weight 1.47 kg. Padded laptop sleeve. All Mighty Guarantee. EUR 165.",
+  "attributes": [
+    { "attribute_id": "capacity",           "value": "40L, 55 x 35 x 25 cm",                    "evidence": "Dimensions 55 x 35 x 25 cm",                     "confidence": 0.97 },
+    { "attribute_id": "weight",             "value": "1.47 kg",                                  "evidence": "Weight 1.47 kg",                                 "confidence": 0.97 },
+    { "attribute_id": "airline_compliance", "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "price",              "value": "EUR 165",                                  "evidence": "EUR 165",                                        "confidence": 0.98 },
+    { "attribute_id": "durability",         "value": "All Mighty Guarantee",                     "evidence": "All Mighty Guarantee",                           "confidence": 0.9 },
+    { "attribute_id": "organization",       "value": "clamshell opening, padded laptop sleeve",  "evidence": "clamshell-opening organization... laptop sleeve", "confidence": 0.93 },
+    { "attribute_id": "comfort",            "value": "all-day carry comfort, padded harness",    "evidence": "all-day carry comfort",                          "confidence": 0.92 },
+    { "attribute_id": "back_support",       "value": "AirScape mesh back panel, hipbelt, adjustable torso", "evidence": "AirScape suspended mesh back panel... hipbelt transfer load to your hips", "confidence": 0.95 }
+  ],
+  "version": 1
+}

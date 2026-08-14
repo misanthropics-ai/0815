@@ -1,0 +1,15 @@
+{
+  "batch_id": "batch_0007",
+  "cluster_id": "comfort_walking",
+  "candidates": ["cabinzero-classic-36l@v1", "osprey-farpoint-40@v1"],
+  "n_intents": 24,
+  "runs": 3,
+  "n_decisions": 72,
+  "shares": {
+    "cabinzero-classic-36l@v1": { "consideration_share": 0.66, "recommendation_share": 0.12, "ci95_recommendation": [0.06, 0.21] },
+    "osprey-farpoint-40@v1":    { "consideration_share": 0.85, "recommendation_share": 0.79, "ci95_recommendation": [0.68, 0.87] }
+  },
+  "decision_ids": ["dec_00042", "dec_00043", "dec_00044"],
+  "status": "completed",
+  "created_at": "2026-08-15T11:20:00Z"
+}

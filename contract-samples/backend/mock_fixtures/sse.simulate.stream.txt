@@ -1,0 +1,18 @@
+# POST /simulate (Accept: text/event-stream) 的串流格式。
+# 前端規則: token 事件逐字 append 到 narrative 區; done 事件拿完整 DecisionResult 覆蓋畫面狀態。
+
+event: token
+data: {"text": "For 8+ hours of walking per day, "}
+
+event: token
+data: {"text": "carry comfort is the deciding factor. "}
+
+event: token
+data: {"text": "The Osprey Farpoint 40 provides..."}
+
+event: done
+data: { ...完整 DecisionResult JSON, 與 response.decision_result.json 同構... }
+
+# 錯誤時:
+event: error
+data: {"error": {"code": "LLM_TIMEOUT", "message": "decision engine timed out after 60s"}}

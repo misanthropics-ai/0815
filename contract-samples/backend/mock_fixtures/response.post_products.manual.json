@@ -1,0 +1,20 @@
+{
+  "product_id": "mybrand-traillite-32l",
+  "brand": "MyBrand",
+  "display_name": "MyBrand TrailLite 32L (prototype)",
+  "source": "manual_prototype",
+  "source_url": null,
+  "fetched_at": "2026-08-15T10:20:00Z",
+  "raw_text": "TrailLite 32L is a lightweight travel backpack prototype. 680g. 42 x 28 x 20 cm designed for Ryanair free personal item sizing. Target price EUR 89. Roll-top main compartment.",
+  "attributes": [
+    { "attribute_id": "capacity",           "value": "32L, 42 x 28 x 20 cm",       "evidence": "42 x 28 x 20 cm",                        "confidence": 0.95 },
+    { "attribute_id": "weight",             "value": "680g",                        "evidence": "680g",                                   "confidence": 0.96 },
+    { "attribute_id": "airline_compliance", "value": "Ryanair free personal item",  "evidence": "designed for Ryanair free personal item", "confidence": 0.9 },
+    { "attribute_id": "price",              "value": "EUR 89 (target)",             "evidence": "Target price EUR 89",                    "confidence": 0.9 },
+    { "attribute_id": "organization",       "value": "roll-top main compartment",   "evidence": "Roll-top main compartment",              "confidence": 0.8 },
+    { "attribute_id": "comfort",            "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "back_support",       "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "durability",         "value": null, "evidence": null, "confidence": 0.0 }
+  ],
+  "version": 1
+}

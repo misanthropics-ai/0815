@@ -1,0 +1,12 @@
+{
+  "_comment": "POST /simulate 的 request body。intent 可傳 intent_id (查庫) 或直接給 text+attributes。",
+  "intent": {
+    "intent_id": "intent_0005",
+    "text": "I'll be walking 8+ hours a day with my backpack in Europe, need something comfortable with real back support, 30-35L, under 120 euro",
+    "cluster_id": "comfort_walking",
+    "attributes": ["comfort", "back_support", "price", "capacity"]
+  },
+  "candidates": ["cabinzero-classic-36l@v1", "osprey-farpoint-40@v1"],
+  "stream": true,
+  "cached": false
+}

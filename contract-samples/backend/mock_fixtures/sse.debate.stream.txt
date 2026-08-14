@@ -1,0 +1,23 @@
+# POST /debate/sessions/{id}/messages (Accept: text/event-stream)
+# 前端規則:
+#   token  → append 到當前 assistant 訊息
+#   action → 在聊天流插入進度卡片 (status: started -> completed), completed 時渲染 before/after 對比
+#   done   → 本回合結束
+
+event: token
+data: {"text": "Then that is the fix, not a disagreement. "}
+
+event: token
+data: {"text": "Creating v2 with the back-panel claims and re-running 24 comfort intents..."}
+
+event: action
+data: {"type": "create_version_and_rerun", "status": "started", "job_id": "job_009", "product_ref": "cabinzero-classic-36l@v1", "new_version": 2}
+
+event: action
+data: {"type": "create_version_and_rerun", "status": "completed", "job_id": "job_009", "result": {"before": {"product_ref": "cabinzero-classic-36l@v1", "recommendation_share": 0.12}, "after": {"product_ref": "cabinzero-classic-36l@v2", "recommendation_share": 0.55}, "cluster_id": "comfort_walking", "n_per_side": 40}}
+
+event: token
+data: {"text": "Done. Comfort-cluster recommendation share moved from 12% to 55%. The product didn't change — the evidence did."}
+
+event: done
+data: {"session_id": "deb_a1b2c3", "turn": 4}

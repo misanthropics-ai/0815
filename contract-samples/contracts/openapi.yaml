@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: AI Purchase Decision Intelligence API
+  version: "contract-v2"
+  description: >
+    唯一真相來源。schemas 細節見 contracts/schemas.py 與 backend/mock_fixtures/ 的實例。
+    LLM 生成類 endpoint 支援 Accept: text/event-stream (格式見 sse.*.txt)。
+paths:
+  /products:
+    post:
+      summary: 輸入 URL 或 manual prototype, 抽取 attributes
+      description: request 見 request.post_products.manual.json; response 見 response.post_products.manual.json
+      responses: { "200": { description: Product }, "422": { description: ErrorResponse } }
+  /products/{ref}:
+    get:
+      summary: 取產品 (ref 格式 product_id@vN)
+      responses: { "200": { description: Product }, "404": { description: ErrorResponse } }
+  /products/{id}/versions:
+    post:
+      summary: 建立修改版 (before/after 與 debate v2 迴圈用)
+      description: request 見 schemas.CreateVersionRequest
+      responses: { "200": { description: Product (new version) } }
+  /simulate:
+    post:
+      summary: 單次購物決策模擬 (Frontend A live)
+      description: request 見 request.post_simulate.json; SSE 見 sse.simulate.stream.txt
+      responses: { "200": { description: DecisionResult 或 SSE stream } }
+  /simulate/batch:
+    post:
+      summary: cluster 批次模擬 (Diagnosis / demo 用)
+      responses: { "200": { description: BatchResult } }
+  /products/{ref}/diagnosis:
+    get:
+      summary: 取缺陷診斷 (無快取時觸發 batch, 可能回 202 + batch_id)
+      responses: { "200": { description: Diagnosis }, "202": { description: "{ batch_id, status: running }" } }
+  /debate/sessions:
+    post:
+      summary: 開辯論 session
+      responses: { "200": { description: "response.post_debate_session.json" } }
+  /debate/sessions/{id}:
+    get:
+      summary: 取完整對話歷史 (重整頁面用)
+      responses: { "200": { description: DebateSession } }
+  /debate/sessions/{id}/messages:
+    post:
+      summary: 送使用者訊息, 回 SSE (格式見 sse.debate.stream.txt, 含 action 事件)
+      responses: { "200": { description: SSE stream } }
+  /metrics/compare:
+    get:
+      summary: 兩個 product version 的 share 對照 (?a=..&b=..&cluster=..)
+      responses: { "200": { description: CompareResult } }

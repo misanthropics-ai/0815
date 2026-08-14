@@ -1,0 +1,43 @@
+{
+  "decision_id": "dec_00042",
+  "intent": {
+    "intent_id": "intent_0005",
+    "text": "I'll be walking 8+ hours a day with my backpack in Europe, need something comfortable with real back support, 30-35L, under 120 euro",
+    "cluster_id": "comfort_walking",
+    "attributes": ["comfort", "back_support", "price", "capacity"]
+  },
+  "candidates": ["cabinzero-classic-36l@v1", "osprey-farpoint-40@v1"],
+  "winner": "osprey-farpoint-40@v1",
+  "per_product": [
+    {
+      "product_ref": "osprey-farpoint-40@v1",
+      "considered": true,
+      "verdict": "recommended",
+      "rank": 1,
+      "reasons_for": [
+        { "text": "AirScape mesh back panel and hipbelt designed for all-day carry", "attribute": "back_support" },
+        { "text": "explicitly marketed for all-day carry comfort", "attribute": "comfort" }
+      ],
+      "reasons_against": [
+        { "text": "EUR 165 exceeds the stated 120 euro budget", "attribute": "price" },
+        { "text": "40L / 55cm may exceed strict low-cost cabin limits", "attribute": "airline_compliance" }
+      ]
+    },
+    {
+      "product_ref": "cabinzero-classic-36l@v1",
+      "considered": true,
+      "verdict": "rejected",
+      "rank": 2,
+      "reasons_for": [
+        { "text": "760g and EUR 79.95 fit the budget easily", "attribute": "price" },
+        { "text": "sized for Ryanair priority compliance", "attribute": "airline_compliance" }
+      ],
+      "reasons_against": [
+        { "text": "no information available about back support or long-wear comfort", "attribute": "back_support" }
+      ]
+    }
+  ],
+  "narrative": "For 8+ hours of walking per day, carry comfort is the deciding factor. The Osprey Farpoint 40 provides a suspended AirScape mesh back panel, a load-bearing hipbelt and adjustable torso fit, which directly address all-day carry. The CabinZero Classic 36L is lighter and well within budget, but its listing provides no information about back support or harness structure, so I cannot assess its comfort for long walking days. If you can stretch the budget, the Farpoint 40 is the safer choice; note it exceeds your EUR 120 cap.",
+  "model": "decision-engine/prompt_v1",
+  "created_at": "2026-08-15T11:00:00Z"
+}

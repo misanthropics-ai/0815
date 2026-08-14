@@ -1,0 +1,20 @@
+{
+  "product_id": "cabinzero-classic-36l",
+  "version": 2,
+  "parent_version": 1,
+  "source": "manual_prototype",
+  "brand": "CabinZero",
+  "display_name": "CabinZero Classic 36L",
+  "change_note": "v2 = v1 raw_text + comfort/back-support additions (demo before/after 用)",
+  "raw_text": "CabinZero Classic 36L. The original cabin-sized travel bag. Maximum size, minimum weight: just 760g. Sized at 44 x 30 x 20 cm to comply with most airline cabin luggage requirements including Ryanair priority and easyJet large cabin bag. Made from durable 600D polyester with YKK zippers. Wide-opening main compartment. Global luggage tracker built in. 25 year warranty. EUR 79.95. COMFORT: Ventilated air-mesh back panel keeps airflow on long days. 12mm padded shoulder straps with adjustable sternum strap distribute load evenly. FAQ - Is it comfortable for a full day of walking? Yes: reviewers report 6+ hour city days without shoulder fatigue. Review excerpt (PackVerdict): 'Wore it 6 hours through Lisbon, straps stayed comfortable.' Review excerpt (r/onebag user): 'All-day museum days, zero back sweat thanks to the mesh panel.'",
+  "attributes": [
+    { "attribute_id": "capacity",           "value": "36L, 44 x 30 x 20 cm",                       "evidence": "Sized at 44 x 30 x 20 cm",            "confidence": 0.97 },
+    { "attribute_id": "weight",             "value": "760g",                                        "evidence": "just 760g",                           "confidence": 0.97 },
+    { "attribute_id": "airline_compliance", "value": "Ryanair priority / easyJet large cabin bag",  "evidence": "comply with... Ryanair priority",     "confidence": 0.92 },
+    { "attribute_id": "price",              "value": "EUR 79.95",                                   "evidence": "EUR 79.95",                           "confidence": 0.98 },
+    { "attribute_id": "durability",         "value": "600D polyester, YKK zippers, 25y warranty",   "evidence": "600D polyester... 25 year warranty",  "confidence": 0.95 },
+    { "attribute_id": "organization",       "value": "wide-opening main compartment",               "evidence": "Wide-opening main compartment",       "confidence": 0.85 },
+    { "attribute_id": "comfort",            "value": "12mm padded straps, 6h+ reviewed comfort",    "evidence": "12mm padded shoulder straps... reviewers report 6+ hour city days", "confidence": 0.9 },
+    { "attribute_id": "back_support",       "value": "ventilated air-mesh back panel",              "evidence": "Ventilated air-mesh back panel",      "confidence": 0.9 }
+  ]
+}

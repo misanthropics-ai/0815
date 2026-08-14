@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "PRODUCT_NOT_FOUND",
+    "message": "product_ref 'cabinzero-classic-36l@v9' does not exist",
+    "hint": "valid versions: v1, v2"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "cluster_id": "comfort_walking",
+  "candidates": ["cabinzero-classic-36l@v1", "osprey-farpoint-40@v1"],
+  "runs": 3,
+  "cached": true
+}

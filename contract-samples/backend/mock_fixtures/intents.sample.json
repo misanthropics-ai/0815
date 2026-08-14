@@ -1,0 +1,25 @@
+{
+  "meta": { "category": "travel-backpack", "market": "EU", "generated_at": "2026-08-15T09:00:00Z", "version": "sample-v1", "note": "sample: 每 cluster 2 條示意; 正式版需 150 條, 每 cluster >= 15 條" },
+  "clusters": [
+    { "cluster_id": "airline_compliance", "label": "Low-cost airline compliance", "primary_attributes": ["airline_compliance", "capacity"] },
+    { "cluster_id": "budget",             "label": "Budget-driven",               "primary_attributes": ["price"] },
+    { "cluster_id": "comfort_walking",    "label": "Comfort & all-day walking",   "primary_attributes": ["comfort", "back_support"] },
+    { "cluster_id": "lightweight",        "label": "Lightweight priority",        "primary_attributes": ["weight"] },
+    { "cluster_id": "organization",       "label": "Organization & packing",      "primary_attributes": ["organization"] },
+    { "cluster_id": "brand_alternative",  "label": "Alternative-to-X queries",    "primary_attributes": ["price", "capacity"] }
+  ],
+  "intents": [
+    { "intent_id": "intent_0001", "text": "Best 35L backpack for Ryanair that I can take as free cabin baggage", "cluster_id": "airline_compliance", "attributes": ["airline_compliance", "capacity"], "language": "en" },
+    { "intent_id": "intent_0002", "text": "backpack that fits under the seat on easyjet and wizz air, no extra fees", "cluster_id": "airline_compliance", "attributes": ["airline_compliance"], "language": "en" },
+    { "intent_id": "intent_0003", "text": "good travel backpack under 100 euro for a 5 day europe trip", "cluster_id": "budget", "attributes": ["price", "capacity"], "language": "en" },
+    { "intent_id": "intent_0004", "text": "cheapest decent 30-35L carry on backpack thats not garbage", "cluster_id": "budget", "attributes": ["price", "durability"], "language": "en" },
+    { "intent_id": "intent_0005", "text": "I'll be walking 8+ hours a day with my backpack in Europe, need something comfortable with real back support, 30-35L, under 120 euro", "cluster_id": "comfort_walking", "attributes": ["comfort", "back_support", "price", "capacity"], "language": "en" },
+    { "intent_id": "intent_0006", "text": "most comfortable travel backpack for city walking all day", "cluster_id": "comfort_walking", "attributes": ["comfort", "back_support"], "language": "en" },
+    { "intent_id": "intent_0007", "text": "lightest 30L+ backpack for budget airlines", "cluster_id": "lightweight", "attributes": ["weight", "airline_compliance"], "language": "en" },
+    { "intent_id": "intent_0008", "text": "ultralight cabin backpack under 800g", "cluster_id": "lightweight", "attributes": ["weight"], "language": "en" },
+    { "intent_id": "intent_0009", "text": "travel backpack with laptop sleeve and good compartments for a week in europe", "cluster_id": "organization", "attributes": ["organization", "capacity"], "language": "en" },
+    { "intent_id": "intent_0010", "text": "clamshell opening backpack that packs like a suitcase", "cluster_id": "organization", "attributes": ["organization"], "language": "en" },
+    { "intent_id": "intent_0011", "text": "budget alternative to Osprey Farpoint 40", "cluster_id": "brand_alternative", "attributes": ["price", "capacity"], "language": "en" },
+    { "intent_id": "intent_0012", "text": "is there anything like the cotopaxi allpa but cheaper", "cluster_id": "brand_alternative", "attributes": ["price"], "language": "en" }
+  ]
+}

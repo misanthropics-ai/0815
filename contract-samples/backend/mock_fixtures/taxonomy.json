@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "attributes": [
+    { "attribute_id": "comfort",            "label": "Carry comfort",       "keywords": ["comfort", "comfortable", "padding", "strap padding"] },
+    { "attribute_id": "back_support",       "label": "Back support",        "keywords": ["back support", "hip belt", "frame", "ventilated", "back panel", "torso"] },
+    { "attribute_id": "airline_compliance", "label": "Airline compliance",  "keywords": ["ryanair", "easyjet", "wizz", "cabin size", "personal item", "underseat", "40x20x25", "45x36x20"] },
+    { "attribute_id": "weight",             "label": "Lightweight",         "keywords": ["lightweight", "weight", "grams", "g", "kg"] },
+    { "attribute_id": "price",              "label": "Price / budget",      "keywords": ["cheap", "budget", "under", "price", "eur", "affordable", "value"] },
+    { "attribute_id": "capacity",           "label": "Capacity / size",     "keywords": ["30l", "35l", "40l", "liter", "litre", "capacity", "dimensions"] },
+    { "attribute_id": "organization",       "label": "Organization",        "keywords": ["compartment", "pocket", "packing cubes", "laptop sleeve", "clamshell"] },
+    { "attribute_id": "durability",         "label": "Durability",          "keywords": ["durable", "rip", "warranty", "years", "material", "600d"] }
+  ]
+}

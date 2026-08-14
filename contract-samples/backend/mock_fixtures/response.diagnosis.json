@@ -1,0 +1,65 @@
+{
+  "product_ref": "cabinzero-classic-36l@v1",
+  "generated_at": "2026-08-15T11:30:00Z",
+  "overall": {
+    "recommendation_share": 0.34,
+    "consideration_share": 0.61,
+    "n_simulations": 120,
+    "vs": { "osprey-farpoint-40@v1": { "recommendation_share": 0.63 } }
+  },
+  "defects": [
+    {
+      "defect_id": "def_001",
+      "type": "missing_attribute",
+      "attribute_id": "back_support",
+      "severity": "high",
+      "headline": "No back-support specs — losing 88% of comfort-driven comparisons",
+      "evidence": {
+        "cluster_id": "comfort_walking",
+        "losing_share_in_cluster": 0.88,
+        "n_losses": 21,
+        "sample_rejection_reasons": [
+          "no information available about back support or long-wear comfort",
+          "listing does not mention harness, frame or hip belt"
+        ],
+        "competitor_contrast": "Osprey page specifies AirScape suspended mesh back panel + load-bearing hipbelt + adjustable torso fit"
+      },
+      "suggested_fix": "Add a structured comfort section: back panel construction, strap padding, torso fit range, hip-belt spec; add an FAQ answering 'Is it comfortable for a full day of walking?'"
+    },
+    {
+      "defect_id": "def_002",
+      "type": "weak_evidence",
+      "attribute_id": "comfort",
+      "severity": "high",
+      "headline": "Comfort claims exist nowhere on the page — AI treats comfort as unknown",
+      "evidence": {
+        "cluster_id": "comfort_walking",
+        "losing_share_in_cluster": 0.88,
+        "n_losses": 21,
+        "sample_rejection_reasons": ["cannot assess comfort for long walking days"],
+        "competitor_contrast": "Competitor explicitly claims 'all-day carry comfort' with supporting hardware specs"
+      },
+      "suggested_fix": "Add third-party review excerpts describing 5h+ real-world carry; quantify strap padding thickness"
+    },
+    {
+      "defect_id": "def_003",
+      "type": "losing_cluster",
+      "attribute_id": "organization",
+      "severity": "medium",
+      "headline": "Organization cluster: single-compartment design loses to clamshell competitors",
+      "evidence": {
+        "cluster_id": "organization",
+        "losing_share_in_cluster": 0.72,
+        "n_losses": 17,
+        "sample_rejection_reasons": ["only one wide compartment; no laptop sleeve mentioned"],
+        "competitor_contrast": "Farpoint 40 lists clamshell opening and padded laptop sleeve"
+      },
+      "suggested_fix": "If hardware supports it, document internal pockets and laptop compatibility; otherwise consider strategic retreat from this cluster"
+    }
+  ],
+  "winning_clusters": [
+    { "cluster_id": "airline_compliance", "recommendation_share": 0.81 },
+    { "cluster_id": "budget",             "recommendation_share": 0.74 },
+    { "cluster_id": "lightweight",        "recommendation_share": 0.68 }
+  ]
+}

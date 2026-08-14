@@ -1,0 +1,14 @@
+{
+  "_comment": "GET /metrics/compare?a=cabinzero-classic-36l@v1&b=cabinzero-classic-36l@v2&cluster=comfort_walking",
+  "cluster_id": "comfort_walking",
+  "n_per_side": 40,
+  "a": { "product_ref": "cabinzero-classic-36l@v1", "recommendation_share": 0.12, "consideration_share": 0.66, "ci95_recommendation": [0.05, 0.24] },
+  "b": { "product_ref": "cabinzero-classic-36l@v2", "recommendation_share": 0.55, "consideration_share": 0.83, "ci95_recommendation": [0.40, 0.69] },
+  "delta_recommendation": 0.43,
+  "changes_applied": [
+    "added back-panel construction + strap padding specs",
+    "added FAQ: 'Is CabinZero comfortable for a full day of walking?'",
+    "added 2 review excerpts describing 6h+ city walking"
+  ],
+  "diff_url": "/demo/before_after/cabinzero.v1_v2.diff.md"
+}

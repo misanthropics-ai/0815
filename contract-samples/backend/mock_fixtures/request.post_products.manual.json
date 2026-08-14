@@ -1,0 +1,7 @@
+{
+  "_comment": "POST /products 的 request body 範例 (manual prototype 模式)。URL 模式改傳 { \"source\": \"url\", \"source_url\": \"https://...\" }",
+  "source": "manual_prototype",
+  "brand": "MyBrand",
+  "display_name": "MyBrand TrailLite 32L (prototype)",
+  "raw_text": "TrailLite 32L is a lightweight travel backpack prototype. 680g. 42 x 28 x 20 cm designed for Ryanair free personal item sizing. Target price EUR 89. Roll-top main compartment."
+}
