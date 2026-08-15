@@ -9,13 +9,12 @@ Falls back to deterministic mock decisions when Bedrock is unavailable.
 from __future__ import annotations
 
 import asyncio
-import json
+import hashlib
 import math
-import random
+import re
 import time
 from typing import AsyncIterator, Optional
 
-from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import LLMError, cache_key_for, get_bedrock
 from backend.llm.jsonutil import extract_json
@@ -148,39 +147,127 @@ def _normalize_decision(raw: dict, intent: dict, refs: list[str], model_label: s
 
 # ---------------------------------------------------------------- mock path
 
+_QUANTIFIED_EVIDENCE = re.compile(
+    r"\b\d+(?:[.,]\d+)?\s*(?:%|kg|g|lb|oz|l|ml|cm|mm|in|inch|hours?|hrs?|years?|hz|nits?)?\b",
+    re.IGNORECASE,
+)
+_PROOF_TERMS = re.compile(
+    r"\b(?:tested|certified|verified|validated|warranty|guarantee|rating|reviews?|standard)\b",
+    re.IGNORECASE,
+)
+
+
+def _intent_attributes(intent: dict, category: Optional[str]) -> list[str]:
+    attrs = [str(a) for a in (intent.get("attributes") or []) if a]
+    if attrs:
+        return list(dict.fromkeys(attrs))
+    from backend.taxonomy import load_taxonomy
+
+    cluster_id = intent.get("cluster_id")
+    for cluster in load_taxonomy(category).get("clusters", []):
+        if cluster.get("id") == cluster_id:
+            return [str(a) for a in cluster.get("attributes", []) if a]
+    return ["price"]
+
+
+def _paired_jitter(intent: dict, product: dict, run_idx: int) -> float:
+    """Stable per product, intent and run; deliberately excludes version/candidate refs.
+
+    This gives before/after runs common random numbers: changing v1 to v2 cannot alter
+    the noise term, so movement comes from changed evidence rather than a new seed.
+    """
+    identity = product.get("product_id") or slugify(product.get("brand", "product"))
+    intent_key = intent.get("intent_id") or intent.get("text", "")
+    digest = hashlib.sha256(f"{intent_key}|{identity}|{run_idx}".encode()).digest()
+    unit = int.from_bytes(digest[:8], "big") / float(2**64 - 1)
+    return (unit - 0.5) * 0.36
+
+
+def _proof_score(attribute: Optional[dict]) -> float:
+    if not attribute or not attribute.get("value"):
+        return -0.9
+    confidence = max(0.0, min(1.0, float(attribute.get("confidence") or 0)))
+    evidence = str(attribute.get("evidence") or attribute.get("value") or "")
+    specificity = min(len(evidence) / 180.0, 0.65)
+    quantified = 0.3 if _QUANTIFIED_EVIDENCE.search(evidence) else 0.0
+    verified = 0.25 if _PROOF_TERMS.search(evidence) else 0.0
+    return 2.0 + confidence + specificity + quantified + verified
+
+
+def _product_score(intent: dict, product: dict, relevant: list[str], run_idx: int) -> float:
+    by_id = {a.get("attribute_id"): a for a in product.get("attributes", [])}
+    relevant_score = sum(_proof_score(by_id.get(attribute_id)) for attribute_id in relevant)
+    known = sum(1 for attribute in product.get("attributes", []) if attribute.get("value"))
+    total = max(1, len(product.get("attributes", [])))
+    # Overall page completeness only breaks close ties; relevant evidence dominates.
+    completeness = (known / total) * 0.3
+    return relevant_score + completeness + _paired_jitter(intent, product, run_idx)
+
+
+def _reason_for(product: dict, relevant: list[str]) -> tuple[str, str]:
+    by_id = {a.get("attribute_id"): a for a in product.get("attributes", [])}
+    for attribute_id in relevant:
+        attribute = by_id.get(attribute_id)
+        if attribute and attribute.get("value"):
+            proof = str(attribute.get("evidence") or attribute.get("value"))[:260]
+            return f"The page gives explicit {attribute_id.replace('_', ' ')} evidence: {proof}", attribute_id
+    return "The page provides some general product evidence, but little for this exact need", "other"
+
+
+def _reason_against(product: dict, relevant: list[str]) -> tuple[str, str]:
+    by_id = {a.get("attribute_id"): a for a in product.get("attributes", [])}
+    for attribute_id in relevant:
+        if not (by_id.get(attribute_id) or {}).get("value"):
+            label = attribute_id.replace("_", " ")
+            return f"The page does not state verifiable {label} evidence", attribute_id
+    attribute_id = relevant[0] if relevant else "other"
+    return "Its evidence is less specific for this buyer need than the higher-ranked option", attribute_id
+
+
 def _mock_decision(intent: dict, refs: list[str], run_idx: int) -> dict:
-    world_path = config.FIXTURES_DIR / "mock_world.json"
-    world = json.loads(world_path.read_text(encoding="utf-8")) if world_path.exists() else {}
-    rng = random.Random(f"dec:{intent['text']}:{'|'.join(refs)}:{run_idx}")
-    products = {ref: db.get_product_by_ref(ref) for ref in refs}
-    slug_of = {ref: slugify((p or {}).get("brand", ref)) for ref, p in products.items()}
-    weights = ((world.get("clusters") or {}).get(intent.get("cluster_id", ""), {})
-               .get("win_weights", {}))
-    w = [max(0.05, float(weights.get(slug_of[ref], 0.25))) for ref in refs]
-    winner = rng.choices(refs, weights=w, k=1)[0]
-    attrs = intent.get("attributes", []) or ["price"]
-    per_product, narrative = [], []
+    products: dict[str, dict] = {}
     for ref in refs:
-        slug = slug_of[ref]
-        name = (products[ref] or {}).get("display_name", ref)
-        bank = ((world.get("reasons") or {}).get(slug) or {})
-        fors = [(t, a) for a, ts in (bank.get("for") or {}).items() for t in ts]
-        againsts = [(t, a) for a, ts in (bank.get("against") or {}).items() for t in ts
-                    if a in attrs] or [(t, a) for a, ts in (bank.get("against") or {}).items() for t in ts]
-        f = rng.choice(fors) if fors else (f"{name} covers the basics well", "other")
-        g = rng.choice(againsts) if againsts else (f"{name} shows weaknesses for this use case", "other")
-        if ref == winner:
-            narrative.append(f"{name}: {f[0]} — the best match here.")
-            per_product.append({"product_ref": ref, "considered": True, "verdict": "recommended",
-                                "rank": 1, "reasons_for": [{"text": f[0], "attribute": f[1]}],
-                                "reasons_against": []})
+        product = db.get_product_by_ref(ref)
+        if not product:
+            raise KeyError(f"product not found: {ref}")
+        products[ref] = product
+    category = _category_of(products)
+    relevant = _intent_attributes(intent, category)
+    ranked = sorted(
+        refs,
+        key=lambda ref: (
+            -_product_score(intent, products[ref], relevant, run_idx),
+            products[ref].get("product_id", ref),
+        ),
+    )
+    winner = ranked[0] if ranked else None
+    ranks = {ref: index + 1 for index, ref in enumerate(ranked)}
+    per_product, narrative = [], []
+    for ref in ranked:
+        product = products[ref]
+        name = product.get("display_name") or ref
+        reason_for, for_attr = _reason_for(product, relevant)
+        reason_against, against_attr = _reason_against(product, relevant)
+        is_winner = ref == winner
+        if is_winner:
+            narrative.append(f"{name}: {reason_for}. It is the strongest documented match here.")
         else:
-            narrative.append(f"{name}: {f[0]}. However, {g[0]}.")
-            per_product.append({"product_ref": ref, "considered": True, "verdict": "rejected",
-                                "rank": None, "reasons_for": [{"text": f[0], "attribute": f[1]}],
-                                "reasons_against": [{"text": g[0], "attribute": g[1]}]})
-    raw = {"narrative": "\n\n".join(narrative), "winner": winner, "per_product": per_product}
-    return _normalize_decision(raw, intent, refs, "mock/decision-v1", _category_of(products))
+            narrative.append(f"{name}: {reason_for}. However, {reason_against}.")
+        per_product.append(
+            {
+                "product_ref": ref,
+                "considered": True,
+                "verdict": "recommended" if is_winner else "rejected",
+                "rank": ranks[ref],
+                "reasons_for": [{"text": reason_for, "attribute": for_attr}],
+                "reasons_against": [] if is_winner else [
+                    {"text": reason_against, "attribute": against_attr}
+                ],
+            }
+        )
+    raw = {"narrative": "\n\n".join(narrative), "winner": winner,
+           "per_product": per_product}
+    return _normalize_decision(raw, intent, refs, "mock/decision-v2", category)
 
 
 # ---------------------------------------------------------------- single
