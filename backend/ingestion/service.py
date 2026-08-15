@@ -19,6 +19,7 @@ from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.pipeline.corpus import slugify
 from backend.storage import db
+from backend.taxonomy import load_taxonomy
 
 PROMPT_VERSION = "extract_v1"
 
@@ -52,20 +53,20 @@ EXTRACT_SCHEMA = {
 }
 
 
-@lru_cache(maxsize=1)
-def _tax() -> dict:
-    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+@lru_cache(maxsize=32)
+def _tax(category: str | None = None) -> dict:
+    return load_taxonomy(category)
 
 
-def _attr_ids() -> list[str]:
-    return [a["id"] for a in _tax()["attributes"] if a["id"] != "other"]
+def _attr_ids(category: str | None = None) -> list[str]:
+    return [a["id"] for a in _tax(category)["attributes"] if a["id"] != "other"]
 
 
-def _keyword_extract(raw_text: str) -> list[dict]:
+def _keyword_extract(raw_text: str, category: str | None = None) -> list[dict]:
     """Offline fallback: sentence containing an attribute keyword becomes weak evidence."""
     out = []
     sentences = re.split(r"(?<=[.!?])\s+", raw_text or "")
-    for a in _tax()["attributes"]:
+    for a in _tax(category)["attributes"]:
         if a["id"] == "other":
             continue
         hit = None
@@ -79,29 +80,30 @@ def _keyword_extract(raw_text: str) -> list[dict]:
     return out
 
 
-async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str) -> dict:
+async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str,
+                             category: str | None = None) -> dict:
     """Return {product_id?, brand, display_name, attributes[]} (normalized, all attrs present)."""
     result: Optional[dict] = None
     if get_bedrock().available():
         tax_block = "\n".join(f'- {a["id"]}: {a["label"]} — {a["description"]}'
-                              for a in _tax()["attributes"] if a["id"] != "other")
+                              for a in _tax(category)["attributes"] if a["id"] != "other")
         prompt = render_prompt("extract_v1", display_name=display_hint or "(unknown)",
                                brand=brand_hint or "(unknown)", taxonomy_block=tax_block,
                                raw_text=raw_text[:14000])
         try:
             result = await bedrock.acomplete_json(
                 prompt=prompt, schema=EXTRACT_SCHEMA, max_tokens=3500,
-                cache_key=cache_key_for("extract", raw_text[:14000], PROMPT_VERSION))
+                cache_key=cache_key_for("extract", raw_text[:14000], PROMPT_VERSION, category or ""))
         except Exception:
             result = None
     if result is None:
         result = {"brand": brand_hint, "display_name": display_hint,
-                  "attributes": _keyword_extract(raw_text)}
+                  "attributes": _keyword_extract(raw_text, category)}
     # normalize: every taxonomy attribute exactly once
     by_id = {}
     for a in result.get("attributes", []):
         aid = a.get("attribute_id")
-        if aid in _attr_ids() and aid not in by_id:
+        if aid in _attr_ids(category) and aid not in by_id:
             val = a.get("value")
             conf = max(0.0, min(1.0, float(a.get("confidence") or 0)))
             by_id[aid] = {"attribute_id": aid,
@@ -109,7 +111,7 @@ async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str) 
                           "evidence": (a.get("evidence") or None),
                           "confidence": conf if val is not None else 0.0}
     attributes = [by_id.get(aid, {"attribute_id": aid, "value": None, "evidence": None,
-                                  "confidence": 0.0}) for aid in _attr_ids()]
+                                  "confidence": 0.0}) for aid in _attr_ids(category)]
     return {"product_id": result.get("product_id"),
             "brand": (result.get("brand") or brand_hint or "Unknown").strip(),
             "display_name": (result.get("display_name") or display_hint or "Unknown product").strip(),
@@ -164,7 +166,8 @@ async def create_product(body: dict) -> dict:
         brand_hint = body["brand"]
     else:
         raise ValueError("source must be 'url' or 'manual_prototype'")
-    ext = await extract_attributes(raw_text, brand_hint, display_hint)
+    category = body.get("category")
+    ext = await extract_attributes(raw_text, brand_hint, display_hint, category)
     pid = body.get("product_id") or ext.get("product_id") or f"{ext['brand']}-{ext['display_name']}"
     product = {
         "product_id": _unique_product_id(pid),
@@ -175,6 +178,7 @@ async def create_product(body: dict) -> dict:
         "source_url": body.get("source_url"),
         "raw_text": raw_text,
         "attributes": ext["attributes"],
+        "category": _tax(category)["category"],
     }
     db.upsert_product(product)
     product["ref"] = f"{product['product_id']}@v1"
@@ -190,7 +194,7 @@ async def create_version(product_id: str, base_version: int, additions: list[str
     if not additions:
         raise ValueError("additions must contain at least one non-empty paragraph")
     raw_text = base["raw_text"].rstrip() + "\n\n" + "\n\n".join(additions)
-    ext = await extract_attributes(raw_text, base["brand"], base["display_name"])
+    ext = await extract_attributes(raw_text, base["brand"], base["display_name"], base.get("category"))
     new_version = (db.latest_version(product_id) or base_version) + 1
     product = {
         "product_id": product_id,
@@ -201,6 +205,7 @@ async def create_version(product_id: str, base_version: int, additions: list[str
         "source_url": base["source_url"],
         "raw_text": raw_text,
         "attributes": ext["attributes"],
+        "category": base.get("category"),
         "parent_version": base_version,
         "change_note": change_note,
     }

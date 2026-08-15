@@ -64,7 +64,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS products (
   product_id TEXT NOT NULL, version INTEGER NOT NULL,
   brand TEXT, display_name TEXT, source TEXT, source_url TEXT,
-  raw_text TEXT, attributes_json TEXT, parent_version INTEGER, change_note TEXT,
+  raw_text TEXT, attributes_json TEXT, category TEXT, parent_version INTEGER, change_note TEXT,
   created_at TEXT, PRIMARY KEY (product_id, version)
 );
 CREATE TABLE IF NOT EXISTS runs (
@@ -125,6 +125,9 @@ def init_db() -> None:
             conn.execute("ALTER TABLE intents ADD COLUMN persona_id TEXT")
         if "persona_json" not in intent_columns:
             conn.execute("ALTER TABLE intents ADD COLUMN persona_json TEXT")
+        product_columns = {row["name"] for row in conn.execute("PRAGMA table_info(products)")}
+        if "category" not in product_columns:
+            conn.execute("ALTER TABLE products ADD COLUMN category TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -142,11 +145,11 @@ def upsert_product(p: dict) -> dict:
         conn.execute(
             """INSERT OR REPLACE INTO products
                (product_id, version, brand, display_name, source, source_url, raw_text,
-                attributes_json, parent_version, change_note, created_at)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                attributes_json, category, parent_version, change_note, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             (p["product_id"], p.get("version", 1), p.get("brand"), p.get("display_name"),
              p.get("source"), p.get("source_url"), p.get("raw_text", ""),
-             _j(p.get("attributes", [])), p.get("parent_version"), p.get("change_note"),
+             _j(p.get("attributes", [])), p.get("category"), p.get("parent_version"), p.get("change_note"),
              p.get("created_at") or now_iso()),
         )
         conn.commit()
@@ -159,7 +162,7 @@ def _product_from_row(r: dict) -> dict:
     return {
         "product_id": r["product_id"], "version": r["version"], "brand": r["brand"],
         "display_name": r["display_name"], "source": r["source"], "source_url": r["source_url"],
-        "raw_text": r["raw_text"], "attributes": _uj(r["attributes_json"], []),
+        "raw_text": r["raw_text"], "attributes": _uj(r["attributes_json"], []), "category": r.get("category"),
         "parent_version": r["parent_version"], "change_note": r["change_note"],
         "created_at": r["created_at"], "ref": make_ref(r["product_id"], r["version"]),
     }

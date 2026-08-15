@@ -288,6 +288,7 @@ class ProductCreate(BaseModel):
     display_name: Optional[str] = None
     raw_text: Optional[str] = None
     product_id: Optional[str] = None
+    category: Optional[str] = None
 
 
 class VersionCreate(BaseModel):

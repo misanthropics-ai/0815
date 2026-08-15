@@ -85,6 +85,7 @@ export interface Product {
   source: "url" | "manual_prototype";
   source_url: string | null;
   raw_text: string;
+  category?: string | null;
   attributes: ProductAttribute[];  // always all taxonomy attributes
   version: number;
   parent_version?: number | null;
@@ -98,6 +99,7 @@ export interface CreateProductRequest {
   brand?: string;                  // manual mode (required)
   display_name?: string;
   raw_text?: string;               // manual mode (required)
+  category?: string;
 }
 
 export interface CreateVersionRequest {
