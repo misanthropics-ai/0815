@@ -190,13 +190,28 @@ async def create_product(body: dict) -> dict:
         raise ValueError("source must be 'url' or 'manual_prototype'")
     ext = await extract_attributes(raw_text, brand_hint, display_hint,
                                    category=body.get("category"))
+    category = ext.get("category") or body.get("category")
+    if category:
+        # learn (or extend) the category taxonomy from this page; if that changed the
+        # attribute set, re-extract once against the category-specific taxonomy
+        from backend.taxonomy.builder import ensure_category_taxonomy
+        try:
+            tax = await ensure_category_taxonomy(category, raw_text)
+            if tax:
+                want = {a["id"] for a in tax["attributes"] if a["id"] != "other"}
+                have = {a["attribute_id"] for a in ext["attributes"]}
+                if want != have:
+                    ext = await extract_attributes(raw_text, brand_hint, display_hint,
+                                                   category=category)
+        except Exception:
+            pass
     pid = body.get("product_id") or ext.get("product_id") or f"{ext['brand']}-{ext['display_name']}"
     product = {
         "product_id": _unique_product_id(pid),
         "version": 1,
         "brand": ext["brand"],
         "display_name": ext["display_name"],
-        "category": ext.get("category") or body.get("category"),
+        "category": category,
         "source": source,
         "source_url": body.get("source_url"),
         "raw_text": raw_text,

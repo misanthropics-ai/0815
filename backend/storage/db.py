@@ -624,6 +624,16 @@ def kv_get(cache_key: str) -> Any:
         conn.close()
 
 
+def kv_list(prefix: str) -> dict[str, Any]:
+    conn = connect()
+    try:
+        cur = conn.execute("SELECT cache_key, value_json FROM kv_cache WHERE cache_key LIKE ?",
+                           (prefix + "%",))
+        return {r["cache_key"]: _uj(r["value_json"]) for r in _rows(cur)}
+    finally:
+        conn.close()
+
+
 def kv_set(cache_key: str, kind: str, value: Any) -> None:
     conn = connect()
     try:

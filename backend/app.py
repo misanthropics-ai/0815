@@ -75,7 +75,9 @@ SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no",
 @app.on_event("startup")
 async def _startup() -> None:
     from backend.seeds.seed import seed_all
+    from backend.taxonomy.builder import restore_learned_taxonomies
     await asyncio.to_thread(seed_all)
+    await asyncio.to_thread(restore_learned_taxonomies)  # learned taxonomies: DB -> files
     # warm bedrock discovery off the request path
     asyncio.get_running_loop().run_in_executor(None, get_bedrock().ensure_ready)
 
