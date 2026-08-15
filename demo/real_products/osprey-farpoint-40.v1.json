@@ -1,0 +1,19 @@
+{
+  "product_id": "osprey-farpoint-40",
+  "brand": "Osprey",
+  "display_name": "Osprey Farpoint 40 Travel Backpack",
+  "source": "url",
+  "source_url": "https://www.osprey.com/gb/farpoint-40-s26",
+  "fetched_at": "2026-08-15T02:47:36Z",
+  "raw_text": "Farpoint 40 Travel Backpack. Meets domestic carry-on size requirements. Volume 40 L. Dimensions 55H x 35W x 23D cm. Weight 1.48 kg. Load range 7-16 kg. Durable fabrics in high-wear areas combine with smart design. Main: bluesign approved, 100% recycled 200D nylon; bottom: 100% recycled 420D nylon. Two internal compression straps hold contents securely. Internal front flap zippered mesh pocket. LightWire peripheral frame effectively transfers the load from harness to hipbelt. Atilon framesheet distributes load across the entire backpanel. AirScape backpanel: mesh-covered ridged foam provides cushioned and stable, close-to-body carry with ventilation. Padded, lightweight and breathable spacermesh harness with adjustable sternum strap. Padded, lightweight and breathable spacermesh hipbelt wraps hips for comfortable load carry. Price not stated in the captured source text.",
+  "attributes": [
+    { "attribute_id": "capacity_size", "value": "40L; 55 x 35 x 23 cm", "evidence": "Volume 40 L. Dimensions 55H x 35W x 23D cm", "confidence": 0.99 },
+    { "attribute_id": "weight", "value": "1.48 kg", "evidence": "Weight 1.48 kg", "confidence": 0.99 },
+    { "attribute_id": "airline_compliance", "value": "meets domestic carry-on size requirements", "evidence": "Meets domestic carry-on size requirements", "confidence": 0.94 },
+    { "attribute_id": "price", "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "durability", "value": "recycled 200D nylon with 420D nylon bottom", "evidence": "Main: bluesign approved, 100% recycled 200D nylon; bottom: 100% recycled 420D nylon", "confidence": 0.97 },
+    { "attribute_id": "organization", "value": "internal compression straps and front flap mesh pocket", "evidence": "Two internal compression straps hold contents securely. Internal front flap zippered mesh pocket", "confidence": 0.96 },
+    { "attribute_id": "comfort", "value": "LightWire frame, Atilon framesheet, AirScape backpanel, padded harness and load-bearing hipbelt", "evidence": "LightWire peripheral frame effectively transfers the load from harness to hipbelt. Atilon framesheet distributes load across the entire backpanel. AirScape backpanel: mesh-covered ridged foam", "confidence": 0.99 }
+  ],
+  "version": 1
+}

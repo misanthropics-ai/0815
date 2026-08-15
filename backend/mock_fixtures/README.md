@@ -6,7 +6,7 @@
 | 檔案 | 對應 endpoint |
 |---|---|
 | `taxonomy.json` | GET /taxonomy |
-| `intents.sample.json` | 內建 163 條 intent library（Stage1 離線 fallback） |
+| `intents.sample.json` | 內建 164 條 intent library（Stage1 離線 fallback） |
 | `mock_world.json` | mock 引擎行為設定（勝率/理由/引用池） |
 | `product.*.json` | GET /products/{ref}（含 v2 版本範例） |
 | `request/response.post_products.manual.json` | POST /products |

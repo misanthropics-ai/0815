@@ -4,6 +4,7 @@ Usage (repo root):
   python contracts/check_contract.py                 # validate mock_fixtures only
   python contracts/check_contract.py http://localhost:8000   # + probe live endpoints
 """
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 from contracts import schemas  # noqa: E402
 
 FIXTURES = ROOT / "backend" / "mock_fixtures"
+PERSONAS_DIR = ROOT / "backend" / "personas"
 
 FIXTURE_MODELS = {
     "response.post_products.manual.json": schemas.Product,
@@ -53,6 +55,27 @@ def check_fixtures() -> int:
             print(f"  OK       {name}")
         except Exception as e:
             print(f"  FAIL     {name}: {str(e)[:160]}")
+            fails += 1
+
+    try:
+        payload = json.loads((FIXTURES / "intents.sample.json").read_text(encoding="utf-8"))
+        for intent in payload["intents"]:
+            schemas.Intent.model_validate(intent)
+        print("  OK       intents.sample.json")
+    except Exception as e:
+        print(f"  FAIL     intents.sample.json: {str(e)[:160]}")
+        fails += 1
+
+    for path in sorted(PERSONAS_DIR.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            profiles = [schemas.PersonaProfile.model_validate(item) for item in payload["profiles"]]
+            ids = [profile.persona_id for profile in profiles]
+            if len(ids) != len(set(ids)):
+                raise ValueError("duplicate persona_id")
+            print(f"  OK       personas/{path.name}")
+        except Exception as e:
+            print(f"  FAIL     personas/{path.name}: {str(e)[:160]}")
             fails += 1
     return fails
 

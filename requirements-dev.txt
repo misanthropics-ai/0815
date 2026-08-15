@@ -1,0 +1,6 @@
+-r requirements.txt
+
+pytest>=9.1.1,<10
+ruff>=0.16.2,<1
+PyYAML>=6.0.3,<7
+openapi-spec-validator>=0.9.0,<1

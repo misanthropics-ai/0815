@@ -6,6 +6,51 @@
     "Cotopaxi"
   ],
   "category": "travel backpack",
+  "market": "EU",
+  "language": "en",
+  "personas": [
+    {
+      "persona_id": "accountant_europe_trip",
+      "label": "Europe trip office worker",
+      "age": 32,
+      "occupation": "accountant",
+      "location": {
+        "country": "TW",
+        "city": "Taipei"
+      },
+      "budget": {
+        "max_amount": 150,
+        "currency": "EUR",
+        "flexibility": "soft"
+      },
+      "use_cases": [
+        "three-week Europe trip",
+        "daily city walking"
+      ],
+      "criteria": [
+        {
+          "attribute": "comfort",
+          "operator": "maximize",
+          "importance": "should",
+          "reason": "long walking days"
+        },
+        {
+          "attribute": "airline_compliance",
+          "operator": "supports",
+          "value": [
+            "Ryanair",
+            "easyJet"
+          ],
+          "importance": "must"
+        }
+      ],
+      "context": {
+        "trip_duration_days": 21,
+        "daily_walking_hours": 8
+      },
+      "notes": []
+    }
+  ],
   "n_intents": 60,
   "engines": [
     "sim-sonnet",

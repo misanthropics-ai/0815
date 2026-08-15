@@ -247,6 +247,37 @@ GET  /runs/{id}/report    → full report JSON; ?format=md returns renderable ma
 
 ⚠ Runs pick the **latest** product versions by default. For a v1-baseline run after a v2 exists, pass explicit `product_refs: ["cabinzero-classic-36l@v1", ...]`.
 
+### 6.1 Structured personas (cross-category)
+
+`personas` accepts the legacy string form and the new structured `PersonaProfile`. Prefer the
+structured form for new UI because it preserves budget, use cases and hard/soft search criteria:
+
+```json
+{
+  "brand": "CabinZero",
+  "category": "travel backpack",
+  "personas": [{
+    "persona_id": "accountant_europe_trip",
+    "label": "Europe trip office worker",
+    "age": 32,
+    "occupation": "accountant",
+    "budget": { "max_amount": 150, "currency": "EUR", "flexibility": "soft" },
+    "use_cases": ["three-week Europe trip", "daily city walking"],
+    "criteria": [{
+      "attribute": "comfort",
+      "operator": "maximize",
+      "importance": "should",
+      "reason": "long walking days"
+    }],
+    "notes": []
+  }]
+}
+```
+
+Each generated `Intent` returns `persona_id` and `persona_profile`, so the UI can explain which
+shopper context produced a recommendation. For a non-backpack category, call
+`GET /taxonomy?category=<category>`; unknown categories receive the generic product taxonomy.
+
 ---
 
 ## 7. Gotchas & demo insurance

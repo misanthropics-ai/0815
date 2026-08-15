@@ -102,15 +102,16 @@ def normalize_config(body: dict) -> dict:
     for e in engines:
         make_engine(e)  # validates names early
 
+    category = body.get("category") or "travel backpack"
     cfg = {
         "run_id": body.get("run_id") or db.new_id("run"),
         "brand": brand,
         "brand_products": brand_products,
         "competitors": competitors,
-        "category": body.get("category") or "travel backpack",
+        "category": category,
         "market": body.get("market") or "US/EU",
         "language": body.get("language") or "en",
-        "personas": body.get("personas") or None,
+        "personas": intents_mod.normalize_personas(body.get("personas"), category),
         "n_intents": int(body.get("n_intents") or 60),
         "engines": engines,
         "mode": mode,

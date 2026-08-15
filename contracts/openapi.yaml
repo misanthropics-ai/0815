@@ -13,7 +13,7 @@ paths:
   /health:
     get: { summary: "服務狀態 + bedrock 模型 + 引擎可用性", responses: { "200": { description: HealthStatus } } }
   /taxonomy:
-    get: { summary: "attribute taxonomy + intent clusters", responses: { "200": { description: Taxonomy } } }
+    get: { summary: "category-aware attribute taxonomy + intent clusters (?category; generic fallback)", responses: { "200": { description: Taxonomy } } }
   /engines:
     get: { summary: "引擎可用性與預設引擎組", responses: { "200": { description: EngineStatus } } }
 
@@ -21,7 +21,7 @@ paths:
   /runs:
     post:
       summary: "啟動五階段 pipeline (intents→execute→funnel→attribution→report)"
-      description: "request 見 request.post_runs.json; 回 {run_id, status, config}"
+      description: "request 見 request.post_runs.json; personas 支援結構化跨商品搜尋 profile（舊 string 仍相容）; 回 {run_id, status, config}"
       responses: { "200": { description: RunCreated }, "400": { description: ErrorResponse } }
     get: { summary: "列出 runs", responses: { "200": { description: "{runs: RunStatus[]}" } } }
   /runs/{run_id}:
