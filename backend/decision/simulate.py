@@ -21,10 +21,15 @@ from backend.llm.bedrock import LLMError, cache_key_for, get_bedrock
 from backend.llm.jsonutil import extract_json
 from backend.llm.prompts import render_prompt
 from backend.pipeline.corpus import slugify
-from backend.storage import db
+from backend.storage import db, impact_db
 
 PROMPT_VERSION = "decision/prompts/prompt_v1"
 MODEL_TAG = "decision-engine/prompt_v1"
+
+
+def _get_product(ref: str) -> Optional[dict]:
+    """Read normal P5 products first, then the isolated P4 demo fixture."""
+    return db.get_product_by_ref(ref) or impact_db.get_product_by_ref(ref)
 
 REASON_ITEM = {
     "type": "object",
@@ -66,7 +71,7 @@ def _candidates_block(refs: list[str]) -> tuple[str, dict[str, dict]]:
     products: dict[str, dict] = {}
     lines = []
     for i, ref in enumerate(refs, 1):
-        p = db.get_product_by_ref(ref)
+        p = _get_product(ref)
         if not p:
             raise KeyError(f"product not found: {ref}")
         products[ref] = p
@@ -228,7 +233,7 @@ def _reason_against(product: dict, relevant: list[str]) -> tuple[str, str]:
 def _mock_decision(intent: dict, refs: list[str], run_idx: int) -> dict:
     products: dict[str, dict] = {}
     for ref in refs:
-        product = db.get_product_by_ref(ref)
+        product = _get_product(ref)
         if not product:
             raise KeyError(f"product not found: {ref}")
         products[ref] = product
@@ -387,7 +392,7 @@ async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
 
     # intents must match the candidates' category (TVs get TV intents, not backpack
     # ones); vendor-defined target personas scope the intent set when provided
-    products = {ref: db.get_product_by_ref(ref) for ref in candidates}
+    products = {ref: _get_product(ref) for ref in candidates}
     library = await ensure_category_intents(_category_of(products), personas=personas)
     intents = [i for i in library if i["cluster_id"] == cluster_id][:max_intents]
     if not intents:

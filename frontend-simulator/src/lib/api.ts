@@ -27,6 +27,16 @@ type CompareResponse =
   | { pending: false; data: CompareResult }
   | { pending: true; data: ComparePending };
 
+export interface ImpactDemoCase {
+  case_id: string;
+  intent: Intent;
+  competitor_refs: ProductRef[];
+  changes_applied: string[];
+  before: Product;
+  after: Product;
+  updated_at: string;
+}
+
 function urlFor(path: string): string {
   if (!apiAvailable) throw new Error("No API is configured. Set VITE_API_BASE to enable live mode.");
   if (/^https?:\/\//.test(path)) return path;
@@ -45,6 +55,10 @@ async function jsonRequest<T>(path: string): Promise<T> {
 
 export async function getProduct(ref: ProductRef): Promise<Product> {
   return jsonRequest<Product>(`/products/${encodeURIComponent(ref)}`);
+}
+
+export async function getImpactDemo(): Promise<ImpactDemoCase> {
+  return jsonRequest<ImpactDemoCase>("/impact-demo");
 }
 
 export async function getDebateSession(sessionId: string): Promise<DebateSession> {

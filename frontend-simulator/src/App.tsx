@@ -30,6 +30,7 @@ import {
   getBatch,
   getDebateSession,
   getDecision,
+  getImpactDemo,
   getProduct,
   getTaxonomy,
   listProducts,
@@ -219,7 +220,8 @@ export function App() {
   const [selected, setSelected] = useState<ProductRef[]>(fallbackCandidateRefs);
   const [running, setRunning] = useState(false);
   const [hasRun, setHasRun] = useState(false);
-  const liveApi = Boolean(initialHandoff && apiAvailable);
+  const [apiContextReady, setApiContextReady] = useState(false);
+  const liveApi = apiAvailable && apiContextReady;
   const [decisionMode, setDecisionMode] = useState<"mock" | "live">("mock");
   const [runPhase, setRunPhase] = useState<"idle" | "baseline" | "updated" | "complete">("idle");
   const [beforeDecision, setBeforeDecision] = useState<DecisionView>({ winner: null, narrative: "", ranking: [] });
@@ -233,13 +235,51 @@ export function App() {
   const [statusMessage, setStatusMessage] = useState(initialHandoff ? "Loading the P5 before / after handoff…" : "");
 
   useEffect(() => {
-    if (!initialHandoff) return;
     if (!apiAvailable) {
-      setError("This P5 handoff needs a configured API. Set VITE_API_BASE for the deployed simulator.");
+      if (initialHandoff) {
+        setError("This P5 handoff needs a configured API. Set VITE_API_BASE for the deployed simulator.");
+      }
       return;
     }
+    setApiContextReady(false);
     setComparison(null);
     let cancelled = false;
+
+    if (!initialHandoff) {
+      setStatusMessage("Loading the AWS-seeded v1 / v2 demo case…");
+      void (async () => {
+        try {
+          const demo = await getImpactDemo();
+          const competitors = await Promise.all(demo.competitor_refs.map(getProduct));
+          if (cancelled) return;
+          const beforeRef = refFor(demo.before);
+          const afterRef = refFor(demo.after);
+          const nextCatalog: Record<ProductRef, Product> = { ...fallbackProducts };
+          for (const item of [demo.before, demo.after, ...competitors]) {
+            nextCatalog[refFor(item)] = item;
+          }
+          const nextCandidates = [beforeRef, ...competitors.map(refFor)].slice(0, 4);
+          setCatalog(nextCatalog);
+          setTargetBefore(beforeRef);
+          setTargetAfter(afterRef);
+          setCandidateRefs(nextCandidates);
+          setSelected(nextCandidates);
+          setIntent({ ...demo.intent, label: "AWS seeded demo intent" });
+          setEvidenceChange(demo.changes_applied[0] || "");
+          setBeforeDecision({ winner: null, narrative: "", ranking: [] });
+          setAfterDecision({ winner: null, narrative: "", ranking: [] });
+          setHasRun(false);
+          setRunPhase("idle");
+          setApiContextReady(true);
+          setStatusMessage("Loaded two isolated product versions from the AWS impact demo database.");
+        } catch {
+          if (cancelled) return;
+          setStatusMessage("The AWS demo database is unavailable, so this page is using its local fixture replay.");
+        }
+      })();
+      return () => { cancelled = true; };
+    }
+
     void (async () => {
       try {
         const [before, after, allProducts] = await Promise.all([
@@ -302,6 +342,7 @@ export function App() {
         setAfterDecision({ winner: null, narrative: "", ranking: [] });
         setHasRun(false);
         setRunPhase("idle");
+        setApiContextReady(true);
         setStatusMessage(recoveredContext
           ? "Recovered the exact product versions, buyer intent, and comparison set persisted by P5."
           : "P5 product versions loaded. No persisted batch context was found, so same-category competitors were selected.");
@@ -449,7 +490,7 @@ export function App() {
                 if (!item) return null;
                 const isSelected = selected.includes(ref);
                 const price = item.attributes.find((attribute) => attribute.attribute_id === "price")?.value || `v${item.version}`;
-                return <button key={ref} className={`candidate-row ${isSelected ? "selected" : ""}`} onClick={() => toggleCandidate(ref)}><span className={`check-box ${isSelected ? "checked" : ""}`}>{isSelected && <Check size={12} />}</span><span className="candidate-name"><b>{item.brand}</b><small>{item.display_name} · v{item.version}</small></span><span className="candidate-price">{price}</span></button>;
+                return <button key={ref} className={`candidate-row ${isSelected ? "selected" : ""}`} onClick={() => toggleCandidate(ref)}><span className={`check-box ${isSelected ? "checked" : ""}`}>{isSelected && <Check size={12} />}</span><span className="candidate-name"><b title={item.brand}>{item.brand}</b><small title={`${item.display_name} · v${item.version}`}>{item.display_name} · v{item.version}</small></span><span className="candidate-price" title={price}>{price}</span></button>;
               })}</div>
               <button className="run-button" disabled={selected.length < 2 || running} onClick={() => void runComparison()}>{running ? <><span className="button-spinner" /> {runPhase === "updated" ? "Running updated version…" : "Running baseline…"}</> : <><Play size={15} fill="currentColor" /> Run both versions</>}</button>
               <div className="run-caption"><LockKeyhole size={12} /> Same intent · same candidates · one content change</div>
