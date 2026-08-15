@@ -10,12 +10,13 @@ CHECK_PATHS := \
 	backend/storage/db.py \
 	backend/taxonomy \
 	contracts \
+	deploy/bootstrap_cicd.py \
 	demo \
 	scripts \
 	tests
-FORMAT_PATHS := backend/taxonomy contracts/check_contract.py demo scripts tests
+FORMAT_PATHS := backend/taxonomy contracts/check_contract.py deploy/bootstrap_cicd.py demo scripts tests
 
-.PHONY: bootstrap lint format format-check contract demo test check bedrock frontend
+.PHONY: bootstrap lint format format-check contract demo deploy-check test check bedrock frontend
 
 bootstrap:
 	bash scripts/bootstrap.sh
@@ -36,10 +37,15 @@ contract:
 demo:
 	$(PYTHON) demo/validate_demo_data.py
 
+deploy-check:
+	bash -n deploy/ssm_deploy.sh
+	$(PYTHON) deploy/bootstrap_cicd.py --help >/dev/null
+	$(PYTHON) -m py_compile deploy/bootstrap_cicd.py deploy/deploy_aws.py deploy/deploy_ec2.py
+
 test:
 	$(PYTHON) -m pytest
 
-check: lint format-check contract demo test
+check: lint format-check contract demo deploy-check test
 
 frontend:
 	npm --prefix frontend-simulator ci
