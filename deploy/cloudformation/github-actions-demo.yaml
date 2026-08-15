@@ -2,13 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: GitHub OIDC deploy role and a persistent single-EC2 demo runtime for 0815
 
 Parameters:
-  GitHubOwner:
+  GitHubSubject:
     Type: String
-  GitHubRepository:
-    Type: String
-  GitHubBranch:
-    Type: String
-    Default: main
+    Description: Exact branch-scoped subject returned by the GitHub OIDC API
   GitHubOidcProviderArn:
     Type: String
   EcrRepositoryName:
@@ -156,7 +152,7 @@ Resources:
             Condition:
               StringEquals:
                 "token.actions.githubusercontent.com:aud": sts.amazonaws.com
-                "token.actions.githubusercontent.com:sub": !Sub repo:${GitHubOwner}/${GitHubRepository}:ref:refs/heads/${GitHubBranch}
+                "token.actions.githubusercontent.com:sub": !Ref GitHubSubject
       Policies:
         - PolicyName: DeployApplication
           PolicyDocument:

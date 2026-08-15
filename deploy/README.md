@@ -32,6 +32,10 @@ python deploy/bootstrap_cicd.py --configure-github
 - GitHub repository variables：`AWS_ACCOUNT_ID`、`AWS_REGION`、
   `AWS_DEPLOY_ROLE_ARN`、`ECR_REPOSITORY`、`EC2_INSTANCE_ID`、`AWS_API_URL`。
 
+bootstrap 會從 GitHub API 讀取實際 OIDC subject prefix；新 repo 使用包含 owner ID 與 repo
+ID 的 immutable subject，IAM trust 會鎖定該固定 ID 與 `main` branch，不依賴可能改名的
+repo 名稱。
+
 若帳號中剛好有一台 running 且 tag 為 `app=ai-rec-diagnostics` 的 EC2，bootstrap 會沿用
 該 instance 與 Elastic IP、補上 ECR／SSM runtime 權限、強制 IMDSv2 並安裝 Docker，**不會
 建立第二台 EC2**。也可用 `--existing-instance-id i-...` 明確指定；只有傳入
