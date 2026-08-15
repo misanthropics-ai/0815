@@ -249,9 +249,10 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
         if not d.get("why_it_happens"):
             d["why_it_happens"] = d["headline"]
         if not d.get("content_patch"):
-            d["content_patch"] = (f"[TEMPLATE] Add a prominent '{d['attribute_id']}' block near "
-                                  f"the top of the page: state the concrete facts, numbers and "
-                                  f"proof. Replace with tailored copy via the enrichment pass.")
+            d["content_patch"] = (f"Add a prominent '{d['attribute_id']}' section near the top "
+                                  "of the page: state the concrete facts with numbers and proof "
+                                  "(spec-table row + first-screen bullet + schema.org property).")
+        d.setdefault("enriched", False)
 
     winning = sorted(((c, round(s["rec"] / max(1, s["n"]), 3)) for c, s in by_cluster.items()),
                      key=lambda kv: -kv[1])[:3]
@@ -293,8 +294,7 @@ async def _enrich_batch_defects(product: dict, diag: dict) -> dict:
     defects = diag.get("defects") or []
     if not defects or not get_bedrock().available():
         return diag
-    if all(d.get("content_patch") and not d["content_patch"].startswith("[TEMPLATE]")
-           for d in defects):
+    if all(d.get("enriched") for d in defects):
         return diag  # already enriched with tailored patches
     fp = cache_key_for("diagenrich", product["ref"],
                        [(d["defect_id"], d["headline"]) for d in defects], "v1")
@@ -327,7 +327,8 @@ async def _enrich_batch_defects(product: dict, diag: dict) -> dict:
         if e:
             d["why_it_happens"] = e.get("why_it_happens", d.get("why_it_happens", ""))
             d["suggested_fix"] = e.get("suggested_fix") or d["suggested_fix"]
-            d["content_patch"] = e.get("content_patch", "")
+            d["content_patch"] = e.get("content_patch") or d["content_patch"]
+        d["enriched"] = True  # one successful pass covers the defect set
     db.save_diagnosis(product["ref"], product["ref"], "batches", diag)
     return diag
 
