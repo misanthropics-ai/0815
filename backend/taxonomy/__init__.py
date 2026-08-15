@@ -10,8 +10,15 @@ from pathlib import Path
 TAXONOMY_DIR = Path(__file__).resolve().parent
 DEFAULT_PATH = TAXONOMY_DIR / "taxonomy.json"
 GENERIC_PATH = TAXONOMY_DIR / "generic.json"
-DEFAULT_CATEGORY_ALIASES = {"travel-backpack", "travel_backpack", "travelbackpack",
-                            "backpack", "backpacks", "travel_backpacks", "cabin_backpack"}
+DEFAULT_CATEGORY_ALIASES = {
+    "travel-backpack",
+    "travel_backpack",
+    "travelbackpack",
+    "backpack",
+    "backpacks",
+    "travel_backpacks",
+    "cabin_backpack",
+}
 
 
 def category_slug(category: str | None) -> str:

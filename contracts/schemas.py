@@ -4,15 +4,16 @@ v2 的 Product / DecisionResult / Diagnosis / Debate / Compare 物件全部保�
 新增五階段 pipeline 物件 (Run / EngineResponse / Funnel / Evidence / Report)。
 改動規則: 需全員同意, 改完同步 backend/mock_fixtures。
 """
+
 from __future__ import annotations
 
 from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field, model_validator
 
-AttributeId = str          # 必須存在於 backend/taxonomy/taxonomy.json, 否則 "other"
-ProductRef = str           # "{product_id}@v{n}", 例 "cabinzero-classic-36l@v1"
-BrandSlug = str            # slugify(brand), 例 "cabinzero"; funnel 聚合以 brand 為 canonical 單位
+AttributeId = str  # 必須存在於 backend/taxonomy/taxonomy.json, 否則 "other"
+ProductRef = str  # "{product_id}@v{n}", 例 "cabinzero-classic-36l@v1"
+BrandSlug = str  # slugify(brand), 例 "cabinzero"; funnel 聚合以 brand 為 canonical 單位
 SearchValue = Union[
     str,
     int,
@@ -122,8 +123,8 @@ class PersonaProfile(BaseModel):
 # ---------- Product (P1) ----------
 class ProductAttribute(BaseModel):
     attribute_id: AttributeId
-    value: Optional[str]            # None = 頁面上找不到 → 缺陷分析的原料
-    evidence: Optional[str]         # 從 raw_text 引用的原句
+    value: Optional[str]  # None = 頁面上找不到 → 缺陷分析的原料
+    evidence: Optional[str]  # 從 raw_text 引用的原句
     confidence: float = Field(ge=0, le=1)
 
 
@@ -139,38 +140,38 @@ class Product(BaseModel):
     parent_version: Optional[int] = None
     change_note: Optional[str] = None
     ref: Optional[ProductRef] = None
-    category: Optional[str] = None          # 決定 taxonomy; 未給時由抽取自動偵測
+    category: Optional[str] = None  # 決定 taxonomy; 未給時由抽取自動偵測
 
 
 class CreateProductRequest(BaseModel):
     source: Literal["url", "manual_prototype"]
-    source_url: Optional[str] = None        # source=url 時必填
-    brand: Optional[str] = None             # manual 時必填
+    source_url: Optional[str] = None  # source=url 時必填
+    brand: Optional[str] = None  # manual 時必填
     display_name: Optional[str] = None
-    raw_text: Optional[str] = None          # manual 時必填
+    raw_text: Optional[str] = None  # manual 時必填
     product_id: Optional[str] = None
-    category: Optional[str] = None          # 省略 => 從頁面文字自動偵測
+    category: Optional[str] = None  # 省略 => 從頁面文字自動偵測
 
 
 class CreateVersionRequest(BaseModel):
     base_version: int
-    additions: list[str]                    # 追加進 raw_text 的段落(會重抽 attributes)
+    additions: list[str]  # 追加進 raw_text 的段落(會重抽 attributes)
     change_note: str
 
 
 # ---------- Pipeline: runs ----------
 class RunCreateRequest(BaseModel):
     brand: str
-    competitors: Optional[list[str]] = None   # 缺省: DB 中其他品牌
+    competitors: Optional[list[str]] = None  # 缺省: DB 中其他品牌
     brand_products: Optional[list[str]] = None
     category: Optional[str] = "travel backpack"
     market: Optional[str] = "US/EU"
     language: Optional[str] = "en"
     personas: Optional[list[Union[PersonaProfile, str]]] = None
     n_intents: int = Field(default=60, ge=10, le=300)
-    engines: Optional[list[str]] = None       # 缺省: DEFAULT_ENGINES (sim-sonnet,sim-haiku) 或 mock
+    engines: Optional[list[str]] = None  # 缺省: DEFAULT_ENGINES (sim-sonnet,sim-haiku) 或 mock
     mode: Optional[Literal["mock", "live", "auto"]] = None
-    judge_model: Optional[str] = None         # smart | fast | 明確 bedrock model id
+    judge_model: Optional[str] = None  # smart | fast | 明確 bedrock model id
     product_refs: Optional[list[ProductRef]] = None
 
 
@@ -178,11 +179,11 @@ class RunStatus(BaseModel):
     run_id: str
     config: dict
     status: Literal["pending", "running", "completed", "failed", "cancelled"]
-    stage: str                                # intents|execute|funnel|attribution|report|done
-    progress: dict                            # {stage: {done, total}}
-    funnel_summary: Optional[dict] = None     # FunnelSummary
-    evidence: Optional[dict] = None           # EvidenceAudit
-    report: Optional[dict] = None             # Report
+    stage: str  # intents|execute|funnel|attribution|report|done
+    progress: dict  # {stage: {done, total}}
+    funnel_summary: Optional[dict] = None  # FunnelSummary
+    evidence: Optional[dict] = None  # EvidenceAudit
+    report: Optional[dict] = None  # Report
     error: Optional[str] = None
     created_at: str
     updated_at: str
@@ -195,11 +196,11 @@ class Intent(BaseModel):
     cluster_id: str
     cluster_label: Optional[str] = None
     attributes: list[AttributeId] = []
-    persona: Optional[str] = None             # legacy display string
+    persona: Optional[str] = None  # legacy display string
     persona_id: Optional[str] = None
     persona_profile: Optional[PersonaProfile] = None
     language: str = "en"
-    source: Optional[str] = None              # generated | library | template
+    source: Optional[str] = None  # generated | library | template
 
 
 class Citation(BaseModel):
@@ -214,7 +215,7 @@ class EngineResponse(BaseModel):
     response_id: str
     run_id: str
     intent_id: str
-    engine: str                               # sim-sonnet | sim-haiku | mock | (未來: openai/pplx/gemini)
+    engine: str  # sim-sonnet | sim-haiku | mock | (未來: openai/pplx/gemini)
     model: Optional[str]
     status: Literal["ok", "error"]
     text: str
@@ -228,30 +229,30 @@ class EngineResponse(BaseModel):
 
 # ---------- Pipeline: stage 3 funnel ----------
 class LossReasonItem(BaseModel):
-    text: str                                  # AI 回答中的逐字理由
-    attribute: Optional[AttributeId] = None    # stage 4 填入
-    attribute_source: Optional[str] = None     # keyword | llm | fallback
+    text: str  # AI 回答中的逐字理由
+    attribute: Optional[AttributeId] = None  # stage 4 填入
+    attribute_source: Optional[str] = None  # keyword | llm | fallback
 
 
 class FunnelProduct(BaseModel):
     name: str
-    canonical: str                             # roster 的 BrandSlug 或 "other"
+    canonical: str  # roster 的 BrandSlug 或 "other"
     is_target: Optional[bool] = None
-    retrieved: bool                            # 品牌證據出現在 citations/search trace
+    retrieved: bool  # 品牌證據出現在 citations/search trace
     retrieved_via: list[str] = []
     mentioned: bool
-    considered: bool                           # 進入明確比較敘述
-    recommended: bool                          # 最終推薦
+    considered: bool  # 進入明確比較敘述
+    recommended: bool  # 最終推薦
     rank: Optional[int] = None
-    reasons_for: list[str] = []                # 逐字引述
+    reasons_for: list[str] = []  # 逐字引述
     reasons_against: list[str] = []
-    loss_reasons: list[LossReasonItem] = []    # considered 且未 recommended 時
+    loss_reasons: list[LossReasonItem] = []  # considered 且未 recommended 時
 
 
 class FunnelAnnotation(BaseModel):
     response_id: str
     engine: str
-    top_pick: Optional[str]                    # BrandSlug | "other" | null
+    top_pick: Optional[str]  # BrandSlug | "other" | null
     products: list[FunnelProduct]
     judge_model: str
     is_ground_truth: bool = False
@@ -305,7 +306,7 @@ class ReportDefect(BaseModel):
     headline: str
     why_it_happens: str = ""
     suggested_fix: str
-    content_patch: str = ""                    # 可直接貼上的頁面段落/FAQ/JSON-LD
+    content_patch: str = ""  # 可直接貼上的頁面段落/FAQ/JSON-LD
     impact: float
     clusters: list[str] = []
     evidence: ReportDefectEvidence
@@ -350,7 +351,7 @@ class DecisionResult(BaseModel):
     winner: Optional[ProductRef]
     per_product: list[ProductVerdict]
     narrative: str
-    model: str                                 # "decision-engine/prompt_v1@<bedrock model>"
+    model: str  # "decision-engine/prompt_v1@<bedrock model>"
     created_at: str
 
 
@@ -358,7 +359,7 @@ class SimulateRequest(BaseModel):
     intent: Intent
     candidates: list[ProductRef]
     stream: bool = True
-    cached: bool = False                       # demo fallback 開關
+    cached: bool = False  # demo fallback 開關
     mode: Optional[str] = None
 
 
@@ -424,10 +425,10 @@ class ClusterShare(BaseModel):
 class Diagnosis(BaseModel):
     product_ref: ProductRef
     generated_at: str
-    overall: dict          # {recommendation_share, consideration_share, retrieved_rate?, n_simulations, vs}
+    overall: dict  # {recommendation_share, consideration_share, retrieved_rate?, n_simulations, vs}
     defects: list[Defect]
     winning_clusters: list[ClusterShare]
-    source: Optional[dict] = None              # {type: run|batches, ...}
+    source: Optional[dict] = None  # {type: run|batches, ...}
     funnel_dropoff: Optional[dict] = None
     exec_summary: Optional[str] = None
 
@@ -440,7 +441,7 @@ class CreateDebateRequest(BaseModel):
 
 class ActionOffer(BaseModel):
     type: Literal["create_version_and_rerun"]
-    status: Optional[str] = None               # started | failed
+    status: Optional[str] = None  # started | failed
     params: dict = {}
     new_ref: Optional[ProductRef] = None
     base_ref: Optional[ProductRef] = None

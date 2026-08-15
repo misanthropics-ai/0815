@@ -14,6 +14,7 @@ advertise" accumulates, and a null value on your product = the gap signal.
 Curated taxonomies (the backpack demo file, anything hand-written without
 `"learned": true`) are never modified.
 """
+
 from __future__ import annotations
 
 import json
@@ -23,8 +24,7 @@ from typing import Optional
 from backend.llm import bedrock
 from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.storage import db
-from backend.taxonomy import (GENERIC_PATH, TAXONOMY_DIR, category_slug, load_taxonomy,
-                              taxonomy_path)
+from backend.taxonomy import GENERIC_PATH, TAXONOMY_DIR, category_slug, load_taxonomy, taxonomy_path
 
 MAX_ATTRS = 14
 ALWAYS_ATTRS = ("price", "brand_reputation")
@@ -32,34 +32,44 @@ ALWAYS_ATTRS = ("price", "brand_reputation")
 GEN_SCHEMA = {
     "type": "object",
     "properties": {
-        "attributes": {"type": "array", "items": {
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "label": {"type": "string"},
-                "description": {"type": "string"},
-                "keywords": {"type": "array", "items": {"type": "string"}},
+        "attributes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "label": {"type": "string"},
+                    "description": {"type": "string"},
+                    "keywords": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["id", "label", "description", "keywords"],
             },
-            "required": ["id", "label", "description", "keywords"],
-        }},
-        "clusters": {"type": "array", "items": {
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "label": {"type": "string"},
-                "description": {"type": "string"},
-                "attributes": {"type": "array", "items": {"type": "string"}},
+        },
+        "clusters": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "label": {"type": "string"},
+                    "description": {"type": "string"},
+                    "attributes": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["id", "label", "description", "attributes"],
             },
-            "required": ["id", "label", "description", "attributes"],
-        }},
+        },
     },
     "required": ["attributes", "clusters"],
 }
 
 EXTEND_SCHEMA = {
     "type": "object",
-    "properties": {"new_attributes": {"type": "array", "items":
-                   GEN_SCHEMA["properties"]["attributes"]["items"]}},
+    "properties": {
+        "new_attributes": {
+            "type": "array",
+            "items": GEN_SCHEMA["properties"]["attributes"]["items"],
+        }
+    },
     "required": ["new_attributes"],
 }
 
@@ -71,7 +81,8 @@ def _aid(raw: str) -> str:
 def _persist(slug: str, tax: dict) -> None:
     db.kv_set(f"taxonomy:{slug}", "taxonomy", tax)
     (TAXONOMY_DIR / f"{slug}.json").write_text(
-        json.dumps(tax, indent=2, ensure_ascii=False), encoding="utf-8")
+        json.dumps(tax, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     load_taxonomy.cache_clear()
 
 
@@ -99,9 +110,14 @@ def _normalize(slug: str, attributes: list[dict], clusters: list[dict]) -> dict:
         if not aid or aid in seen or aid == "other":
             continue
         seen.add(aid)
-        out_attrs.append({"id": aid, "label": (a.get("label") or aid)[:60],
-                          "description": (a.get("description") or "")[:200],
-                          "keywords": [str(k).lower()[:40] for k in (a.get("keywords") or [])][:12]})
+        out_attrs.append(
+            {
+                "id": aid,
+                "label": (a.get("label") or aid)[:60],
+                "description": (a.get("description") or "")[:200],
+                "keywords": [str(k).lower()[:40] for k in (a.get("keywords") or [])][:12],
+            }
+        )
         if len(out_attrs) >= MAX_ATTRS - 1:
             break
     for must in ALWAYS_ATTRS:
@@ -118,13 +134,23 @@ def _normalize(slug: str, attributes: list[dict], clusters: list[dict]) -> dict:
         if not cid or cid in cseen or not attrs:
             continue
         cseen.add(cid)
-        out_clusters.append({"id": cid, "label": (c.get("label") or cid)[:60],
-                             "description": (c.get("description") or "")[:200],
-                             "attributes": [_aid(x) for x in attrs][:4]})
+        out_clusters.append(
+            {
+                "id": cid,
+                "label": (c.get("label") or cid)[:60],
+                "description": (c.get("description") or "")[:200],
+                "attributes": [_aid(x) for x in attrs][:4],
+            }
+        )
     if not out_clusters:
         out_clusters = generic["clusters"]
-    return {"version": 1, "category": slug, "learned": True,
-            "attributes": out_attrs, "clusters": out_clusters}
+    return {
+        "version": 1,
+        "category": slug,
+        "learned": True,
+        "attributes": out_attrs,
+        "clusters": out_clusters,
+    }
 
 
 async def ensure_category_taxonomy(category: Optional[str], sample_text: str) -> Optional[dict]:
@@ -140,7 +166,7 @@ async def ensure_category_taxonomy(category: Optional[str], sample_text: str) ->
         return tax  # curated file (e.g. backpack demo) — never touched
     # brand-new category => generate
     prompt = (
-        f'Define the attribute taxonomy an AI shopping assistant should use to compare products '
+        f"Define the attribute taxonomy an AI shopping assistant should use to compare products "
         f'in the category "{category}".\n'
         "Pick the 8-12 attributes real buyers and reviews actually decide on for THIS category "
         "(concrete and category-specific — e.g. for earbuds: noise_cancelling, battery_life, "
@@ -149,11 +175,15 @@ async def ensure_category_taxonomy(category: Optional[str], sample_text: str) ->
         "(include common Traditional-Chinese equivalents like 續航/降噪 when obvious). "
         "Do not include a generic 'price' or 'brand_reputation' (added automatically) nor 'other'.\n"
         "Also define 4-6 buyer intent clusters (id, label, description, 2-4 related attribute ids).\n\n"
-        f"Sample product page from this category:\n{sample_text[:4000]}")
+        f"Sample product page from this category:\n{sample_text[:4000]}"
+    )
     try:
         out = await bedrock.acomplete_json(
-            prompt=prompt, schema=GEN_SCHEMA, max_tokens=3000,
-            cache_key=cache_key_for("taxgen", slug, "v1"))
+            prompt=prompt,
+            schema=GEN_SCHEMA,
+            max_tokens=3000,
+            cache_key=cache_key_for("taxgen", slug, "v1"),
+        )
     except Exception:
         return None
     tax = _normalize(slug, out.get("attributes", []), out.get("clusters", []))
@@ -171,11 +201,16 @@ async def _maybe_extend(slug: str, tax: dict, sample_text: str) -> dict:
         "advertises a decision-relevant attribute NOT covered above, return it (max 2, same "
         "format: id snake_case, label, description, keywords incl. zh-TW equivalents). "
         "If everything is already covered, return an empty list — be strict, no near-duplicates.\n\n"
-        f"{sample_text[:3500]}")
+        f"{sample_text[:3500]}"
+    )
     try:
         out = await bedrock.acomplete_json(
-            prompt=prompt, schema=EXTEND_SCHEMA, model=get_bedrock().fast, max_tokens=1200,
-            cache_key=cache_key_for("taxext", slug, current, sample_text[:2000]))
+            prompt=prompt,
+            schema=EXTEND_SCHEMA,
+            model=get_bedrock().fast,
+            max_tokens=1200,
+            cache_key=cache_key_for("taxext", slug, current, sample_text[:2000]),
+        )
     except Exception:
         return tax
     existing = {a["id"] for a in tax["attributes"]}
@@ -184,9 +219,14 @@ async def _maybe_extend(slug: str, tax: dict, sample_text: str) -> dict:
         aid = _aid(a.get("id", ""))
         if aid and aid not in existing and len(tax["attributes"]) < MAX_ATTRS + 1:
             other = tax["attributes"].pop()  # keep "other" last
-            tax["attributes"].append({"id": aid, "label": (a.get("label") or aid)[:60],
-                                      "description": (a.get("description") or "")[:200],
-                                      "keywords": [str(k).lower()[:40] for k in (a.get("keywords") or [])][:12]})
+            tax["attributes"].append(
+                {
+                    "id": aid,
+                    "label": (a.get("label") or aid)[:60],
+                    "description": (a.get("description") or "")[:200],
+                    "keywords": [str(k).lower()[:40] for k in (a.get("keywords") or [])][:12],
+                }
+            )
             tax["attributes"].append(other)
             existing.add(aid)
             added = True
