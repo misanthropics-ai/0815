@@ -20,7 +20,8 @@ make check
 make frontend
 ```
 
-The same checks run in GitHub Actions for every pull request targeting `main`.
+The same checks, frontend builds, and a backend container smoke test run in GitHub Actions
+for every pull request targeting `main`. Pull requests never receive AWS deployment access.
 
 ## AWS and Bedrock
 
@@ -36,6 +37,10 @@ access keys, session tokens, or `.env` files. After authenticating, verify Bedro
 ```bash
 make bedrock
 ```
+
+AWS deployment uses GitHub OIDC and an EC2 instance role. Do not add long-lived AWS keys to
+GitHub Secrets; repository deployment configuration belongs in non-secret GitHub Variables.
+Only a successful CI run on `main` can assume the deployment role.
 
 ## Contract changes
 

@@ -3,11 +3,10 @@
   python deploy/deploy_aws.py           # build+push+deploy
   python deploy/deploy_aws.py --status  # check service status/URL
 
-Reads AWS creds from backend/.env (via backend.config). Tries to create an
-App Runner *instance role* with Bedrock permissions so the deployed service
-does NOT depend on the (expiring) session credentials; falls back to passing
-the session creds as env vars if IAM is locked down (refresh them later with
---update-env). Requires local docker.
+Uses the standard AWS credential chain to deploy. The service must receive an
+App Runner instance role for Bedrock; deployment stops if that role cannot be
+created. Runtime AWS credentials are never copied into service environment
+variables. Requires local docker.
 """
 from __future__ import annotations
 
@@ -82,15 +81,10 @@ def ensure_role(iam, name: str, service: str, policy_arn: str | None = None,
         return None
 
 
-def env_vars(use_creds: bool) -> dict:
+def env_vars() -> dict:
     env = {"AWS_DEFAULT_REGION": REGION, "MODE": "auto", "PORT": "8000"}
     if config.env("BEDROCK_MODEL"):
         env["BEDROCK_MODEL"] = config.env("BEDROCK_MODEL")
-    if use_creds:
-        for k in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"):
-            v = config.env(k)
-            if v:
-                env[k] = v
     return env
 
 
@@ -120,8 +114,10 @@ def deploy() -> None:
         print("FATAL: App Runner needs an ECR access role. Ask an admin or use the EC2 path "
               "in deploy/README.md")
         return
+    if not instance_arn:
+        print("FATAL: App Runner needs an instance role for Bedrock; refusing to copy credentials")
+        return
 
-    use_env_creds = instance_arn is None
     src = {
         "AuthenticationConfiguration": {"AccessRoleArn": access_arn},
         "AutoDeploymentsEnabled": False,
@@ -129,7 +125,7 @@ def deploy() -> None:
             "ImageIdentifier": image,
             "ImageRepositoryType": "ECR",
             "ImageConfiguration": {"Port": "8000",
-                                   "RuntimeEnvironmentVariables": env_vars(use_env_creds)},
+                                   "RuntimeEnvironmentVariables": env_vars()},
         },
     }
     inst_cfg = {"Cpu": "1024", "Memory": "2048"}
@@ -159,9 +155,6 @@ def deploy() -> None:
         if svc["Status"] == "RUNNING":
             print(f"\nDEPLOYED: https://{svc['ServiceUrl']}")
             print(f"health:   https://{svc['ServiceUrl']}/health")
-            if use_env_creds:
-                print("NOTE: service uses the session creds from backend/.env — they expire; "
-                      "refresh with: python deploy/deploy_aws.py --update-env")
             return
         if svc["Status"] in ("CREATE_FAILED", "UPDATE_FAILED"):
             print("FAILED — check App Runner logs in console; EC2 fallback in deploy/README.md")
@@ -180,18 +173,7 @@ def status() -> None:
 
 
 def update_env() -> None:
-    apprunner = boto3.client("apprunner", region_name=REGION)
-    ss = [s for s in apprunner.list_services()["ServiceSummaryList"]
-          if s["ServiceName"] == SERVICE]
-    if not ss:
-        print("service not found")
-        return
-    arn = ss[0]["ServiceArn"]
-    svc = apprunner.describe_service(ServiceArn=arn)["Service"]
-    src = svc["SourceConfiguration"]
-    src["ImageRepository"]["ImageConfiguration"]["RuntimeEnvironmentVariables"] = env_vars(True)
-    apprunner.update_service(ServiceArn=arn, SourceConfiguration=src)
-    print("env creds refreshed; service redeploying")
+    raise SystemExit("--update-env was removed: use an App Runner instance role, never env credentials")
 
 
 if __name__ == "__main__":

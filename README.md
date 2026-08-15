@@ -10,7 +10,7 @@ Information Gap 與 Product Gap，並輸出可執行的修正建議及 before/af
 ```text
 backend/          # FastAPI：pipeline、ingestion、simulate、diagnosis、debate
 contracts/        # 正式 API 契約、Python/TypeScript 型別與驗證器
-deploy/           # AWS App Runner 部署與 EC2 fallback
+deploy/           # GitHub OIDC、ECR、SSM 與 EC2 部署
 demo/             # P6 真實資料、before/after 實驗與簡報素材
 frontend-simulator/ # P4 Shopper Simulator
 frontend-diagnosis/ # P5 Diagnosis + Debate
@@ -49,12 +49,13 @@ make bedrock    # 使用目前 AWS credentials 測試 Bedrock
 - [`FRONTEND.md`](FRONTEND.md)：P4/P5 前端串接指南、SSE 與 cookbook
 - [`contracts/types.ts`](contracts/types.ts)：前端可直接 import 的 TypeScript 型別
 - [`backend/README.md`](backend/README.md)：後端架構、endpoints 與 demo 流程
-- [`deploy/README.md`](deploy/README.md)：EC2、App Runner 與 Docker 部署
+- [`deploy/README.md`](deploy/README.md)：GitHub Actions 與 AWS demo 部署
 - [`demo/README.md`](demo/README.md)：P6 資料、before/after 實驗、講稿與 pitch deck
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)：團隊開發與 PR 流程
 
 ## CI/CD
 
-GitHub Actions 會在每個 pull request 與 `main` push 執行 lint、格式、contract 驗證及測試；
-Dependabot 每週整理 Python 與 GitHub Actions 依賴更新。AWS 部署流程與目前支援的平台請見
-`deploy/README.md`。
+GitHub Actions 會在每個 pull request 與 `main` push 執行 lint、格式、contract、測試、
+前端建置及容器 smoke test。`main` 的 CI 全部成功後，CD 會用 GitHub OIDC 取得短期 AWS
+權限，推送不可變映像到 ECR，再透過 SSM 更新 demo EC2；不需要在 GitHub 保存 AWS access
+key。初次建立 AWS 資源與維運方式請見 `deploy/README.md`。

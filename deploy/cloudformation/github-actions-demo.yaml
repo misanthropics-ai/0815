@@ -1,0 +1,209 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: GitHub OIDC deploy role and a persistent single-EC2 demo runtime for 0815
+
+Parameters:
+  GitHubOwner:
+    Type: String
+  GitHubRepository:
+    Type: String
+  GitHubBranch:
+    Type: String
+    Default: main
+  GitHubOidcProviderArn:
+    Type: String
+  EcrRepositoryName:
+    Type: String
+    Default: ai-rec-diagnostics
+  ExistingInstanceId:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^i-[0-9a-f]+$"
+    Description: Reuse an SSM-managed instance instead of creating a new runtime
+  ExistingPublicApiUrl:
+    Type: String
+    Default: ""
+    Description: Public API URL for ExistingInstanceId
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+  AllowedCidr:
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}/(?:[0-9]|[12][0-9]|3[0-2])$"
+  InstanceType:
+    Type: String
+    Default: t3.small
+    AllowedValues: [t3.micro, t3.small, t3.medium]
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+
+Conditions:
+  CreateAppInstance: !Equals [!Ref ExistingInstanceId, ""]
+
+Resources:
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateAppInstance
+    Properties:
+      GroupDescription: Public demo API access
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: !Ref AllowedCidr
+      Tags:
+        - Key: App
+          Value: ai-rec-diagnostics
+
+  AppInstanceRole:
+    Type: AWS::IAM::Role
+    Condition: CreateAppInstance
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: RuntimeAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: EcrLogin
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: PullApplicationImage
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/${EcrRepositoryName}
+              - Sid: DiscoverBedrockModels
+                Effect: Allow
+                Action: bedrock:ListFoundationModels
+                Resource: "*"
+              - Sid: InvokeBedrockModels
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: "*"
+
+  AppInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Condition: CreateAppInstance
+    Properties:
+      Roles: [!Ref AppInstanceRole]
+
+  AppInstance:
+    Type: AWS::EC2::Instance
+    Condition: CreateAppInstance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref AppInstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          GroupSet: [!Ref AppSecurityGroup]
+          SubnetId: !Ref SubnetId
+      MetadataOptions:
+        HttpEndpoint: enabled
+        HttpTokens: required
+        HttpPutResponseHopLimit: 2
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            DeleteOnTermination: true
+            Encrypted: true
+            VolumeSize: 20
+            VolumeType: gp3
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euo pipefail
+          dnf install -y docker jq
+          systemctl enable --now docker
+          docker volume create ai-rec-data
+      Tags:
+        - Key: Name
+          Value: ai-rec-diagnostics-cicd
+        - Key: App
+          Value: ai-rec-diagnostics
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  GitHubDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Short-lived deployment access for one GitHub repository and branch
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": sts.amazonaws.com
+                "token.actions.githubusercontent.com:sub": !Sub repo:${GitHubOwner}/${GitHubRepository}:ref:refs/heads/${GitHubBranch}
+      Policies:
+        - PolicyName: DeployApplication
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: EcrLogin
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: PushApplicationImage
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:CompleteLayerUpload
+                  - ecr:DescribeImages
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/${EcrRepositoryName}
+              - Sid: RunDeploymentDocument
+                Effect: Allow
+                Action: ssm:SendCommand
+                Resource:
+                  - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}::document/AWS-RunShellScript
+                  - !If
+                    - CreateAppInstance
+                    - !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/${AppInstance}
+                    - !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/${ExistingInstanceId}
+              - Sid: ReadDeploymentResult
+                Effect: Allow
+                Action:
+                  - ssm:GetCommandInvocation
+                  - ssm:ListCommandInvocations
+                Resource: "*"
+
+Outputs:
+  AwsAccountId:
+    Value: !Ref AWS::AccountId
+  DeployRoleArn:
+    Value: !GetAtt GitHubDeployRole.Arn
+  EcrRepositoryName:
+    Value: !Ref EcrRepositoryName
+  InstanceId:
+    Value: !If [CreateAppInstance, !Ref AppInstance, !Ref ExistingInstanceId]
+  PublicApiUrl:
+    Value: !If
+      - CreateAppInstance
+      - !Sub http://${AppInstance.PublicDnsName}:8000
+      - !Ref ExistingPublicApiUrl

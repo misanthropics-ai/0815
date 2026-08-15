@@ -1,56 +1,78 @@
-# AWS 部署
+# AWS CI/CD
 
-## 路徑 0（最快，不需要 docker）：EC2 一鍵腳本
+建議的 demo／staging 流程是：
 
-```bash
-python deploy/deploy_ec2.py            # zip 程式碼→S3→開 EC2(t3.small)→systemd 起服務→印出 URL
-python deploy/deploy_ec2.py --status   # 查狀態 / health URL
-python deploy/deploy_ec2.py --terminate
-```
-- 會嘗試建 instance role（`EC2Bedrock0815`，bedrock:Invoke* + SSM）→ 服務器**不依賴會過期的 session creds**；IAM 被鎖就退回把 creds 寫進 `.env`（過期後重跑 deploy 即可）。
-- 使用 **Elastic IP**（tag: `app=ai-rec-diagnostics`）：重佈署 URL 不變。目前為 `http://34.227.93.223:8000`。
-- 開機 + pip install 約 1–2 分鐘後 `/health` 就緒。
-
-## 路徑 A（需要本機 docker）：App Runner 一鍵部署
-
-前置：本機有 docker、`backend/.env` 有有效 AWS creds。
-
-```bash
-python deploy/deploy_aws.py            # build → ECR push → App Runner create/update → 印出 URL
-python deploy/deploy_aws.py --status   # 查狀態 / URL
+```text
+pull request -> CI -> merge main -> GitHub OIDC -> ECR -> SSM -> EC2 Docker
 ```
 
-- 腳本會嘗試建立 **instance role**（`AppRunnerBedrock0815`，帶 bedrock:Invoke* 權限）——成功的話部署後的服務**不依賴會過期的 session credentials**。
-- 若 workshop 帳號不給建 IAM role，會退回把 `.env` 的 session creds 塞進服務環境變數。creds 過期後跑：
-  ```bash
-  # 先更新 backend/.env 的三個 AWS_* 值，然後：
-  python deploy/deploy_aws.py --update-env
-  ```
+- PR 只執行 lint、contract、測試、前端 build 與 Docker smoke test。
+- `main` 的 CI 成功後，`Deploy AWS demo` 才會部署該次通過測試的 commit SHA。
+- GitHub OIDC 換取短期 AWS credentials，不保存 access key 或 session token。
+- ECR tag 是不可變的 commit SHA；部署失敗時遠端腳本會復原上一個映像。
+- SQLite 放在 Docker named volume `ai-rec-data`，換版不會刪除資料。
 
-## 路徑 B：EC2 手動（IAM 完全鎖死時）
+## 一次性建立 AWS 環境
 
-1. Console 開一台 **Amazon Linux 2023 t3.small**，Security Group 開 8000/tcp。
-2. SSH 進去：
-   ```bash
-   sudo dnf install -y git python3.11 python3.11-pip
-   git clone https://github.com/misanthropics-ai/0815.git && cd 0815
-   python3.11 -m pip install -r backend/requirements.txt
-   # 把本機的 backend/.env 內容貼到伺服器的 backend/.env
-   nohup python3.11 -m uvicorn backend.app:app --host 0.0.0.0 --port 8000 &
-   ```
-3. `http://<EC2_IP>:8000/health` 驗證。creds 過期就更新 `.env` 重啟。
-
-## 路徑 C：本機 docker（隊友 demo 用）
+需要具備 IAM、CloudFormation、EC2、ECR 與 SSM 管理權限的 AWS 身分，以及已登入的
+GitHub CLI。臨時 AWS credentials 只放在目前 shell，不要寫進 repo 或 GitHub Secrets。
 
 ```bash
-docker compose up --build       # 需要 backend/.env
-# 或不用 docker：
-backend/run.sh
+aws sts get-caller-identity
+gh auth status
+source .venv/bin/activate
+python deploy/bootstrap_cicd.py --configure-github
 ```
 
-## 部署後驗證
+腳本會建立或更新：
+
+- account-level GitHub OIDC provider；
+- immutable ECR repository（保留最近 30 個映像）；
+- CloudFormation stack 與 GitHub deploy role；
+- GitHub repository variables：`AWS_ACCOUNT_ID`、`AWS_REGION`、
+  `AWS_DEPLOY_ROLE_ARN`、`ECR_REPOSITORY`、`EC2_INSTANCE_ID`、`AWS_API_URL`。
+
+若帳號中剛好有一台 running 且 tag 為 `app=ai-rec-diagnostics` 的 EC2，bootstrap 會沿用
+該 instance 與 Elastic IP、補上 ECR／SSM runtime 權限、強制 IMDSv2 並安裝 Docker，**不會
+建立第二台 EC2**。也可用 `--existing-instance-id i-...` 明確指定；只有傳入
+`--new-instance` 時，CloudFormation 才會建立新的 EC2、security group 與 instance role。
+
+建立新 instance 且帳號沒有 default VPC 時，請加上 `--vpc-id` 和 `--subnet-id`。新環境預設
+公開 `http://<EC2>:8000`，只適合 demo；可用 `--allowed-cidr 203.0.113.10/32` 限制來源
+IP。若要固定模型，可另外建立非機密 repo variable `BEDROCK_MODEL`。
+
+## 第一次與日常部署
+
+workflow 合併進 `main` 後，到 GitHub Actions 手動執行一次 `Deploy AWS demo`；之後每次
+合併只要 `CI` 成功便會自動部署。也可以在 Actions 頁面對 `main` 手動重新部署目前版本。
+第一次部署到舊版 systemd EC2 時，遠端腳本會先停止 `backend.service`，將
+`/opt/app/backend/data` 搬到 named volume，再啟動 Docker。若容器 health check 失敗，會
+自動重新啟動原本的 systemd 服務。
+
+部署完成後：
 
 ```bash
-curl https://<URL>/health                        # bedrock.ready 應為 true
-python contracts/check_contract.py https://<URL> # 契約驗證
+curl "$(gh variable get AWS_API_URL)/health"
+python contracts/check_contract.py "$(gh variable get AWS_API_URL)"
 ```
+
+如果映像啟動或 health check 失敗，workflow 會失敗且 EC2 會嘗試重啟上一個映像。若需要
+指定舊 commit，從該 commit 建立修復 commit 並合併，或在確認程式碼狀態後重新執行對應
+workflow；不要覆寫既有 ECR tag。
+
+## 安全與正式環境界線
+
+CloudFormation 把 OIDC trust 限制在 `misanthropics-ai/0815` 的 `main` branch，EC2 強制
+IMDSv2，部署不使用 SSH。EC2 透過 instance role 存取 ECR 與 Bedrock，credentials 不會
+進入映像或環境檔。
+
+目前架構是單台 EC2、公開 HTTP 與本機 SQLite，適合 workshop、demo、staging，不適合直接
+承載正式客戶流量。正式版至少應補上 authentication、HTTPS／load balancer、私有 subnet、
+WAF、集中式 logs／alarms，以及將 SQLite 遷移到有備份與高可用性的 managed database。
+
+## 舊版手動工具
+
+`deploy/deploy_ec2.py` 與 `deploy/deploy_aws.py` 保留供除錯或既有環境使用；前者保留
+Elastic IP 與遷移前的 `--update` SSM 更新能力。兩者都要求 runtime IAM role，絕不會把
+本機 AWS credentials 寫入 EC2 user-data 或服務環境變數。開始由 Docker CI/CD 管理後，
+團隊正常部署只使用 GitHub Actions，不再執行 legacy `--update`。
