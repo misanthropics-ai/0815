@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Diagnosis, Product } from '../../contracts/types'
-import { Attributes, PaywalledDiagnosisReport } from './App'
+import { Attributes, latestProductVersions, PaywalledDiagnosisReport } from './App'
 
 const diagnosis: Diagnosis = {
   product_ref: 'test-product@v1',
@@ -85,5 +85,17 @@ describe('PaywalledDiagnosisReport', () => {
     expect(markup).toContain('Image-only specifications detected')
     expect(markup).toContain('這些規格只存在於圖片中，AI 爬蟲讀不到')
     expect(markup).toContain('📷 from image')
+  })
+})
+
+describe('latestProductVersions', () => {
+  it('uses creation time rather than the API alphabetic product order', () => {
+    const products = [
+      { product_id: 'zebra', version: 1, created_at: '2026-08-15T08:00:00Z' },
+      { product_id: 'alpha', version: 1, created_at: '2026-08-15T10:00:00Z' },
+      { product_id: 'alpha', version: 2, created_at: '2026-08-15T11:00:00Z' },
+    ] as Product[]
+
+    expect(latestProductVersions(products).map(product => product.ref ?? `${product.product_id}@v${product.version}`)).toEqual(['alpha@v2', 'zebra@v1'])
   })
 })
