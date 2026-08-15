@@ -2,12 +2,15 @@ PYTHON ?= .venv/bin/python
 CHECK_PATHS := \
 	backend/app.py \
 	backend/config.py \
+	backend/decision/simulate.py \
 	backend/pipeline/attribution.py \
 	backend/pipeline/corpus.py \
 	backend/pipeline/engines/claude_sim.py \
 	backend/pipeline/intents.py \
 	backend/pipeline/runner.py \
+	backend/seeds/seed.py \
 	backend/storage/db.py \
+	backend/storage/impact_db.py \
 	backend/taxonomy \
 	contracts \
 	deploy/bootstrap_cicd.py \

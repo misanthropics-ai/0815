@@ -59,10 +59,15 @@ workflow 合併進 `main` 後，到 GitHub Actions 手動執行一次 `Deploy AW
 `/opt/app/backend/data` 搬到 named volume，再啟動 Docker。若容器 health check 失敗，會
 自動重新啟動原本的 systemd 服務。
 
+P4 的固定 before/after case 會在 backend 啟動時寫入同一個 named volume 裡獨立的
+`impact_demo.db`。它只保存 demo target 的 v1/v2 兩筆資料，不會混入 P5 上傳的 `app.db`；
+CI image smoke test 與遠端部署都會驗證 `/impact-demo` 後才算成功。
+
 部署完成後：
 
 ```bash
 curl "$(gh variable get AWS_API_URL)/health"
+curl "$(gh variable get AWS_API_URL)/impact-demo"
 python contracts/check_contract.py "$(gh variable get AWS_API_URL)"
 curl "$(gh variable get P4_SITE_URL)"
 curl "$(gh variable get P5_SITE_URL)"

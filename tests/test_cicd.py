@@ -50,6 +50,7 @@ def test_deploy_workflow_uses_oidc_and_immutable_revision() -> None:
 
 def test_demo_runtime_preserves_data_and_requires_imdsv2() -> None:
     remote = (ROOT / "deploy" / "ssm_deploy.sh").read_text(encoding="utf-8")
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     template = (ROOT / "deploy" / "cloudformation" / "github-actions-demo.yaml").read_text(
         encoding="utf-8"
     )
@@ -57,6 +58,8 @@ def test_demo_runtime_preserves_data_and_requires_imdsv2() -> None:
     assert 'data_volume="ai-rec-data"' in remote
     assert '--volume "${data_volume}:/app/backend/data"' in remote
     assert "/opt/app/backend/data" in remote
+    assert "/impact-demo" in remote
+    assert "/impact-demo" in ci
     assert "systemctl start backend.service" in remote
     assert "HttpTokens: required" in template
     assert "HttpPutResponseHopLimit: 2" in template

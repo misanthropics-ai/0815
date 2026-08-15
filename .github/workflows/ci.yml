@@ -94,6 +94,15 @@ jobs:
           docker logs ai-rec-ci
           exit 1
 
+      - name: Verify seeded P4 impact demo
+        run: |
+          curl --fail --silent --show-error --max-time 20 \
+            http://127.0.0.1:18000/impact-demo | \
+            jq --exit-status \
+              '.before.version == 1 and .after.version == 2 and
+               .before.product_id == .after.product_id and
+               (.competitor_refs | length) >= 2'
+
       - name: Stop backend container
         if: always()
         run: docker rm --force ai-rec-ci >/dev/null 2>&1 || true
