@@ -15,6 +15,7 @@ import re
 import time
 from typing import AsyncIterator, Optional
 
+from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import LLMError, cache_key_for, get_bedrock
 from backend.llm.jsonutil import extract_json
