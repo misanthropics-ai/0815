@@ -18,10 +18,18 @@ TRIGGER_CLUSTERS = ["comfort_carry", "budget_value", "organization_tech"]
 _TRIGGERED: dict[str, dict] = {}
 
 
-def _find_run_for_brand(brand: str) -> Optional[dict]:
+def _cat_slug(category: Optional[str]) -> str:
+    return category_slug(category or "travel backpack")
+
+
+def _find_run_for_brand(brand: str, category: Optional[str] = None) -> Optional[dict]:
+    """Latest completed run for this brand IN THE SAME CATEGORY."""
     tslug = slugify(brand)
+    want_cat = _cat_slug(category)
     for r in db.list_runs(limit=50):
-        if r["status"] == "completed" and slugify(r["config"].get("brand", "")) == tslug:
+        cfg = r["config"]
+        if (r["status"] == "completed" and slugify(cfg.get("brand", "")) == tslug
+                and _cat_slug(cfg.get("category")) == want_cat):
             return db.get_run(r["run_id"])
     return None
 
@@ -33,8 +41,7 @@ def _competitor_refs(product: dict, limit: int = 3) -> list[str]:
     pool = [p for p in db.list_products()
             if slugify(p["brand"]) != tslug
             and category_slug(p.get("category") or "travel backpack") == tcat]
-    if not pool:  # no same-category competitors ingested yet — fall back to all
-        pool = [p for p in db.list_products() if slugify(p["brand"]) != tslug]
+    # NOTE: no cross-category fallback — a TV must never be "diagnosed" against backpacks.
     latest: dict[str, dict] = {}
     for p in pool:
         cur = latest.get(p["product_id"])
@@ -161,11 +168,20 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
     return diag
 
 
-async def _trigger_batches(product: dict) -> None:
+def _trigger_cluster_ids(product: dict) -> list[str]:
+    """Clusters to simulate for diagnosis — from the product's OWN category taxonomy."""
+    from backend.taxonomy import load_taxonomy
+    tax = load_taxonomy(product.get("category"))
+    if tax["category"] == "travel_backpack":
+        return TRIGGER_CLUSTERS
+    return [c["id"] for c in tax["clusters"]][:3]
+
+
+async def _trigger_batches(product: dict, cluster_ids: list[str]) -> None:
     from backend.decision.simulate import run_batch
     ref = product["ref"]
     candidates = [ref] + _competitor_refs(product)
-    for cid in TRIGGER_CLUSTERS:
+    for cid in cluster_ids:
         try:
             await run_batch(cid, candidates, runs=2, max_intents=8)
         except Exception:
@@ -179,9 +195,12 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True
     product = db.get_product_by_ref(product_ref)
     if not product:
         raise KeyError(product_ref)
-    run = _find_run_for_brand(product["brand"])
+    run = _find_run_for_brand(product["brand"], product.get("category"))
     if run and run.get("funnel_summary") and run.get("report"):
         return diagnosis_from_run(product, run), None
+    if product["ref"] in _TRIGGERED:  # trigger batches still running — no partial diagnosis
+        return None, {"status": "running", "detail": "diagnosis batches running",
+                      "clusters": _TRIGGERED[product["ref"]].get("clusters", [])}
     diag = diagnosis_from_batches(product)
     if diag:
         return diag, None
@@ -189,9 +208,17 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True
     if cached:
         return cached, None
     if allow_trigger:
+        if not _competitor_refs(product):
+            return None, {
+                "status": "needs_competitors",
+                "category": product.get("category"),
+                "detail": "no same-category competitor products ingested yet — POST /products "
+                          "at least one competitor in this category, then retry diagnosis",
+            }
+        cluster_ids = _trigger_cluster_ids(product)
         if product["ref"] not in _TRIGGERED:
-            _TRIGGERED[product["ref"]] = {"status": "running", "clusters": TRIGGER_CLUSTERS}
-            asyncio.get_running_loop().create_task(_trigger_batches(product))
+            _TRIGGERED[product["ref"]] = {"status": "running", "clusters": cluster_ids}
+            asyncio.get_running_loop().create_task(_trigger_batches(product, cluster_ids))
         return None, {"status": "running", "detail": "diagnosis batches running",
-                      "clusters": TRIGGER_CLUSTERS}
+                      "clusters": cluster_ids}
     return None, None

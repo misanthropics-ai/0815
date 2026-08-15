@@ -293,11 +293,14 @@ def wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
                     cached: bool = True, max_intents: int = 12,
                     batch_id: Optional[str] = None, mode: Optional[str] = None) -> dict:
-    from backend.pipeline.intents import ensure_library_loaded
-    ensure_library_loaded()
-    intents = db.get_intents("library", cluster_id=cluster_id)[:max_intents]
+    from backend.pipeline.intents import ensure_category_intents
+
+    # intents must match the candidates' category (TVs get TV intents, not backpack ones)
+    products = {ref: db.get_product_by_ref(ref) for ref in candidates}
+    library = await ensure_category_intents(_category_of(products))
+    intents = [i for i in library if i["cluster_id"] == cluster_id][:max_intents]
     if not intents:
-        intents = db.get_intents("library")[:max_intents]
+        intents = library[:max_intents]
     batch_id = batch_id or db.new_id("batch")
     runs = max(1, min(5, runs))
     db.create_batch({"batch_id": batch_id, "cluster_id": cluster_id, "candidates": candidates,
