@@ -239,7 +239,23 @@ export interface Diagnosis {                  // GET /products/{ref}/diagnosis (
   funnel_dropoff?: Record<string, number>;
   exec_summary?: string;
 }
-export interface DiagnosisPending { status: "running"; detail?: string; clusters?: string[] } // 202
+export interface DiagnosisPending {
+  status: "running" | "failed" | "needs_competitors";
+  detail?: string;
+  category?: string | null;
+  clusters?: string[];
+  progress?: {
+    decisions_done: number;
+    decisions_expected: number | null;
+    batches: {
+      cluster_id: string;
+      batch_id: string;
+      status: string;
+      decisions_done: number;
+      decisions_expected: number | null;
+    }[];
+  };
+} // 202
 
 // ---------- debate (P3 / Frontend B) ----------
 export interface CreateDebateRequest { product_ref: ProductRef; focus_defect_id?: string }

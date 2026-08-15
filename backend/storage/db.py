@@ -220,6 +220,20 @@ def get_product_by_ref(ref: str) -> Optional[dict]:
     return get_product(pid, ver)
 
 
+def list_products_by_source_url(source_url: str) -> list[dict]:
+    """Return matching products newest-first for idempotent URL ingestion."""
+    conn = connect()
+    try:
+        cur = conn.execute(
+            """SELECT * FROM products WHERE source_url=?
+               ORDER BY created_at DESC, version DESC""",
+            (source_url,),
+        )
+        return [_product_from_row(r) for r in _rows(cur)]
+    finally:
+        conn.close()
+
+
 def set_product_category(product_id: str, category: Optional[str]) -> int:
     """Set category on ALL versions of a product. Returns rows updated."""
     conn = connect()

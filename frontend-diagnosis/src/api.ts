@@ -1,4 +1,4 @@
-import type { CompareResult, CreateProductRequest, DebateMessage, DebateSession, Diagnosis, Product, ProductRef, Taxonomy } from '../../contracts/types'
+import type { CompareResult, CreateProductRequest, DebateMessage, DebateSession, Diagnosis, DiagnosisPending, Product, ProductRef, Taxonomy } from '../../contracts/types'
 import productFixture from '../../backend/mock_fixtures/response.post_products.manual.json'
 import diagnosisFixture from '../../backend/mock_fixtures/response.diagnosis.json'
 import sessionFixture from '../../backend/mock_fixtures/response.get_debate_session.json'
@@ -10,6 +10,25 @@ const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, 
 export const isMock = !API
 export class ApiFailure extends Error {
   constructor(message: string, readonly code?: string, readonly hint?: string) { super(message) }
+}
+
+export function buildCreateProductRequest(input: {
+  mode: 'url' | 'manual_prototype'
+  value: string
+  category: string
+  brand: string
+  displayName: string
+}): CreateProductRequest {
+  const category = input.category.trim() || undefined
+  return input.mode === 'url'
+    ? { source: 'url', source_url: input.value, category }
+    : {
+        source: 'manual_prototype',
+        brand: input.brand || 'My brand',
+        display_name: input.displayName || undefined,
+        raw_text: input.value,
+        category,
+      }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<{ status: number; data: T }> {
@@ -32,10 +51,23 @@ export async function getTaxonomy(category?: string): Promise<Taxonomy> {
   return (await request<Taxonomy>(`/taxonomy${query}`)).data
 }
 
-export async function getDiagnosis(ref: ProductRef): Promise<{ pending: boolean; data?: Diagnosis }> {
+export function interpretDiagnosisResponse(status: number, data: Diagnosis | DiagnosisPending): { pending: boolean; data?: Diagnosis; state?: DiagnosisPending } {
+  if (status !== 202) return { pending: false, data: data as Diagnosis }
+  const state = data as DiagnosisPending
+  if (state.status === 'needs_competitors') {
+    const category = state.category ? ` for “${state.category}”` : ''
+    throw new ApiFailure(`Diagnosis needs a product from another brand in the same category${category}. Add a competitor product, then retry.`, state.status, state.detail)
+  }
+  if (state.status === 'failed') {
+    throw new ApiFailure(state.detail ?? 'Diagnosis failed. Please retry.', state.status)
+  }
+  return { pending: true, state }
+}
+
+export async function getDiagnosis(ref: ProductRef): Promise<{ pending: boolean; data?: Diagnosis; state?: DiagnosisPending }> {
   if (!API) { await pause(500); return { pending: false, data: diagnosisFixture as Diagnosis } }
-  const result = await request<Diagnosis>(`/products/${encodeURIComponent(ref)}/diagnosis`)
-  return result.status === 202 ? { pending: true } : { pending: false, data: result.data }
+  const result = await request<Diagnosis | DiagnosisPending>(`/products/${encodeURIComponent(ref)}/diagnosis`)
+  return interpretDiagnosisResponse(result.status, result.data)
 }
 
 export async function createDebate(ref: ProductRef, focus?: string): Promise<DebateSession> {
