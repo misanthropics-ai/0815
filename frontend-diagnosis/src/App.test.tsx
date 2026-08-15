@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { Diagnosis } from '../../contracts/types'
-import { PaywalledDiagnosisReport } from './App'
+import type { Diagnosis, Product } from '../../contracts/types'
+import { Attributes, PaywalledDiagnosisReport } from './App'
 
 const diagnosis: Diagnosis = {
   product_ref: 'test-product@v1',
@@ -73,5 +73,17 @@ describe('PaywalledDiagnosisReport', () => {
     expect(markup).toContain('GENERATING DETAILED COPY')
     expect(markup).toContain('Product-specific copy will update automatically')
     expect(markup).not.toContain('READY-TO-PASTE COPY')
+  })
+
+  it('flags specs recovered only from product images', () => {
+    const product: Product = {
+      product_id: 'tv', brand: 'Example', display_name: 'Example TV', source: 'url', source_url: 'https://example.com/tv', raw_text: '', version: 1,
+      attributes: [{ attribute_id: 'audio_quality', value: 'Dolby Audio, DTS:X', evidence: '[from image] Screen display', confidence: 0.8, source: 'image' }],
+    }
+    const markup = renderToStaticMarkup(<Attributes product={product} fieldLabel={value => value} />)
+
+    expect(markup).toContain('Image-only specifications detected')
+    expect(markup).toContain('這些規格只存在於圖片中，AI 爬蟲讀不到')
+    expect(markup).toContain('📷 from image')
   })
 })

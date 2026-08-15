@@ -92,6 +92,7 @@ export interface Product {
   change_note?: string | null;
   ref?: ProductRef;
   category?: string | null;        // drives which taxonomy applies; auto-detected if omitted
+  image_derived_attributes?: AttributeId[]; // populated by POST /products when vision filled gaps
 }
 
 export interface CreateProductRequest {
@@ -223,6 +224,7 @@ export interface Defect {
   content_patch?: string;                     // ready-to-paste copy → copyable code block
   why_it_happens?: string;
   enriched?: boolean;                         // false while the tailored copy is still pending
+  image_only?: boolean;                       // visibility defect: specs exist only in product images
 }
 
 export interface Diagnosis {                  // GET /products/{ref}/diagnosis (200)
