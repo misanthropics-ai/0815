@@ -1,0 +1,22 @@
+{
+  "product_id": "osprey-farpoint-40",
+  "brand": "Osprey",
+  "display_name": "Osprey Farpoint 40",
+  "source": "manual_prototype",
+  "source_url": "https://www.osprey.com/farpoint-40",
+  "raw_text": "Osprey Farpoint 40 Travel Pack. The Farpoint 40 is the carry-on travel pack trusted by world travelers. Volume: 40 liters. Weight: 1.59 kg. Price: $185.00. Carry comfort is where the Farpoint earns its reputation: an injection-molded, ventilated AirScape back panel keeps air moving against your back, while the padded hipbelt and shoulder harness transfer load to your hips for all-day comfort. Load-lifter straps and an adjustable sternum strap with emergency whistle fine-tune the fit. The entire back panel and harness stow away behind a zippered rear flap for clean airline handling. Large panel-loading main compartment with internal compression straps; padded 15-inch laptop and tablet sleeve in a lockable compartment; dual front mesh pockets and dual compression straps. Lockable zipper sliders on the main compartment. Dimensions: 55 x 35 x 25 cm — sized as a maximum international carry-on; check strict budget-airline limits before you fly. Built with 450D recycled polyester, bluesign approved fabric. Backed by Osprey's All Mighty Guarantee: we will repair any damage or defect, for any reason, free of charge — any product, any era.",
+  "attributes": [
+    { "attribute_id": "price", "value": "$185.00", "evidence": "Price: $185.00.", "confidence": 0.97 },
+    { "attribute_id": "weight", "value": "1.59 kg", "evidence": "Weight: 1.59 kg.", "confidence": 0.97 },
+    { "attribute_id": "comfort", "value": "ventilated AirScape back panel, padded hipbelt, load lifters, adjustable sternum strap", "evidence": "an injection-molded, ventilated AirScape back panel ... padded hipbelt and shoulder harness transfer load to your hips for all-day comfort", "confidence": 0.97 },
+    { "attribute_id": "airline_compliance", "value": "55 x 35 x 25 cm max international carry-on (may exceed strict budget-airline limits)", "evidence": "sized as a maximum international carry-on; check strict budget-airline limits", "confidence": 0.8 },
+    { "attribute_id": "capacity_size", "value": "40L", "evidence": "Volume: 40 liters.", "confidence": 0.95 },
+    { "attribute_id": "organization", "value": "panel-loading main compartment, 15\" laptop + tablet sleeve, dual mesh pockets", "evidence": "padded 15-inch laptop and tablet sleeve in a lockable compartment; dual front mesh pockets", "confidence": 0.85 },
+    { "attribute_id": "durability", "value": "450D recycled polyester", "evidence": "Built with 450D recycled polyester, bluesign approved fabric", "confidence": 0.8 },
+    { "attribute_id": "warranty", "value": "All Mighty Guarantee (lifetime repair, any reason)", "evidence": "we will repair any damage or defect, for any reason, free of charge", "confidence": 0.95 },
+    { "attribute_id": "style_design", "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "security", "value": "lockable zipper sliders (main + laptop compartment)", "evidence": "Lockable zipper sliders on the main compartment", "confidence": 0.85 },
+    { "attribute_id": "sustainability", "value": "recycled, bluesign approved fabric", "evidence": "450D recycled polyester, bluesign approved fabric", "confidence": 0.85 },
+    { "attribute_id": "brand_reputation", "value": "trusted by world travelers", "evidence": "the carry-on travel pack trusted by world travelers", "confidence": 0.4 }
+  ]
+}

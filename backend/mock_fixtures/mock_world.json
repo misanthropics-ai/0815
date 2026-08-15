@@ -1,0 +1,98 @@
+{
+  "comment": "Behavior config for the offline mock engine: per-cluster win propensities, retrieval-miss probabilities, curated quotable reason lines, citation pools. Owner: backend (P2).",
+  "brands": {
+    "cabinzero": { "display": "CabinZero Classic 36L" },
+    "osprey": { "display": "Osprey Farpoint 40" },
+    "decathlon": { "display": "Decathlon Forclaz Travel 500" },
+    "cotopaxi": { "display": "Cotopaxi Allpa 35L" }
+  },
+  "clusters": {
+    "budget_value": { "win_weights": { "cabinzero": 0.42, "decathlon": 0.38, "osprey": 0.08, "cotopaxi": 0.12 } },
+    "airline_compliance": { "win_weights": { "cabinzero": 0.52, "decathlon": 0.2, "osprey": 0.12, "cotopaxi": 0.16 } },
+    "comfort_carry": { "win_weights": { "osprey": 0.62, "decathlon": 0.16, "cotopaxi": 0.14, "cabinzero": 0.08 }, "miss_prob": { "cabinzero": 0.05 } },
+    "durability_warranty": { "win_weights": { "osprey": 0.34, "cotopaxi": 0.3, "cabinzero": 0.18, "decathlon": 0.18 } },
+    "organization_tech": { "win_weights": { "cotopaxi": 0.44, "osprey": 0.26, "decathlon": 0.22, "cabinzero": 0.08 }, "miss_prob": { "cabinzero": 0.25 } },
+    "weight_minimal": { "win_weights": { "cabinzero": 0.55, "decathlon": 0.15, "osprey": 0.12, "cotopaxi": 0.18 } },
+    "hiking_crossover": { "win_weights": { "osprey": 0.58, "decathlon": 0.2, "cotopaxi": 0.14, "cabinzero": 0.08 }, "miss_prob": { "cabinzero": 0.3 } },
+    "brand_alternative": { "win_weights": { "cotopaxi": 0.3, "decathlon": 0.3, "cabinzero": 0.22, "osprey": 0.18 } }
+  },
+  "reasons": {
+    "cabinzero": {
+      "for": {
+        "price": ["at $80 it undercuts everything comparable"],
+        "weight": ["760 g empty is roughly half the weight of its rivals"],
+        "airline_compliance": ["its soft 44x30x24 shape clears even Ryanair's priority sizer", "it's the one pack budget-airline crews say never gets gate-checked"],
+        "warranty": ["a 10-year warranty at this price is rare"],
+        "durability": ["600D polyester and YKK zippers have survived years of budget flights"]
+      },
+      "against": {
+        "comfort": ["there's no structured back panel or hip belt, so long walking days get uncomfortable", "minimal strap padding means your shoulders take the entire load"],
+        "organization": ["it's one big compartment with almost no internal organization"],
+        "brand_reputation": ["there are far fewer in-depth reviews of it than of the big names"]
+      }
+    },
+    "osprey": {
+      "for": {
+        "comfort": ["the AirScape back panel and real hipbelt make heavy days painless", "load lifters and an adjustable harness give it trekking-level carry"],
+        "warranty": ["Osprey's All Mighty Guarantee repairs anything for life"],
+        "durability": ["the build quality has a two-decade reputation"],
+        "organization": ["the lockable laptop compartment and panel loading are travel-proven"]
+      },
+      "against": {
+        "price": ["at $185 it costs more than twice the budget picks"],
+        "weight": ["1.59 kg empty is a lot of bag before you pack a thing"],
+        "airline_compliance": ["at 55x35x25 it can fail Ryanair's 20 cm depth limit"]
+      }
+    },
+    "decathlon": {
+      "for": {
+        "price": ["€90 for a suitcase-style opening and shoe compartment is unbeatable value"],
+        "organization": ["the full-front opening plus shoe compartment keeps everything sorted"],
+        "warranty": ["a 10-year warranty with repairable spare parts"],
+        "comfort": ["the foam back and removable waist belt are unusually good at this price"]
+      },
+      "against": {
+        "style_design": ["it looks unmistakably like budget outdoor gear"],
+        "weight": ["1.7 kg makes it the heaviest of the group"],
+        "brand_reputation": ["availability and reviews outside Europe are thin"]
+      }
+    },
+    "cotopaxi": {
+      "for": {
+        "organization": ["the clamshell opens flat with mesh compartments — packing cubes built in"],
+        "style_design": ["the one-of-a-kind Del Día colorways are genuinely distinctive"],
+        "sustainability": ["repurposed fabrics and a B Corp badge with a lifetime guarantee"],
+        "security": ["theft-proof YKK security zippers and an anti-slash shell"],
+        "durability": ["the TPU-coated 1000D shell is tank-like"]
+      },
+      "against": {
+        "price": ["$200 puts it at the very top of the range"],
+        "weight": ["1.6 kg for only 35 liters is dense"],
+        "airline_compliance": ["the stiff shell won't squeeze into strict budget-airline sizers"]
+      }
+    }
+  },
+  "citations": {
+    "cabinzero": [
+      { "url": "https://www.cabinzero.com/products/classic-36l", "title": "CabinZero Classic 36L — official product page" },
+      { "url": "https://www.reddit.com/r/onebag/comments/cabinzero-classic-2yr", "title": "CabinZero Classic 36 after 2 years — r/onebag" },
+      { "url": "https://thriftytrail.com/best-cheap-travel-backpacks", "title": "Best cheap travel backpacks under €100 — ThriftyTrail" }
+    ],
+    "osprey": [
+      { "url": "https://www.osprey.com/farpoint-40", "title": "Osprey Farpoint 40 — official product page" },
+      { "url": "https://trailtoterminal.com/osprey-farpoint-40-long-term-review", "title": "Osprey Farpoint 40 long-term review — TrailToTerminal" }
+    ],
+    "decathlon": [
+      { "url": "https://www.decathlon.com/products/forclaz-travel-500-40l", "title": "Forclaz Travel 500 40L — Decathlon" },
+      { "url": "https://thriftytrail.com/best-cheap-travel-backpacks", "title": "Best cheap travel backpacks under €100 — ThriftyTrail" }
+    ],
+    "cotopaxi": [
+      { "url": "https://www.cotopaxi.com/products/allpa-35l-travel-pack", "title": "Cotopaxi Allpa 35L — official product page" },
+      { "url": "https://packhacker.com/review/cotopaxi-allpa-35", "title": "Cotopaxi Allpa 35 review — PackHacker" }
+    ],
+    "general": [
+      { "url": "https://packverdict.com/best-travel-backpacks-2025", "title": "The Best Travel Backpacks of 2025 — PackVerdict" },
+      { "url": "https://airline-bags.com/ryanair-easyjet-cabin-bag-guide", "title": "Ryanair & easyJet cabin bag limits 2025 — AirlineBags" }
+    ]
+  }
+}

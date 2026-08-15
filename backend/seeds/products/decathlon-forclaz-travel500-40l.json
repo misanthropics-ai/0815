@@ -1,0 +1,22 @@
+{
+  "product_id": "decathlon-forclaz-travel500-40l",
+  "brand": "Decathlon",
+  "display_name": "Decathlon Forclaz Travel 500 Organizer 40L",
+  "source": "manual_prototype",
+  "source_url": "https://www.decathlon.com/products/forclaz-travel-500-40l",
+  "raw_text": "Forclaz Travel 500 Organizer 40 L Backpack by Decathlon. Designed for backpacking trips, engineered to be repairable. Price: €89.99. Weight: 1.7 kg. Capacity: 40 liters. Dimensions: 55 x 35 x 25 cm — accepted as cabin baggage on many airlines (check your airline's limits). Carrying system: foam back panel with ventilation channels, padded adjustable shoulder straps and a removable waist belt for load support on transfer days. Full-front opening: the main compartment unzips fully like a suitcase for easy packing, with an internal divider, two zipped mesh pockets, a separate bottom shoe/laundry compartment and side water-bottle pockets. Lockable double sliders on the main zip. Main fabric made from 100% recycled polyester. 10-year warranty; spare parts (buckles, straps) available and repairable in Decathlon workshops. Tested in real conditions by our trekking design teams in the French Alps.",
+  "attributes": [
+    { "attribute_id": "price", "value": "€89.99", "evidence": "Price: €89.99.", "confidence": 0.97 },
+    { "attribute_id": "weight", "value": "1.7 kg", "evidence": "Weight: 1.7 kg.", "confidence": 0.97 },
+    { "attribute_id": "comfort", "value": "foam back panel with ventilation channels, padded straps, removable waist belt", "evidence": "foam back panel with ventilation channels, padded adjustable shoulder straps and a removable waist belt", "confidence": 0.8 },
+    { "attribute_id": "airline_compliance", "value": "55 x 35 x 25 cm, cabin-accepted on many airlines", "evidence": "accepted as cabin baggage on many airlines", "confidence": 0.7 },
+    { "attribute_id": "capacity_size", "value": "40L", "evidence": "Capacity: 40 liters.", "confidence": 0.95 },
+    { "attribute_id": "organization", "value": "full suitcase-style opening, internal divider, mesh pockets, shoe compartment", "evidence": "unzips fully like a suitcase ... separate bottom shoe/laundry compartment", "confidence": 0.9 },
+    { "attribute_id": "durability", "value": "repairable design, spare parts available", "evidence": "engineered to be repairable ... spare parts (buckles, straps) available", "confidence": 0.7 },
+    { "attribute_id": "warranty", "value": "10-year warranty + repair workshops", "evidence": "10-year warranty; spare parts ... repairable in Decathlon workshops", "confidence": 0.95 },
+    { "attribute_id": "style_design", "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "security", "value": "lockable double sliders on main zip", "evidence": "Lockable double sliders on the main zip.", "confidence": 0.8 },
+    { "attribute_id": "sustainability", "value": "100% recycled polyester main fabric", "evidence": "Main fabric made from 100% recycled polyester.", "confidence": 0.9 },
+    { "attribute_id": "brand_reputation", "value": null, "evidence": null, "confidence": 0.0 }
+  ]
+}
