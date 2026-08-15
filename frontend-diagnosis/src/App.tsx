@@ -113,12 +113,25 @@ function inlineMarkdown(text: string) {
     return part
   })
 }
-function ContentPatch({ text, enriched, partial }: { text: string; enriched?: boolean; partial?: boolean }) {
+type SourcePatchBlock = { title: string; language: 'HTML' | 'JSON-LD'; content: string }
+
+const sourcePatchBlocks = (text: string): SourcePatchBlock[] => text.trim().split(/(?=<!--\s*[①②③])/).map((part, index): SourcePatchBlock => {
+  const title = part.match(/^<!--\s*[①②③]\s*([^\n]+?)\s*-->/)?.[1] ?? `Source snippet ${index + 1}`
+  const content = part.replace(/^<!--\s*[①②③][\s\S]*?-->/, '').trim()
+  return { title, language: /<\/?(?:tr|th|td|li)\b/i.test(content) ? 'HTML' : 'JSON-LD', content }
+}).filter(block => block.content)
+
+const isSourcePatch = (text: string) => /<!--|<\/?(?:tr|th|td|li)\b|"@type"|additionalProperty/.test(text)
+
+const copyPatch = async (text: string) => { await navigator.clipboard?.writeText(text) }
+
+export function ContentPatch({ text, enriched, partial }: { text: string; enriched?: boolean; partial?: boolean }) {
   const json = parseJsonBlock(text)
   if (json !== null) return <details className="json-patch"><summary>View ready-to-paste JSON-LD</summary><pre>{JSON.stringify(json, null, 2)}</pre></details>
   const isTemplate = partial || enriched === false || /^\s*\[template\]\s*/i.test(text)
   const copy = text.replace(/^\s*\[template\]\s*/i, '')
-  return <section className={`content-patch${isTemplate ? ' template-patch' : ''}`}><p className="eyebrow">{isTemplate ? 'GENERATING DETAILED COPY' : 'READY-TO-PASTE COPY'}</p>{isTemplate && <p className="template-note">This practical guidance is available now. Product-specific copy will update automatically when the full report is ready.</p>}<MarkdownMessage text={copy} /></section>
+  const blocks = isSourcePatch(copy) ? sourcePatchBlocks(copy) : []
+  return <section className={`content-patch${isTemplate ? ' template-patch' : ''}`}><p className="eyebrow">{isTemplate ? 'GENERATING DETAILED COPY' : 'READY-TO-PASTE COPY'}</p>{isTemplate && <p className="template-note">This practical guidance is available now. Product-specific copy will update automatically when the full report is ready.</p>}{blocks.length ? <><p className="source-patch-note">Review and fill every <code>[FILL IN]</code> field before publishing. These snippets are shown as code for safe copying.</p><div className="source-patches">{blocks.map(block => <section className="source-patch" key={`${block.title}-${block.language}`}><header><span>{block.language}</span><b>{block.title}</b><button onClick={() => void copyPatch(block.content)}>Copy</button></header><pre><code>{block.content}</code></pre></section>)}</div></> : <MarkdownMessage text={copy} />}</section>
 }
 function parseJsonBlock(text: string): unknown | null {
   const candidate = text.trim().replace(/^```(?:json|jsonld)?\s*/i, '').replace(/\s*```$/, '')
