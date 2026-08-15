@@ -237,6 +237,55 @@ def status() -> None:
           ensure_eip(ec2).get("PublicIp") == ip else "(dynamic IP)")
 
 
+def update_in_place() -> None:
+    """Push new code to the RUNNING instance via SSM (keeps DB/caches, same IP, ~30s)."""
+    session = boto3.Session(region_name=REGION)
+    ec2 = session.client("ec2")
+    s3 = session.client("s3")
+    ssm = session.client("ssm")
+    sts = session.client("sts")
+    inst = find_instance(ec2)
+    if not inst:
+        print("no running instance — do a full deploy first")
+        return
+    iid = inst["InstanceId"]
+    info = ssm.describe_instance_information(
+        Filters=[{"Key": "InstanceIds", "Values": [iid]}])["InstanceInformationList"]
+    if not info:
+        print(f"{iid} not SSM-managed (agent not registered yet) — falling back to full deploy")
+        deploy()
+        return
+    account = sts.get_caller_identity()["Account"]
+    bucket = f"{TAG}-{account}"
+    blob = make_zip()
+    s3.put_object(Bucket=bucket, Key="code.zip", Body=blob)
+    presigned = s3.generate_presigned_url("get_object",
+                                          Params={"Bucket": bucket, "Key": "code.zip"},
+                                          ExpiresIn=900)
+    print(f"code.zip uploaded ({len(blob) // 1024} KB); updating {iid} in place...")
+    cmd = ssm.send_command(
+        InstanceIds=[iid], DocumentName="AWS-RunShellScript",
+        Parameters={"commands": [
+            "set -e", "cd /opt/app",
+            f"curl -sf -o code.zip '{presigned}'",
+            "unzip -oq code.zip",
+            "python3.11 -m pip install -q -r backend/requirements.txt",
+            "systemctl restart backend",
+        ]})["Command"]["CommandId"]
+    for _ in range(30):
+        time.sleep(4)
+        inv = ssm.get_command_invocation(CommandId=cmd, InstanceId=iid)
+        if inv["Status"] in ("Success", "Failed", "Cancelled", "TimedOut"):
+            print("update:", inv["Status"])
+            if inv["Status"] != "Success":
+                print((inv.get("StandardErrorContent") or "")[-800:])
+            else:
+                ip = inst.get("PublicIpAddress")
+                print(f"live (data preserved): http://{ip}:8000/health")
+            return
+    print("timed out waiting for SSM command")
+
+
 def terminate() -> None:
     ec2 = boto3.client("ec2", region_name=REGION)
     inst = find_instance(ec2)
@@ -250,6 +299,8 @@ def terminate() -> None:
 if __name__ == "__main__":
     if "--status" in sys.argv:
         status()
+    elif "--update" in sys.argv:
+        update_in_place()
     elif "--terminate" in sys.argv:
         terminate()
     else:

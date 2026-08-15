@@ -15,19 +15,42 @@ from bs4 import BeautifulSoup
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+UA_CRAWLER = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 META_KEYS = ("og:title", "og:description", "og:type", "description", "keywords",
              "price", "product:", "twitter:title", "twitter:description")
 
+MIN_USEFUL_CHARS = 300
+
 
 async def fetch_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
-    """Return (title, cleaned_text). Raises httpx errors on failure."""
-    async with httpx.AsyncClient(follow_redirects=True, timeout=timeout,
-                                 headers={"User-Agent": UA,
-                                          "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8"}) as client:
-        resp = await client.get(url)
-        resp.raise_for_status()
-        return clean_html(resp.text)
+    """Return (title, cleaned_text).
+
+    Tries a browser UA first, then a crawler UA (some sites only serve
+    structured data to crawlers). Returns the best (longest) result even if
+    thin — the ingestion service decides whether it's extractable.
+    Raises the last httpx error only if every attempt failed at HTTP level.
+    """
+    best: tuple[str, str] = ("", "")
+    last_exc: Exception | None = None
+    for ua in (UA, UA_CRAWLER):
+        try:
+            async with httpx.AsyncClient(follow_redirects=True, timeout=timeout,
+                                         headers={"User-Agent": ua,
+                                                  "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8"}) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+            title, text = clean_html(resp.text)
+            if len(text) >= MIN_USEFUL_CHARS:
+                return title, text
+            if len(text) > len(best[1]):
+                best = (title, text)
+        except httpx.HTTPError as e:
+            last_exc = e
+            continue
+    if not best[1] and last_exc is not None:
+        raise last_exc
+    return best
 
 
 def _jsonld_blocks(soup: BeautifulSoup) -> list[str]:

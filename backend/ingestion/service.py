@@ -22,6 +22,15 @@ from backend.storage import db
 
 PROMPT_VERSION = "extract_v1"
 
+
+class IngestionError(ValueError):
+    """Structured ingestion failure -> API returns 422 {error:{code,message,hint}}."""
+
+    def __init__(self, message: str, code: str = "ingestion_failed", hint: str | None = None):
+        super().__init__(message)
+        self.code = code
+        self.hint = hint
+
 EXTRACT_SCHEMA = {
     "type": "object",
     "properties": {
@@ -122,21 +131,38 @@ async def create_product(body: dict) -> dict:
     if source == "url":
         if not body.get("source_url"):
             raise ValueError("source_url required for source=url")
+        import httpx
+
         from backend.ingestion.fetcher import fetch_url
-        title, raw_text = await fetch_url(body["source_url"])
+        try:
+            title, raw_text = await fetch_url(body["source_url"])
+        except httpx.HTTPError as e:
+            raise IngestionError(
+                f"could not fetch the page ({e})", code="fetch_failed",
+                hint="The site refuses server-side access. Copy the product description from "
+                     "your browser and retry with source=manual_prototype.") from e
+        if len(raw_text) < 200:
+            raise IngestionError(
+                "the page has almost no server-readable content (client-side rendered app or "
+                "anti-bot protection, e.g. Shopee) — there is nothing for an AI crawler to read",
+                code="page_not_extractable",
+                hint="This is itself an AI-visibility problem for that listing. For testing: "
+                     "copy the product description text from your browser and POST /products "
+                     "with source=manual_prototype (brand + raw_text).")
         display_hint = body.get("display_name") or title[:80]
         brand_hint = body.get("brand") or (title.split("|")[0].split("—")[0].strip()[:40] if title else "")
     elif source == "manual_prototype":
         raw_text = (body.get("raw_text") or "").strip()
         if not raw_text or not body.get("brand"):
             raise ValueError("brand and raw_text required for manual_prototype")
+        if len(raw_text) < 40:
+            raise IngestionError("raw_text too short to extract from",
+                                 code="raw_text_too_short",
+                                 hint="paste at least a few sentences of product description")
         display_hint = body.get("display_name") or f"{body['brand']} prototype"
         brand_hint = body["brand"]
     else:
         raise ValueError("source must be 'url' or 'manual_prototype'")
-
-    if len(raw_text) < 40:
-        raise ValueError("page/raw text too short to extract from")
     ext = await extract_attributes(raw_text, brand_hint, display_hint)
     pid = body.get("product_id") or ext.get("product_id") or f"{ext['brand']}-{ext['display_name']}"
     product = {

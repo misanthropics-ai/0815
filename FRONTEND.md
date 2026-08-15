@@ -163,6 +163,15 @@ POST /products        // manual prototype mode (paste text)
 
 Returns a full `Product` (10–20 s live — show an "extracting attributes…" progress state). Render the attribute table: value+evidence rows, **null rows in grey with "not on page"**. Fixtures: `request/response.post_products.manual.json`.
 
+**URL-mode failures (important UX):** sites that block server-side access (Shopee, some JS-only stores) return `422`:
+
+```json
+{ "error": { "code": "page_not_extractable",  // or "fetch_failed"
+             "message": "...", "hint": "copy the product description ... source=manual_prototype" } }
+```
+
+On these two codes: show the `hint` and **auto-switch the form to paste mode** (`manual_prototype`). Demo line: "if an AI crawler can't read your page, AI can't recommend you — that's the product's whole point."
+
 ### 5.2 Diagnosis page
 
 ```

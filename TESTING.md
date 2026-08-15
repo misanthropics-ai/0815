@@ -127,4 +127,6 @@ python contracts/check_contract.py $API                   # 契約驗證（fixtu
 | 202 `{"status":"running"/"pending"}` | 正常，背景在算 → 幾秒後再打一次 |
 | SSE 很久沒動 | live LLM 單次 8~25 秒；被 AWS throttle 會自動退避重試，等 |
 | run events 回 error 說 restart | 後端重啟過 → `curl -X POST $API/runs/{id}/resume`（已完成部分自動跳過） |
+| 422 `page_not_extractable` / `fetch_failed` | 該網站擋伺服器端抓取（蝦皮等 JS-only 站）→ 依 hint 改用手貼模式（`manual_prototype`）；91APP 類的站（如 indulgence.com.tw）可以直接抓 |
 | 雲端網址 | `34.227.93.223` 是 **Elastic IP，重佈署也不變**；`python deploy/deploy_ec2.py --status` 可查 |
+| 更新雲端程式碼 | `python deploy/deploy_ec2.py --update`（SSM 原地更新，**保留資料庫**、IP 不變、~30 秒）；全量重建才用不帶參數的 deploy（會清資料） |
