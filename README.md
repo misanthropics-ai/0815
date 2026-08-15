@@ -23,4 +23,8 @@ cp backend/.env.example backend/.env   # 填 AWS creds；不填也能跑（mock 
 backend/run.sh                         # API 在 :8000
 ```
 
-詳細文件：`backend/README.md`（架構/endpoints/demo 流程）、`deploy/README.md`（部署）。
+詳細文件：
+- **`FRONTEND.md`** — P4/P5 前端串接指南（English：endpoints、SSE 解析、cookbook、TS types）
+- `contracts/types.ts` — 前端可直接 import 的 TypeScript 型別
+- `backend/README.md` — 後端架構 / endpoints / demo 流程
+- `deploy/README.md` — 部署（EC2 一鍵 / App Runner / docker）
