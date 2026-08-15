@@ -18,6 +18,7 @@ from backend.llm import bedrock
 from backend.llm.bedrock import LLMError, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.storage import db
+from backend.taxonomy import load_taxonomy
 
 PROMPT_VERSION = "debate/prompts/prompt_v1"
 ACTION_RE = re.compile(r"<action>\s*(\{.*?\})\s*</action>", re.DOTALL)
@@ -107,7 +108,8 @@ async def _execute_action(session_id: str, product: dict, action: dict, diag: di
     params = action.get("params", {})
     additions = params.get("additions") or []
     cluster_id = params.get("cluster_id") or (
-        diag["defects"][0]["evidence"]["cluster_id"] if diag.get("defects") else "comfort_carry")
+        diag["defects"][0]["evidence"]["cluster_id"] if diag.get("defects")
+        else load_taxonomy(product.get("category"))["clusters"][0]["id"])
     new_product = await create_version(product["product_id"], product["version"], additions,
                                        change_note=f"debate:{session_id}")
     old_ref, new_ref = product["ref"], new_product["ref"]

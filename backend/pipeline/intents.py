@@ -359,3 +359,112 @@ async def generate_intents(run_cfg: dict,
         it["run_id"] = run_id
     db.save_intents(out)
     return out
+
+
+# ---------------------------------------------------------------- category intent libraries
+
+CATEGORY_INTENTS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "intents": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string"},
+                    "cluster_id": {"type": "string"},
+                    "attributes": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["text", "cluster_id"],
+            },
+        }
+    },
+    "required": ["intents"],
+}
+
+
+def category_library_id(category: Optional[str]) -> str:
+    slug = category_slug(category)
+    if not slug or load_taxonomy(category)["category"] == "travel_backpack":
+        return "library"
+    return f"library:{slug}"
+
+
+async def ensure_category_intents(category: Optional[str], per_cluster: int = 5) -> list[dict]:
+    """Reusable intent library for a category (drives /simulate/batch + diagnosis).
+
+    Backpack (demo default) => the built-in 163-intent library. Any other
+    category => lazily built from ITS taxonomy clusters: LLM-generated buyer
+    intents when Bedrock is up, template fallback otherwise. Cached in the
+    intents table under run_id "library:{slug}".
+    """
+    lib_id = category_library_id(category)
+    if lib_id == "library":
+        ensure_library_loaded()
+        return db.get_intents("library")
+    existing = db.get_intents(lib_id)
+    if existing:
+        return existing
+    tax = load_taxonomy(category)
+    cls = tax["clusters"][:6]
+    valid_cl = {c["id"]: c for c in cls}
+    valid_attrs = {a["id"] for a in tax["attributes"]}
+    rows: list[dict] = []
+    if get_bedrock().available():
+        cluster_block = "\n".join(
+            f'- {c["id"]}: {c["label"]} — {c["description"]} (attributes: {", ".join(c["attributes"])})'
+            for c in cls
+        )
+        prompt = (
+            f'Generate realistic buyer intents for the product category "{category}" — the '
+            "queries real consumers type into AI shopping assistants when deciding what to buy.\n"
+            f"For EACH cluster below produce {per_cluster} distinct intents (mix short "
+            "search-style queries and longer contextual asks; vary personas, budgets and use "
+            f"cases; no near-duplicates):\n{cluster_block}\n"
+            "Tag each intent with its cluster_id and 1-3 attribute ids from: "
+            + ", ".join(sorted(valid_attrs))
+        )
+        try:
+            out = await bedrock.acomplete_json(
+                prompt=prompt,
+                schema=CATEGORY_INTENTS_SCHEMA,
+                max_tokens=4000,
+                temperature=0.8,
+                cache_key=cache_key_for("catintents", lib_id, per_cluster, "v1"),
+            )
+            for it in out.get("intents", []):
+                cid = it.get("cluster_id")
+                if it.get("text") and cid in valid_cl:
+                    attrs = [a for a in (it.get("attributes") or []) if a in valid_attrs][:3]
+                    rows.append(
+                        {
+                            "text": it["text"].strip(),
+                            "cluster_id": cid,
+                            "attributes": attrs or valid_cl[cid]["attributes"][:3],
+                        }
+                    )
+        except Exception:
+            rows = []
+    if not rows:  # offline/template fallback
+        for c in cls:
+            rows += [
+                {"text": f"best {category} for {c['label'].lower()}", "cluster_id": c["id"],
+                 "attributes": c["attributes"][:3]},
+                {"text": f"which {category} should I buy? I mostly care about "
+                         f"{c['description'].lower()}", "cluster_id": c["id"],
+                 "attributes": c["attributes"][:3]},
+                {"text": f"good value {category} recommendation where {c['label'].lower()} matters",
+                 "cluster_id": c["id"], "attributes": (c["attributes"] + ["price"])[:3]},
+            ]
+    for i, r in enumerate(rows):
+        r.update(
+            {
+                "intent_id": f"{lib_id}_i{i:03d}",
+                "run_id": lib_id,
+                "cluster_label": valid_cl.get(r["cluster_id"], {}).get("label"),
+                "language": "en",
+                "source": "category_library",
+            }
+        )
+    db.save_intents(rows)
+    return rows
