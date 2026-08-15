@@ -63,7 +63,7 @@ export function PaywalledDiagnosisReport({ diagnosis, fieldLabel, unlocked, onUn
       <div className="report-body" inert={!unlocked} aria-hidden={!unlocked}>
         <ComparedProducts products={diagnosis.overall.vs} />
         <section className="section-title"><div><p className="eyebrow">EVIDENCE GAPS</p><h2>Why recommendations are being lost</h2><p>{diagnosis.exec_summary}</p></div><span className="count">{diagnosis.defects.length} findings</span></section>
-        <section className="defect-list">{diagnosis.defects.map(d => <DefectCard key={d.defect_id} defect={d} fieldLabel={fieldLabel} onDiscuss={() => onDiscuss(d)} />)}</section>
+        <section className="defect-list">{diagnosis.defects.map(d => <DefectCard key={d.defect_id} defect={d} fieldLabel={fieldLabel} partial={diagnosis.partial} onDiscuss={() => onDiscuss(d)} />)}</section>
       </div>
       {!unlocked && <div className="report-paywall" role="region" aria-labelledby="unlock-report-title">
         <span className="lock-badge"><span aria-hidden="true">◇</span> FULL REPORT</span>
@@ -99,17 +99,17 @@ function inlineMarkdown(text: string) {
     return part
   })
 }
-function ContentPatch({ text }: { text: string }) {
+function ContentPatch({ text, enriched, partial }: { text: string; enriched?: boolean; partial?: boolean }) {
   const json = parseJsonBlock(text)
   if (json !== null) return <details className="json-patch"><summary>View ready-to-paste JSON-LD</summary><pre>{JSON.stringify(json, null, 2)}</pre></details>
-  const isTemplate = /^\s*\[template\]\s*/i.test(text)
+  const isTemplate = partial || enriched === false || /^\s*\[template\]\s*/i.test(text)
   const copy = text.replace(/^\s*\[template\]\s*/i, '')
-  return <section className={`content-patch${isTemplate ? ' template-patch' : ''}`}><p className="eyebrow">{isTemplate ? 'DRAFT TEMPLATE' : 'READY-TO-PASTE COPY'}</p>{isTemplate && <p className="template-note">Use this structure, then replace it with product-specific facts, numbers and proof before publishing.</p>}<MarkdownMessage text={copy} /></section>
+  return <section className={`content-patch${isTemplate ? ' template-patch' : ''}`}><p className="eyebrow">{isTemplate ? 'GENERATING DETAILED COPY' : 'READY-TO-PASTE COPY'}</p>{isTemplate && <p className="template-note">This practical guidance is available now. Product-specific copy will update automatically when the full report is ready.</p>}<MarkdownMessage text={copy} /></section>
 }
 function parseJsonBlock(text: string): unknown | null {
   const candidate = text.trim().replace(/^```(?:json|jsonld)?\s*/i, '').replace(/\s*```$/, '')
   if (!(candidate.startsWith('{') || candidate.startsWith('['))) return null
   try { return JSON.parse(candidate) } catch { return null }
 }
-function DefectCard({ defect, fieldLabel, onDiscuss }: { defect: Defect; fieldLabel: (id: string) => string; onDiscuss: () => void }) { return <article className="defect-card"><div className="defect-top"><span className={`severity ${defect.severity}`}>{defect.severity}</span><span className={`gap ${defect.gap ?? 'unclear'}`}>{label(defect.gap ?? 'unclear')}</span><span className="attribute">{fieldLabel(defect.attribute_id)}</span><span className="loss">{pct(defect.evidence.losing_share_in_cluster)} · {defect.evidence.cluster_id}</span></div><h3>{defect.headline}</h3><div className="defect-columns"><blockquote>{defect.evidence.sample_rejection_reasons[0] ? `“${defect.evidence.sample_rejection_reasons[0]}”` : 'No sample rejection reason recorded.'}</blockquote><p><b>Competitor evidence</b>{defect.evidence.competitor_contrast || 'No competitor evidence recorded.'}</p></div>{defect.why_it_happens && <section className="why-it-happens"><p className="eyebrow">WHY IT HAPPENS</p><MarkdownMessage text={defect.why_it_happens} /></section>}<footer><p><b>Suggested fix</b>{defect.suggested_fix}</p><button className="discuss" onClick={onDiscuss}>Discuss this →</button></footer>{defect.content_patch && <ContentPatch text={defect.content_patch} />}</article> }
+function DefectCard({ defect, fieldLabel, onDiscuss, partial }: { defect: Defect; fieldLabel: (id: string) => string; onDiscuss: () => void; partial?: boolean }) { return <article className="defect-card"><div className="defect-top"><span className={`severity ${defect.severity}`}>{defect.severity}</span><span className={`gap ${defect.gap ?? 'unclear'}`}>{label(defect.gap ?? 'unclear')}</span><span className="attribute">{fieldLabel(defect.attribute_id)}</span><span className="loss">{pct(defect.evidence.losing_share_in_cluster)} · {defect.evidence.cluster_id}</span></div><h3>{defect.headline}</h3><div className="defect-columns"><blockquote>{defect.evidence.sample_rejection_reasons[0] ? `“${defect.evidence.sample_rejection_reasons[0]}”` : 'No sample rejection reason recorded.'}</blockquote><p><b>Competitor evidence</b>{defect.evidence.competitor_contrast || 'No competitor evidence recorded.'}</p></div>{defect.why_it_happens && <section className="why-it-happens"><p className="eyebrow">WHY IT HAPPENS</p><MarkdownMessage text={defect.why_it_happens} /></section>}<footer><p><b>Suggested fix</b>{defect.suggested_fix}</p><button className="discuss" onClick={onDiscuss}>Discuss this →</button></footer>{defect.content_patch && <ContentPatch text={defect.content_patch} enriched={defect.enriched} partial={partial} />}</article> }
 function Compare({ compare }: { compare: CompareResult }) { const href = simulatorHref(compare); return <section className="compare"><p className="eyebrow">EVIDENCE IMPACT · {compare.cluster_id}</p><h2>{pct(compare.a.recommendation_share)} <span>→</span> {pct(compare.b.recommendation_share)}</h2><strong>+{pct(compare.delta_recommendation)} recommendation share</strong><ul>{compare.changes_applied.map((c, i) => <li key={i}>{c}</li>)}</ul>{href && <a className="simulator-link" href={href}>Open the before / after simulator →</a>}</section> }
