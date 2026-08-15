@@ -95,10 +95,18 @@ async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str,
     if get_bedrock().available():
         tax_block = "\n".join(f'- {a["id"]}: {a["label"]} — {a["description"]}'
                               for a in tax["attributes"] if a["id"] != "other")
-        category_instruction = (
-            "Also return category: a short lowercase English noun phrase for the product type "
-            "(e.g. 'travel backpack', 'wireless earbuds', 'espresso machine')."
-            if detect else f"The product category is: {category}.")
+        if detect:
+            existing = sorted({(p.get("category") or "").strip()
+                               for p in db.list_products() if p.get("category")})[:20]
+            existing_line = (" If it belongs to one of these EXISTING categories, return that "
+                             "string EXACTLY: " + "; ".join(existing) + ".") if existing else ""
+            category_instruction = (
+                "Also return category: the GENERIC product type as a short lowercase English "
+                "noun phrase, 1-3 words, no marketing/spec qualifiers (e.g. 'smart tv' — never "
+                "'4K Mini LED smart TV'; 'travel backpack', 'wireless earbuds')."
+                + existing_line)
+        else:
+            category_instruction = f"The product category is: {category}."
         prompt = render_prompt("extract_v1", display_name=display_hint or "(unknown)",
                                brand=brand_hint or "(unknown)", taxonomy_block=tax_block,
                                raw_text=raw_text[:14000],

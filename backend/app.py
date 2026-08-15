@@ -395,6 +395,19 @@ async def create_version(product_id: str, body: VersionCreate):
     return await _cv(product_id, body.base_version, body.additions, body.change_note)
 
 
+class CategoryPatch(BaseModel):
+    category: str
+
+
+@app.patch("/products/{product_id}")
+async def patch_product_category(product_id: str, body: CategoryPatch):
+    """Fix a product's category on all versions (repairs inconsistent auto-detection)."""
+    n = db.set_product_category(product_id, (body.category or "").strip() or None)
+    if n == 0:
+        raise KeyError(product_id)
+    return {"product_id": product_id, "category": body.category, "updated_versions": n}
+
+
 @app.delete("/products/{product_id}")
 async def delete_product(product_id: str):
     """Remove ALL versions of a product (test-data cleanup; frontends: confirm first)."""

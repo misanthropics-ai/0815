@@ -255,8 +255,10 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True,
             return None, {
                 "status": "needs_competitors",
                 "category": product.get("category"),
-                "detail": "no same-category competitor products ingested yet — POST /products "
-                          "at least one competitor in this category, then retry diagnosis",
+                "detail": "diagnosis compares brands: ingest at least one product of the SAME "
+                          "category from a DIFFERENT brand (POST /products), then retry. If a "
+                          "competitor exists but its category string differs, fix it with "
+                          "PATCH /products/{id} {\"category\": \"...\"}.",
             }
         cluster_ids = _trigger_cluster_ids(product)
         if product["ref"] not in _TRIGGERED:
