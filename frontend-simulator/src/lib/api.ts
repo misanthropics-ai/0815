@@ -1,10 +1,13 @@
 import type {
+  BatchResult,
   ComparePending,
   CompareResult,
+  DebateSession,
   DecisionResult,
   Intent,
   Product,
   ProductRef,
+  Taxonomy,
 } from "../../../contracts/types";
 
 const configuredBase = import.meta.env.VITE_API_BASE?.trim().replace(/\/$/, "");
@@ -12,7 +15,7 @@ export const API_BASE = configuredBase || (import.meta.env.DEV ? "http://localho
 export const apiAvailable = Boolean(API_BASE);
 
 const configuredMode = import.meta.env.VITE_API_MODE;
-const apiMode = configuredMode === "mock" || configuredMode === "live" ? configuredMode : undefined;
+const defaultApiMode = configuredMode === "mock" || configuredMode === "live" ? configuredMode : undefined;
 const useCache = import.meta.env.VITE_USE_CACHE !== "false";
 
 export type StreamEvent = {
@@ -44,9 +47,26 @@ export async function getProduct(ref: ProductRef): Promise<Product> {
   return jsonRequest<Product>(`/products/${encodeURIComponent(ref)}`);
 }
 
+export async function getDebateSession(sessionId: string): Promise<DebateSession> {
+  return jsonRequest<DebateSession>(`/debate/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+export async function getBatch(batchId: string): Promise<BatchResult> {
+  return jsonRequest<BatchResult>(`/simulate/batch/${encodeURIComponent(batchId)}`);
+}
+
+export async function getDecision(decisionId: string): Promise<DecisionResult> {
+  return jsonRequest<DecisionResult>(`/decisions/${encodeURIComponent(decisionId)}`);
+}
+
 export async function listProducts(): Promise<Product[]> {
   const result = await jsonRequest<{ products: Product[] }>("/products");
   return result.products;
+}
+
+export async function getTaxonomy(category?: string | null): Promise<Taxonomy> {
+  const query = category?.trim() ? `?category=${encodeURIComponent(category.trim())}` : "";
+  return jsonRequest<Taxonomy>(`/taxonomy${query}`);
 }
 
 export async function* readSse(response: Response): AsyncGenerator<StreamEvent> {
@@ -79,8 +99,9 @@ export async function simulate(
   intent: Intent,
   candidates: ProductRef[],
   onToken: (text: string) => void,
-  options: { cached?: boolean } = {},
+  options: { cached?: boolean; mode?: "mock" | "live" } = {},
 ): Promise<DecisionResult> {
+  const mode = options.mode ?? defaultApiMode;
   const response = await fetch(urlFor("/simulate"), {
     method: "POST",
     headers: { "content-type": "application/json", accept: "text/event-stream" },
@@ -89,7 +110,7 @@ export async function simulate(
       candidates,
       stream: true,
       cached: options.cached ?? useCache,
-      ...(apiMode ? { mode: apiMode } : {}),
+      ...(mode ? { mode } : {}),
     }),
   });
   if (!response.ok) throw new Error(`Simulation failed (${response.status}).`);
@@ -102,6 +123,33 @@ export async function simulate(
   }
   if (!decision) throw new Error("The simulation ended without a decision.");
   return decision;
+}
+
+export async function simulateBatch(
+  clusterId: string,
+  candidates: ProductRef[],
+  options: { runs?: number; maxIntents?: number; mode?: "mock" | "live" } = {},
+): Promise<BatchResult> {
+  const mode = options.mode ?? defaultApiMode;
+  const response = await fetch(urlFor("/simulate/batch"), {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({
+      cluster_id: clusterId,
+      candidates,
+      runs: options.runs ?? 2,
+      max_intents: options.maxIntents ?? 8,
+      cached: true,
+      wait: true,
+      ...(mode ? { mode } : {}),
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const message = data?.error?.message || `Batch simulation failed (${response.status}).`;
+    throw new Error(message);
+  }
+  return data as BatchResult;
 }
 
 export async function compare(
