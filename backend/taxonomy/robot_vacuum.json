@@ -1,0 +1,318 @@
+{
+  "version": 1,
+  "category": "robot_vacuum",
+  "learned": true,
+  "attributes": [
+    {
+      "id": "suction_power",
+      "label": "Suction Power",
+      "description": "Maximum suction force (measured in Pa) determining how effectively the robot picks up debris, pet hair, and fine dust across floor types.",
+      "keywords": [
+        "suction",
+        "pa",
+        "pascal",
+        "吸力",
+        "吸塵",
+        "強吸",
+        "vacuum power",
+        "airwatt",
+        "pickup",
+        "debris"
+      ]
+    },
+    {
+      "id": "navigation_mapping",
+      "label": "Navigation & Mapping",
+      "description": "The sensor technology and algorithm used to map the home and plan efficient cleaning paths (e.g., LiDAR, vSLAM, gyroscope, random bounce).",
+      "keywords": [
+        "lidar",
+        "laser",
+        "vslam",
+        "mapping",
+        "navigation",
+        "導航",
+        "地圖",
+        "room map",
+        "path planning",
+        "obstacle detection",
+        "sensor",
+        "gyroscope"
+      ]
+    },
+    {
+      "id": "self_emptying_base",
+      "label": "Self-Emptying / Auto-Empty Base",
+      "description": "Whether the dock automatically empties the dustbin into a larger bag or container, and how many days of debris it can hold before manual emptying is needed.",
+      "keywords": [
+        "self-empty",
+        "auto-empty",
+        "自動倒垃圾",
+        "自動集塵",
+        "base station",
+        "dock",
+        "dustbin capacity",
+        "days",
+        "bag",
+        "自清潔"
+      ]
+    },
+    {
+      "id": "battery_runtime",
+      "label": "Battery Life & Runtime",
+      "description": "How long the robot can clean on a single charge, and whether it supports auto-recharge-and-resume for larger homes.",
+      "keywords": [
+        "battery",
+        "runtime",
+        "minute",
+        "hour",
+        "續航",
+        "電池",
+        "recharge",
+        "run time",
+        "charging",
+        "auto-resume",
+        "mah"
+      ]
+    },
+    {
+      "id": "mopping_capability",
+      "label": "Mopping Capability",
+      "description": "Whether the robot includes a mopping function, how it applies water (vibration, pressurized, fixed pad), and whether the mop auto-lifts on carpet.",
+      "keywords": [
+        "mop",
+        "mopping",
+        "拖地",
+        "水箱",
+        "water tank",
+        "wet",
+        "scrub",
+        "vibrat",
+        "carpet lift",
+        "auto-lift",
+        "拖布",
+        "washable"
+      ]
+    },
+    {
+      "id": "obstacle_avoidance",
+      "label": "Obstacle Avoidance & Climbing",
+      "description": "The robot's ability to detect and navigate around objects (cables, shoes, pet waste) and the maximum threshold or step height it can climb over.",
+      "keywords": [
+        "obstacle",
+        "avoid",
+        "climb",
+        "threshold",
+        "step",
+        "障礙",
+        "爬坡",
+        "3d sensor",
+        "camera",
+        "ai detection",
+        "bump",
+        "mm"
+      ]
+    },
+    {
+      "id": "app_smart_home",
+      "label": "App Control & Smart Home Integration",
+      "description": "Quality of the companion app (scheduling, zone cleaning, no-go zones, maps) and compatibility with voice assistants and smart home platforms.",
+      "keywords": [
+        "app",
+        "alexa",
+        "google",
+        "no-go zone",
+        "schedule",
+        "voice",
+        "wifi",
+        "smart home",
+        "智能家居",
+        "語音",
+        "zone cleaning",
+        "remote"
+      ]
+    },
+    {
+      "id": "noise_level",
+      "label": "Noise Level",
+      "description": "How loud the robot operates during cleaning cycles, typically measured in decibels (dB), including availability of a quiet or night mode.",
+      "keywords": [
+        "noise",
+        "db",
+        "decibel",
+        "quiet",
+        "silent",
+        "噪音",
+        "靜音",
+        "sound",
+        "loud",
+        "night mode",
+        "low noise"
+      ]
+    },
+    {
+      "id": "filtration_allergen",
+      "label": "Filtration & Allergen Control",
+      "description": "The type of filter used (HEPA, multi-layer) and its effectiveness at trapping fine particles, allergens, and pet dander.",
+      "keywords": [
+        "hepa",
+        "filter",
+        "allergen",
+        "過濾",
+        "濾網",
+        "dust",
+        "pollen",
+        "pet dander",
+        "pm2.5",
+        "filtration",
+        "washable filter",
+        "air quality"
+      ]
+    },
+    {
+      "id": "pet_hair_performance",
+      "label": "Pet Hair Performance",
+      "description": "How well the robot handles pet hair, including brush design (tangle-free, rubber rollers) and suction tuned for fur pickup.",
+      "keywords": [
+        "pet hair",
+        "pet",
+        "fur",
+        "tangle",
+        "brush",
+        "roller",
+        "寵物",
+        "毛髮",
+        "anti-tangle",
+        "rubber brush",
+        "hair wrap",
+        "dog cat"
+      ]
+    },
+    {
+      "id": "floor_type_adaptability",
+      "label": "Floor Type Adaptability",
+      "description": "How well the robot transitions between and performs on different surfaces such as hardwood, tile, low-pile carpet, and high-pile carpet.",
+      "keywords": [
+        "carpet",
+        "hardwood",
+        "tile",
+        "floor type",
+        "地板",
+        "地毯",
+        "surface",
+        "boost",
+        "auto-boost",
+        "transition",
+        "pile",
+        "laminate"
+      ]
+    },
+    {
+      "id": "dustbin_maintenance",
+      "label": "Dustbin Size & Maintenance",
+      "description": "The onboard dustbin capacity, ease of emptying and cleaning, and overall maintenance burden including brush and filter upkeep.",
+      "keywords": [
+        "dustbin",
+        "bin",
+        "capacity",
+        "ml",
+        "maintenance",
+        "集塵盒",
+        "清潔",
+        "empty",
+        "washable",
+        "brush cleaning",
+        "filter replace",
+        "upkeep"
+      ]
+    },
+    {
+      "id": "price",
+      "label": "Price / Value",
+      "description": "Price, budget fit and overall value",
+      "keywords": [
+        "price",
+        "cost",
+        "budget",
+        "affordable",
+        "value",
+        "discount"
+      ]
+    },
+    {
+      "id": "brand_reputation",
+      "label": "Brand Reputation",
+      "description": "Reviews, support and brand trust",
+      "keywords": [
+        "review",
+        "rating",
+        "reputation",
+        "support",
+        "trusted",
+        "brand"
+      ]
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "description": "Category-specific attributes not yet normalized",
+      "keywords": []
+    }
+  ],
+  "clusters": [
+    {
+      "id": "hands_free_home",
+      "label": "Fully Hands-Free Home Cleaning",
+      "description": "Buyers who want maximum automation with minimal intervention — they prioritize self-emptying bases, long runtime, and smart scheduling so the robot runs itself completely.",
+      "attributes": [
+        "self_emptying_base",
+        "battery_runtime",
+        "app_smart_home",
+        "navigation_mapping"
+      ]
+    },
+    {
+      "id": "pet_owner",
+      "label": "Pet Owner",
+      "description": "Buyers with dogs or cats who need powerful suction, tangle-free brushes, HEPA filtration, and reliable daily pickup of fur and dander.",
+      "attributes": [
+        "pet_hair_performance",
+        "suction_power",
+        "filtration_allergen",
+        "self_emptying_base"
+      ]
+    },
+    {
+      "id": "hard_floor_mopper",
+      "label": "Hard Floor & Mopping Enthusiast",
+      "description": "Buyers with mostly hard floors (tile, hardwood) who want a vacuum-mop combo that scrubs effectively and automatically lifts the mop pad on rugs.",
+      "attributes": [
+        "mopping_capability",
+        "floor_type_adaptability",
+        "suction_power",
+        "navigation_mapping"
+      ]
+    },
+    {
+      "id": "allergy_sensitive",
+      "label": "Allergy & Air Quality Sensitive",
+      "description": "Buyers or household members with allergies or asthma who prioritize HEPA filtration, sealed dustbins, and quiet operation for frequent daily runs.",
+      "attributes": [
+        "filtration_allergen",
+        "noise_level",
+        "dustbin_maintenance",
+        "pet_hair_performance"
+      ]
+    },
+    {
+      "id": "smart_home_techie",
+      "label": "Smart Home Integrator",
+      "description": "Tech-savvy buyers who want precise LiDAR mapping, granular app controls (room-level zones, no-go lines), and deep integration with Alexa, Google, or Matter ecosystems.",
+      "attributes": [
+        "app_smart_home",
+        "navigation_mapping",
+        "obstacle_avoidance",
+        "noise_level"
+      ]
+    }
+  ]
+}

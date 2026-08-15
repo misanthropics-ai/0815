@@ -69,6 +69,34 @@ FALLBACK_IDS = [
 
 MODEL_CACHE = config.DATA_DIR / "bedrock_models.json"
 
+# ---------------------------------------------------------------- token usage accounting
+_USAGE_LOCK = threading.Lock()
+_USAGE: dict[str, dict] = {}
+
+
+def _record_usage(model: str, usage: dict | None) -> tuple[int, int]:
+    if not usage:
+        return 0, 0
+    tin = int(usage.get("inputTokens", 0) or 0)
+    tout = int(usage.get("outputTokens", 0) or 0)
+    key = (model or "?").rsplit(".", 1)[-1][:48]
+    with _USAGE_LOCK:
+        u = _USAGE.setdefault(key, {"calls": 0, "input_tokens": 0, "output_tokens": 0})
+        u["calls"] += 1
+        u["input_tokens"] += tin
+        u["output_tokens"] += tout
+    return tin, tout
+
+
+def usage_snapshot() -> dict[str, dict]:
+    with _USAGE_LOCK:
+        return {k: dict(v) for k, v in _USAGE.items()}
+
+
+def usage_reset() -> None:
+    with _USAGE_LOCK:
+        _USAGE.clear()
+
 
 def _err_code(e: Exception) -> str:
     resp = getattr(e, "response", None)
@@ -233,8 +261,10 @@ class BedrockLLM:
             try:
                 with self._sem:
                     out = self._runtime().converse(**kwargs)
+                tin, tout = _record_usage(model, out.get("usage"))
                 log("bedrock.converse", model=model.rsplit(".", 1)[-1][:40],
-                    ms=int((time.time() - t0) * 1000), retries=attempt)
+                    ms=int((time.time() - t0) * 1000), retries=attempt,
+                    in_tokens=tin, out_tokens=tout)
                 return out
             except Exception as e:
                 code = _err_code(e)
@@ -345,10 +375,15 @@ class BedrockLLM:
             for attempt in range(attempts):
                 try:
                     resp = self._runtime().converse_stream(**kwargs)
+                    stream_usage = None
                     for ev in resp["stream"]:
                         delta = ev.get("contentBlockDelta", {}).get("delta", {})
                         if "text" in delta:
                             yield delta["text"]
+                        meta = ev.get("metadata")
+                        if meta and meta.get("usage"):
+                            stream_usage = meta["usage"]
+                    _record_usage(kwargs["modelId"], stream_usage)
                     return
                 except Exception as e:
                     code = _err_code(e)
