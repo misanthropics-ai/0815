@@ -7,6 +7,7 @@ decisions. If neither exists, trigger a background batch set and report 202.
 from __future__ import annotations
 
 import asyncio
+import json
 from collections import Counter
 from typing import Optional
 
@@ -152,6 +153,71 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
             "suggested_fix": f"Publish concrete {attr} evidence on the product page.",
             "gap": "information_gap" if attr in page_null else "unclear",
         })
+    # --- retrievability: would lexical search over the corpus even surface this
+    # product for these intents? (was missing here => frontends rendered 0%)
+    retrieved_rate = None
+    try:
+        from backend.pipeline import corpus as corpus_mod
+        corp = corpus_mod.build_corpus([ref] + _competitor_refs(product))
+        own_doc = f"product:{ref}"
+        uniq: dict[str, dict] = {}
+        for d in decisions:
+            it = d.get("intent") or {}
+            key = it.get("intent_id") or it.get("text")
+            if key:
+                uniq[key] = it
+        if uniq:
+            hits = 0
+            for it in uniq.values():
+                kw = corpus_mod.attr_keywords(it.get("attributes", []), product.get("category"))
+                top = corpus_mod.retrieve(corp, it.get("text", ""), kw, k=4,
+                                          seed=it.get("intent_id") or "diag")
+                if any(h["doc"].doc_id == own_doc for h in top):
+                    hits += 1
+            retrieved_rate = round(hits / len(uniq), 3)
+    except Exception:
+        retrieved_rate = None
+
+    # --- salience: the page HAS the attribute but AI rarely cites it => make it
+    # more prominent (cross-decision perception-consistency check)
+    considered_ct = sum(1 for d in decisions for p in d["per_product"]
+                        if p["product_ref"] == ref and p["considered"])
+    mention: Counter = Counter()
+    for d in decisions:
+        for p in d["per_product"]:
+            if p["product_ref"] == ref and p["considered"]:
+                for r in p.get("reasons_for", []):
+                    mention[r.get("attribute")] += 1
+    page_attrs = {a["attribute_id"]: a for a in product["attributes"] if a.get("value")}
+    relevant = set(attr_counts) | {a for d in decisions
+                                   for a in (d.get("intent") or {}).get("attributes", [])}
+    salience_added = 0
+    for attr in page_attrs:
+        if salience_added >= 2 or considered_ct < 5 or attr not in relevant:
+            continue
+        rate = mention.get(attr, 0) / considered_ct
+        if rate < 0.4:
+            defects.append({
+                "defect_id": f"def_{len(defects) + 1:03d}",
+                "type": "weak_evidence",
+                "attribute_id": attr,
+                "severity": "medium",
+                "headline": f"'{attr}' is on the page but AI cited it in only "
+                            f"{int(rate * 100)}% of {considered_ct} considered decisions — "
+                            "low salience",
+                "evidence": {"cluster_id": "overall",
+                             "losing_share_in_cluster": round(1 - rec / n, 3),
+                             "n_losses": considered_ct - mention.get(attr, 0),
+                             "sample_rejection_reasons": [],
+                             "competitor_contrast": ""},
+                "suggested_fix": f"Make {attr} impossible to miss: surface it in the title / "
+                                 "first bullets / spec table and add structured data so every "
+                                 "AI pass sees it.",
+                "gap": "information_gap",
+                "perception_rate": round(rate, 3),
+            })
+            salience_added += 1
+
     winning = sorted(((c, round(s["rec"] / max(1, s["n"]), 3)) for c, s in by_cluster.items()),
                      key=lambda kv: -kv[1])[:3]
     vs = {r: round(w / n, 3) for r, w in comp_wins.most_common(4)}
@@ -159,12 +225,74 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
         "product_ref": ref, "generated_at": db.now_iso(),
         "overall": {"recommendation_share": round(rec / n, 3),
                     "consideration_share": round(cons / n, 3),
+                    "retrieved_rate": retrieved_rate,
                     "n_simulations": n, "vs": vs},
         "defects": defects,
         "winning_clusters": [{"cluster_id": c, "recommendation_share": s} for c, s in winning],
         "source": {"type": "batches", "n_decisions": n},
     }
     db.save_diagnosis(ref, ref, "batches", diag)
+    return diag
+
+
+ENRICH_SCHEMA = {
+    "type": "object",
+    "properties": {"defect_enrichments": {"type": "array", "items": {
+        "type": "object",
+        "properties": {
+            "defect_id": {"type": "string"},
+            "why_it_happens": {"type": "string"},
+            "suggested_fix": {"type": "string"},
+            "content_patch": {"type": "string"},
+        },
+        "required": ["defect_id", "suggested_fix", "content_patch"],
+    }}},
+    "required": ["defect_enrichments"],
+}
+
+
+async def _enrich_batch_defects(product: dict, diag: dict) -> dict:
+    """Turn template defects into vendor-actionable page changes (LLM, cached)."""
+    from backend.llm import bedrock as llm
+    from backend.llm.bedrock import cache_key_for, get_bedrock
+    defects = diag.get("defects") or []
+    if not defects or not get_bedrock().available():
+        return diag
+    if all(d.get("content_patch") for d in defects):
+        return diag
+    fp = cache_key_for("diagenrich", product["ref"],
+                       [(d["defect_id"], d["headline"]) for d in defects], "v1")
+    compact = [
+        {"defect_id": d["defect_id"], "type": d["type"], "attribute": d["attribute_id"],
+         "headline": d["headline"], "gap": d.get("gap"),
+         "samples": d["evidence"]["sample_rejection_reasons"][:2]}
+        for d in defects]
+    prompt = (
+        f"Brand: {product['brand']} — {product['display_name']} "
+        f"(category: {product.get('category')}).\n"
+        "Current product page text:\n" + (product.get("raw_text") or "")[:2500] + "\n\n"
+        "Diagnosis defects (from AI shopping-assistant simulations):\n"
+        + json.dumps(compact, ensure_ascii=False) + "\n\n"
+        "For EVERY defect_id return: why_it_happens (1-2 sentences grounded in the page "
+        "text and samples), suggested_fix (the concrete page change: what to add/move and "
+        "WHERE — title, first bullets, spec table, FAQ, schema.org markup), content_patch "
+        "(ready-to-paste copy for that fix written for THIS product; a JSON-LD snippet when "
+        "structured data fits). Never invent product facts the page doesn't state — for "
+        "missing attributes write the patch as a clearly marked [FILL IN: ...] template "
+        "the vendor completes.")
+    try:
+        enrich = await llm.acomplete_json(prompt=prompt, schema=ENRICH_SCHEMA,
+                                          max_tokens=3200, cache_key=fp)
+    except Exception:
+        return diag
+    by_id = {e.get("defect_id"): e for e in (enrich or {}).get("defect_enrichments", [])}
+    for d in defects:
+        e = by_id.get(d["defect_id"])
+        if e:
+            d["why_it_happens"] = e.get("why_it_happens", d.get("why_it_happens", ""))
+            d["suggested_fix"] = e.get("suggested_fix") or d["suggested_fix"]
+            d["content_patch"] = e.get("content_patch", "")
+    db.save_diagnosis(product["ref"], product["ref"], "batches", diag)
     return diag
 
 
@@ -246,7 +374,7 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True,
         return None, _trigger_state_payload(product["ref"])
     diag = diagnosis_from_batches(product)
     if diag:
-        return diag, None
+        return await _enrich_batch_defects(product, diag), None
     cached = db.get_diagnosis(product["ref"])
     if cached:
         return cached, None

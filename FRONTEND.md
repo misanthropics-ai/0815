@@ -186,6 +186,19 @@ GET /products/{ref}/diagnosis
 
 Top of page (from `diagnosis.overall`): big `recommendation_share` %, `n_simulations`, and `vs` = `{competitor_ref: share}` for the comparison bars.
 
+**Metric semantics** (render these consistently):
+- `retrieved_rate` — share of simulated buyer intents whose **search retrieval over the
+  content corpus surfaced this product's own page**. Pure visibility: "would search even
+  find you". Can legitimately be LOWER than consideration in batch mode, because batch
+  simulations inject the candidates for a controlled comparison while retrieval is
+  measured separately. Low retrieval + high consideration = "AI can compare you when
+  forced to, but organic search wouldn't find you." `null` ⇒ render "—", never 0%.
+- `consideration_share` — share of decisions where the assistant substantively compared
+  the product as an option.
+- `recommendation_share` — share of decisions where it was the final pick.
+- Defects may carry `perception_rate`: the attribute IS on the page but only that share
+  of decisions actually cited it → prominence problem ("放在更顯眼的位置").
+
 Defect cards (`diagnosis.defects[]`, already sorted by severity):
 
 | UI element | Field |
