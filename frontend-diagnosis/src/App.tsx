@@ -43,7 +43,13 @@ export default function App() {
   </section></main>
 }
 function Header({ product, stage }: { product: Product; stage: string }) { return <header className="product-header"><div><p className="eyebrow">{stage} · {product.ref ?? `${product.product_id}@v${product.version}`}</p><h1>{product.display_name}</h1>{product.source_url && <a href={product.source_url} target="_blank" rel="noreferrer">{product.source_url.replace('https://', '')} ↗</a>}</div><span className="stage">{stage}</span></header> }
-function Attributes({ product, fieldLabel }: { product: Product; fieldLabel: (id: string) => string }) { return <div className="attribute-table">{product.attributes.map(a => <div className={a.value ? 'attribute-row' : 'attribute-row unknown'} key={a.attribute_id}><span>{fieldLabel(a.attribute_id)}</span><b>{a.value ?? '? Not found on page'}</b><small>{a.evidence ?? 'No supporting text was extracted.'}</small></div>)}</div> }
+export function Attributes({ product, fieldLabel }: { product: Product; fieldLabel: (id: string) => string }) {
+  const imageAttributes = product.attributes.filter(attribute => attribute.source === 'image' && attribute.value)
+  return <>
+    {imageAttributes.length > 0 && <aside className="image-warning" role="status"><span aria-hidden="true">📷</span><p><b>Image-only specifications detected</b>這些規格只存在於圖片中，AI 爬蟲讀不到。將它們同步到頁面文字、規格表與 schema.org，才能讓 AI 搜尋到。</p></aside>}
+    <div className="attribute-table">{product.attributes.map(a => <div className={a.value ? 'attribute-row' : 'attribute-row unknown'} key={a.attribute_id}><span>{fieldLabel(a.attribute_id)}{a.source === 'image' && <em className="image-badge">📷 from image</em>}</span><b>{a.value ?? '? Not found on page'}</b><small>{a.evidence ?? 'No supporting text was extracted.'}</small></div>)}</div>
+  </>
+}
 function ComparedProducts({ products }: { products: Record<string, number> }) {
   const entries = Object.entries(products)
   return <section className="compared-products"><div><p className="eyebrow">COMPARISON SET</p><h2>Compared with</h2><p>Only products actually used in this diagnosis are listed.</p></div><div className="compared-product-list">{entries.length ? entries.map(([ref, share]) => <article key={ref}><code>{ref}</code><strong>{pct(share)}</strong><span>recommendation share</span></article>) : <p>No eligible same-category competitors were available for this diagnosis.</p>}</div></section>
