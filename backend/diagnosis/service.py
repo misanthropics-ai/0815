@@ -197,6 +197,27 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
             continue
         rate = mention.get(attr, 0) / considered_ct
         if rate < 0.4:
+            # evidence: the minority of decisions that DID cite it (verbatim), plus a
+            # "competitor gets this attribute cited X% vs your Y%" contrast line
+            pos_quotes = [r.get("text") for d2 in decisions for p2 in d2["per_product"]
+                          if p2["product_ref"] == ref and p2["considered"]
+                          for r in p2.get("reasons_for", [])
+                          if r.get("attribute") == attr and r.get("text")][:2]
+            samples = ([f'when AI did see it: "{q}"' for q in pos_quotes]
+                       or [f"no decision ever cited {attr} — the page information is "
+                           "effectively invisible to the AI"])
+            contrast = ""
+            if top_comp:
+                comp_cons = sum(1 for d2 in decisions for p2 in d2["per_product"]
+                                if p2["product_ref"] == top_comp and p2["considered"])
+                comp_mention = sum(1 for d2 in decisions for p2 in d2["per_product"]
+                                   if p2["product_ref"] == top_comp and p2["considered"]
+                                   for r in p2.get("reasons_for", [])
+                                   if r.get("attribute") == attr)
+                if comp_cons:
+                    contrast = (f"{top_comp} gets {attr} cited in "
+                                f"{int(comp_mention / comp_cons * 100)}% of its considered "
+                                f"decisions vs your {int(rate * 100)}%")
             defects.append({
                 "defect_id": f"def_{len(defects) + 1:03d}",
                 "type": "weak_evidence",
@@ -208,8 +229,8 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
                 "evidence": {"cluster_id": "overall",
                              "losing_share_in_cluster": round(1 - rec / n, 3),
                              "n_losses": considered_ct - mention.get(attr, 0),
-                             "sample_rejection_reasons": [],
-                             "competitor_contrast": ""},
+                             "sample_rejection_reasons": samples,
+                             "competitor_contrast": contrast},
                 "suggested_fix": f"Make {attr} impossible to miss: surface it in the title / "
                                  "first bullets / spec table and add structured data so every "
                                  "AI pass sees it.",
@@ -217,6 +238,20 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
                 "perception_rate": round(rate, 3),
             })
             salience_added += 1
+
+    # order by severity (high → medium → low), then impact; renumber ids to match
+    sev_rank = {"high": 0, "medium": 1, "low": 2}
+    defects.sort(key=lambda d: (sev_rank.get(d["severity"], 3), -d["evidence"]["n_losses"]))
+    for i, d in enumerate(defects):
+        d["defect_id"] = f"def_{i + 1:03d}"
+    # every defect ships non-empty commentary even before/without LLM enrichment
+    for d in defects:
+        if not d.get("why_it_happens"):
+            d["why_it_happens"] = d["headline"]
+        if not d.get("content_patch"):
+            d["content_patch"] = (f"[TEMPLATE] Add a prominent '{d['attribute_id']}' block near "
+                                  f"the top of the page: state the concrete facts, numbers and "
+                                  f"proof. Replace with tailored copy via the enrichment pass.")
 
     winning = sorted(((c, round(s["rec"] / max(1, s["n"]), 3)) for c, s in by_cluster.items()),
                      key=lambda kv: -kv[1])[:3]
@@ -258,8 +293,9 @@ async def _enrich_batch_defects(product: dict, diag: dict) -> dict:
     defects = diag.get("defects") or []
     if not defects or not get_bedrock().available():
         return diag
-    if all(d.get("content_patch") for d in defects):
-        return diag
+    if all(d.get("content_patch") and not d["content_patch"].startswith("[TEMPLATE]")
+           for d in defects):
+        return diag  # already enriched with tailored patches
     fp = cache_key_for("diagenrich", product["ref"],
                        [(d["defect_id"], d["headline"]) for d in defects], "v1")
     compact = [
