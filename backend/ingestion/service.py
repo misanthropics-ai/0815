@@ -133,7 +133,8 @@ async def create_product(body: dict) -> dict:
             raise ValueError("source_url required for source=url")
         import httpx
 
-        from backend.ingestion.fetcher import fetch_url
+        from backend.ingestion.fetcher import fetch_url, unwrap_url
+        body["source_url"] = unwrap_url(body["source_url"])  # store the real page as source
         try:
             title, raw_text = await fetch_url(body["source_url"])
         except httpx.HTTPError as e:
