@@ -7,12 +7,16 @@ import compareFixture from '../../backend/mock_fixtures/response.metrics_compare
 const API = import.meta.env.VITE_API_BASE?.replace(/\/$/, '')
 const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms))
 export const isMock = !API
-export class ApiFailure extends Error {}
+export class ApiFailure extends Error {
+  constructor(message: string, readonly code?: string, readonly hint?: string) { super(message) }
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<{ status: number; data: T }> {
   const response = await fetch(`${API}${path}`, { ...init, headers: { 'content-type': 'application/json', ...init?.headers } })
   const data = await response.json()
-  if (!response.ok && response.status !== 202) throw new ApiFailure(data.error?.message ?? 'The service could not complete this request.')
+  if (!response.ok && response.status !== 202) {
+    throw new ApiFailure(data.error?.message ?? 'The service could not complete this request.', data.error?.code, data.error?.hint)
+  }
   return { status: response.status, data }
 }
 
