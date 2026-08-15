@@ -17,3 +17,5 @@ For EVERY taxonomy attribute except "other", return:
 - confidence: 0..1 (use 0.0 when value is null)
 
 value=null is important diagnostic signal ("the page doesn't say it") — never fill in what the page doesn't state. Also return: brand, display_name (from text if clearly stated, else keep the hints), and product_id: a lowercase hyphenated slug like "cabinzero-classic-36l".
+
+{{category_instruction}}

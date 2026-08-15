@@ -8,17 +8,15 @@ producing product_id@v{n+1} (before/after + debate v2 loop).
 """
 from __future__ import annotations
 
-import json
 import re
-from functools import lru_cache
 from typing import Optional
 
-from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.pipeline.corpus import slugify
 from backend.storage import db
+from backend.taxonomy import GENERIC_PATH, load_taxonomy, taxonomy_path
 
 PROMPT_VERSION = "extract_v1"
 
@@ -37,6 +35,7 @@ EXTRACT_SCHEMA = {
         "product_id": {"type": "string"},
         "brand": {"type": "string"},
         "display_name": {"type": "string"},
+        "category": {"type": "string"},
         "attributes": {"type": "array", "items": {
             "type": "object",
             "properties": {
@@ -52,20 +51,21 @@ EXTRACT_SCHEMA = {
 }
 
 
-@lru_cache(maxsize=1)
-def _tax() -> dict:
-    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+def _tax(category: Optional[str] = None) -> dict:
+    """Category-aware taxonomy: specific file if one exists, else generic.
+    None => generic + let the LLM detect the category."""
+    return load_taxonomy(category if category is not None else "generic product")
 
 
-def _attr_ids() -> list[str]:
-    return [a["id"] for a in _tax()["attributes"] if a["id"] != "other"]
+def _attr_ids(category: Optional[str] = None) -> list[str]:
+    return [a["id"] for a in _tax(category)["attributes"] if a["id"] != "other"]
 
 
-def _keyword_extract(raw_text: str) -> list[dict]:
+def _keyword_extract(raw_text: str, category: Optional[str] = None) -> list[dict]:
     """Offline fallback: sentence containing an attribute keyword becomes weak evidence."""
     out = []
     sentences = re.split(r"(?<=[.!?])\s+", raw_text or "")
-    for a in _tax()["attributes"]:
+    for a in _tax(category)["attributes"]:
         if a["id"] == "other":
             continue
         hit = None
@@ -79,29 +79,53 @@ def _keyword_extract(raw_text: str) -> list[dict]:
     return out
 
 
-async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str) -> dict:
-    """Return {product_id?, brand, display_name, attributes[]} (normalized, all attrs present)."""
+async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str,
+                             category: Optional[str] = None) -> dict:
+    """Return {product_id?, brand, display_name, category, attributes[]}.
+
+    category given  => extract against that category's taxonomy (specific file or generic).
+    category absent/blank => extract against the GENERIC taxonomy and let the LLM detect
+    the category; if the detected category has a specific taxonomy file (e.g. travel
+    backpack), re-extract once with it so the demo categories keep their rich attribute set.
+    """
+    category = (category or "").strip() or None  # "" from empty form fields == not provided
+    detect = category is None
+    tax = _tax(category)
     result: Optional[dict] = None
     if get_bedrock().available():
         tax_block = "\n".join(f'- {a["id"]}: {a["label"]} — {a["description"]}'
-                              for a in _tax()["attributes"] if a["id"] != "other")
+                              for a in tax["attributes"] if a["id"] != "other")
+        category_instruction = (
+            "Also return category: a short lowercase English noun phrase for the product type "
+            "(e.g. 'travel backpack', 'wireless earbuds', 'espresso machine')."
+            if detect else f"The product category is: {category}.")
         prompt = render_prompt("extract_v1", display_name=display_hint or "(unknown)",
                                brand=brand_hint or "(unknown)", taxonomy_block=tax_block,
-                               raw_text=raw_text[:14000])
+                               raw_text=raw_text[:14000],
+                               category_instruction=category_instruction)
         try:
             result = await bedrock.acomplete_json(
                 prompt=prompt, schema=EXTRACT_SCHEMA, max_tokens=3500,
-                cache_key=cache_key_for("extract", raw_text[:14000], PROMPT_VERSION))
+                cache_key=cache_key_for("extract", raw_text[:14000], PROMPT_VERSION,
+                                        tax.get("category"), detect))
         except Exception:
             result = None
     if result is None:
         result = {"brand": brand_hint, "display_name": display_hint,
-                  "attributes": _keyword_extract(raw_text)}
-    # normalize: every taxonomy attribute exactly once
+                  "attributes": _keyword_extract(raw_text, category)}
+    # detected category with a SPECIFIC taxonomy file => one re-extract with it
+    if detect and result.get("category"):
+        detected = str(result["category"]).strip()
+        if detected and taxonomy_path(detected) != GENERIC_PATH:
+            return await extract_attributes(raw_text, brand_hint, display_hint,
+                                            category=detected)
+        category = detected or None
+    # normalize: every taxonomy attribute exactly once (against the taxonomy actually used)
+    valid = _attr_ids(category)
     by_id = {}
     for a in result.get("attributes", []):
         aid = a.get("attribute_id")
-        if aid in _attr_ids() and aid not in by_id:
+        if aid in valid and aid not in by_id:
             val = a.get("value")
             conf = max(0.0, min(1.0, float(a.get("confidence") or 0)))
             by_id[aid] = {"attribute_id": aid,
@@ -109,10 +133,11 @@ async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str) 
                           "evidence": (a.get("evidence") or None),
                           "confidence": conf if val is not None else 0.0}
     attributes = [by_id.get(aid, {"attribute_id": aid, "value": None, "evidence": None,
-                                  "confidence": 0.0}) for aid in _attr_ids()]
+                                  "confidence": 0.0}) for aid in valid]
     return {"product_id": result.get("product_id"),
             "brand": (result.get("brand") or brand_hint or "Unknown").strip(),
             "display_name": (result.get("display_name") or display_hint or "Unknown product").strip(),
+            "category": category,
             "attributes": attributes}
 
 
@@ -164,13 +189,30 @@ async def create_product(body: dict) -> dict:
         brand_hint = body["brand"]
     else:
         raise ValueError("source must be 'url' or 'manual_prototype'")
-    ext = await extract_attributes(raw_text, brand_hint, display_hint)
+    ext = await extract_attributes(raw_text, brand_hint, display_hint,
+                                   category=body.get("category"))
+    category = ext.get("category") or (body.get("category") or "").strip() or None
+    if category:
+        # learn (or extend) the category taxonomy from this page; if that changed the
+        # attribute set, re-extract once against the category-specific taxonomy
+        from backend.taxonomy.builder import ensure_category_taxonomy
+        try:
+            tax = await ensure_category_taxonomy(category, raw_text)
+            if tax:
+                want = {a["id"] for a in tax["attributes"] if a["id"] != "other"}
+                have = {a["attribute_id"] for a in ext["attributes"]}
+                if want != have:
+                    ext = await extract_attributes(raw_text, brand_hint, display_hint,
+                                                   category=category)
+        except Exception:
+            pass
     pid = body.get("product_id") or ext.get("product_id") or f"{ext['brand']}-{ext['display_name']}"
     product = {
         "product_id": _unique_product_id(pid),
         "version": 1,
         "brand": ext["brand"],
         "display_name": ext["display_name"],
+        "category": category,
         "source": source,
         "source_url": body.get("source_url"),
         "raw_text": raw_text,
@@ -190,13 +232,15 @@ async def create_version(product_id: str, base_version: int, additions: list[str
     if not additions:
         raise ValueError("additions must contain at least one non-empty paragraph")
     raw_text = base["raw_text"].rstrip() + "\n\n" + "\n\n".join(additions)
-    ext = await extract_attributes(raw_text, base["brand"], base["display_name"])
+    ext = await extract_attributes(raw_text, base["brand"], base["display_name"],
+                                   category=base.get("category"))
     new_version = (db.latest_version(product_id) or base_version) + 1
     product = {
         "product_id": product_id,
         "version": new_version,
         "brand": base["brand"],
         "display_name": base["display_name"],
+        "category": base.get("category"),
         "source": base["source"],
         "source_url": base["source_url"],
         "raw_text": raw_text,
