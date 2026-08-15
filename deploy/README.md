@@ -1,6 +1,16 @@
 # AWS 部署
 
-## 路徑 A（建議）：App Runner 一鍵部署
+## 路徑 0（最快，不需要 docker）：EC2 一鍵腳本
+
+```bash
+python deploy/deploy_ec2.py            # zip 程式碼→S3→開 EC2(t3.small)→systemd 起服務→印出 URL
+python deploy/deploy_ec2.py --status   # 查狀態 / health URL
+python deploy/deploy_ec2.py --terminate
+```
+- 會嘗試建 instance role（`EC2Bedrock0815`，bedrock:Invoke*）→ 服務器**不依賴會過期的 session creds**；IAM 被鎖就退回把 creds 寫進 `.env`（過期後重跑 deploy 即可）。
+- 開機 + pip install 約 2–4 分鐘後 `http://<IP>:8000/health` 就緒。
+
+## 路徑 A（需要本機 docker）：App Runner 一鍵部署
 
 前置：本機有 docker、`backend/.env` 有有效 AWS creds。
 

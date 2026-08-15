@@ -100,6 +100,7 @@ class BedrockLLM:
         return self._rt
 
     def _verify(self, model_id: str) -> bool:
+        from botocore.exceptions import NoCredentialsError  # type: ignore
         for attempt in range(2):
             try:
                 self._runtime().converse(
@@ -107,6 +108,9 @@ class BedrockLLM:
                     messages=[{"role": "user", "content": [{"text": "ping"}]}],
                     inferenceConfig={"maxTokens": 8})
                 return True
+            except NoCredentialsError as e:
+                raise LLMError("no AWS credentials available (env vars or instance role)",
+                               code="aws_auth") from e
             except Exception as e:
                 code = _err_code(e)
                 if code in AUTH_ERRORS:
@@ -147,10 +151,8 @@ class BedrockLLM:
                 return self.error is None and bool(self.smart)
             self.error = None
             try:
-                if config.env("AWS_ACCESS_KEY_ID") is None:
-                    self.error = "no AWS credentials configured"
-                    self._ready = True
-                    return False
+                # NOTE: no env-var check here — boto3 resolves credentials from the
+                # standard chain (env vars, shared config, EC2/ECS instance role).
                 # explicit override
                 if config.BEDROCK_MODEL:
                     self.smart = config.BEDROCK_MODEL
