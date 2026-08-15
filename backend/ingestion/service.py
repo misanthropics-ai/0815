@@ -249,6 +249,15 @@ async def create_product(body: dict) -> dict:
 
         from backend.ingestion.fetcher import fetch_page, unwrap_url
         body["source_url"] = unwrap_url(body["source_url"])  # store the real page as source
+        from urllib.parse import urlparse
+        path = urlparse(body["source_url"]).path.lower()
+        if any(seg in path for seg in ("/categories/", "/category/", "/search", "/list",
+                                       "/collections/", "/brand/")):
+            raise IngestionError(
+                "this looks like a category/listing page, not a single product page",
+                code="listing_page",
+                hint="貼單一商品頁的網址（例如 momo 的 /goods/GoodsDetail.jsp?i_code=...），"
+                     "分類頁包含多個商品，無法抽取單一產品屬性")
         existing = _reusable_url_product(body["source_url"], body.get("category"))
         if existing:
             return existing

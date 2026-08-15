@@ -314,48 +314,66 @@ ENRICH_SCHEMA = {
 
 
 async def _enrich_batch_defects(product: dict, diag: dict) -> dict:
-    """Turn template defects into vendor-actionable page changes (LLM, cached)."""
+    """Turn template defects into vendor-actionable page changes (LLM, cached).
+
+    Chunked 3 defects per call (full patches are long — one big call used to
+    truncate and silently drop defect_ids). `enriched` is set PER DEFECT only
+    when a tailored content_patch actually came back.
+    """
     from backend.llm import bedrock as llm
     from backend.llm.bedrock import cache_key_for, get_bedrock
+    from backend.loglib import log
     defects = diag.get("defects") or []
-    if not defects or not get_bedrock().available():
+    todo = [d for d in defects if not d.get("enriched")]
+    if not todo or not get_bedrock().available():
         return diag
-    if all(d.get("enriched") for d in defects):
-        return diag  # already enriched with tailored patches
-    fp = cache_key_for("diagenrich", product["ref"],
-                       [(d["defect_id"], d["headline"]) for d in defects], "v1")
-    compact = [
-        {"defect_id": d["defect_id"], "type": d["type"], "attribute": d["attribute_id"],
-         "headline": d["headline"], "gap": d.get("gap"),
-         "samples": d["evidence"]["sample_rejection_reasons"][:2]}
-        for d in defects]
-    prompt = (
-        f"Brand: {product['brand']} — {product['display_name']} "
-        f"(category: {product.get('category')}).\n"
-        "Current product page text:\n" + (product.get("raw_text") or "")[:2500] + "\n\n"
-        "Diagnosis defects (from AI shopping-assistant simulations):\n"
-        + json.dumps(compact, ensure_ascii=False) + "\n\n"
-        "For EVERY defect_id return: why_it_happens (1-2 sentences grounded in the page "
-        "text and samples), suggested_fix (the concrete page change: what to add/move and "
-        "WHERE — title, first bullets, spec table, FAQ, schema.org markup), content_patch "
-        "(ready-to-paste copy for that fix written for THIS product; a JSON-LD snippet when "
-        "structured data fits). Never invent product facts the page doesn't state — for "
-        "missing attributes write the patch as a clearly marked [FILL IN: ...] template "
-        "the vendor completes.")
-    try:
-        enrich = await llm.acomplete_json(prompt=prompt, schema=ENRICH_SCHEMA,
-                                          max_tokens=3200, cache_key=fp)
-    except Exception:
-        return diag
-    by_id = {e.get("defect_id"): e for e in (enrich or {}).get("defect_enrichments", [])}
-    for d in defects:
-        e = by_id.get(d["defect_id"])
-        if e:
-            d["why_it_happens"] = e.get("why_it_happens", d.get("why_it_happens", ""))
-            d["suggested_fix"] = e.get("suggested_fix") or d["suggested_fix"]
-            d["content_patch"] = e.get("content_patch") or d["content_patch"]
-        d["enriched"] = True  # one successful pass covers the defect set
-    db.save_diagnosis(product["ref"], product["ref"], "batches", diag)
+    changed = False
+    for i in range(0, len(todo), 3):
+        chunk = todo[i:i + 3]
+        fp = cache_key_for("diagenrich", product["ref"],
+                           [(d["defect_id"], d["headline"]) for d in chunk], "v2")
+        compact = [
+            {"defect_id": d["defect_id"], "type": d["type"], "attribute": d["attribute_id"],
+             "headline": d["headline"], "gap": d.get("gap"),
+             "samples": d["evidence"]["sample_rejection_reasons"][:2]}
+            for d in chunk]
+        prompt = (
+            f"Brand: {product['brand']} — {product['display_name']} "
+            f"(category: {product.get('category')}).\n"
+            "Current product page text:\n" + (product.get("raw_text") or "")[:2500] + "\n\n"
+            "Diagnosis defects (from AI shopping-assistant simulations):\n"
+            + json.dumps(compact, ensure_ascii=False) + "\n\n"
+            "For EVERY defect_id return: why_it_happens (1-2 sentences grounded in the page "
+            "text and samples), suggested_fix (the concrete page change: what to add/move and "
+            "WHERE — title, first bullets, spec table, FAQ, schema.org markup), content_patch "
+            "(ready-to-paste copy for that fix written for THIS product, in the page's "
+            "language; a JSON-LD snippet when structured data fits). Never invent product "
+            "facts the page doesn't state — for missing attributes write the patch as a "
+            "clearly marked [FILL IN: ...] template the vendor completes.")
+        try:
+            enrich = await llm.acomplete_json(prompt=prompt, schema=ENRICH_SCHEMA,
+                                              max_tokens=4000, cache_key=fp)
+        except Exception as e:  # noqa: BLE001
+            log("diagnosis.enrichment_error", ref=product["ref"],
+                defect_ids=[d["defect_id"] for d in chunk], error=str(e)[:180])
+            continue
+        by_id = {e.get("defect_id"): e for e in (enrich or {}).get("defect_enrichments", [])}
+        missing = []
+        for d in chunk:
+            e = by_id.get(d["defect_id"])
+            if e and e.get("content_patch"):
+                d["why_it_happens"] = e.get("why_it_happens") or d.get("why_it_happens", "")
+                d["suggested_fix"] = e.get("suggested_fix") or d["suggested_fix"]
+                d["content_patch"] = e["content_patch"]
+                d["enriched"] = True
+                changed = True
+            else:
+                missing.append(d["defect_id"])
+        if missing:
+            log("diagnosis.enrichment_missing_defect", ref=product["ref"],
+                defect_ids=missing)
+    if changed:
+        db.save_diagnosis(product["ref"], product["ref"], "batches", diag)
     return diag
 
 
