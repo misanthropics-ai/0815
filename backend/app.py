@@ -1,0 +1,505 @@
+"""AI Recommendation Diagnostics — backend API (P1+P2+P3).
+
+Run from repo root:  backend/run.sh   (or: uvicorn backend.app:app --port 8000)
+All LLM calls go through AWS Bedrock; with no AWS creds every endpoint still
+works in mock mode. Errors: {"error": {"code", "message"}}.
+SSE events: token / action / progress / result-in-done / error / done.
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+from typing import AsyncIterator, Optional
+
+from fastapi import FastAPI, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
+from pydantic import BaseModel, Field
+
+from backend import config
+from backend.llm.bedrock import LLMError, get_bedrock
+from backend.pipeline import funnel as funnel_mod
+from backend.pipeline import runner
+from backend.pipeline.engines import engine_status
+from backend.storage import db
+
+app = FastAPI(title="AI Recommendation Diagnostics API", version="v3")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
+                   allow_headers=["*"])
+
+
+# ---------------------------------------------------------------- errors
+
+def _err(status: int, code: str, message: str) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}})
+
+
+@app.exception_handler(ValueError)
+async def _val_err(_: Request, exc: ValueError):
+    return _err(400, "bad_request", str(exc))
+
+
+@app.exception_handler(KeyError)
+async def _key_err(_: Request, exc: KeyError):
+    return _err(404, "not_found", str(exc.args[0]) if exc.args else "not found")
+
+
+@app.exception_handler(LLMError)
+async def _llm_err(_: Request, exc: LLMError):
+    return _err(503, exc.code, str(exc))
+
+
+@app.exception_handler(Exception)
+async def _any_err(_: Request, exc: Exception):
+    return _err(500, "internal", f"{type(exc).__name__}: {exc}")
+
+
+def _sse(event: str, data) -> str:
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no",
+               "Connection": "keep-alive"}
+
+
+# ---------------------------------------------------------------- startup
+
+@app.on_event("startup")
+async def _startup() -> None:
+    from backend.seeds.seed import seed_all
+    await asyncio.to_thread(seed_all)
+    # warm bedrock discovery off the request path
+    asyncio.get_running_loop().run_in_executor(None, get_bedrock().ensure_ready)
+
+
+# ---------------------------------------------------------------- health / meta
+
+@app.get("/health")
+async def health():
+    br = get_bedrock()
+    ready = await asyncio.to_thread(br.ensure_ready)
+    return {
+        "status": "ok",
+        "mode_default": config.DEFAULT_MODE,
+        "bedrock": {"ready": ready, "smart_model": br.smart, "fast_model": br.fast,
+                    "error": br.error},
+        "engines": engine_status(),
+        "products": len(db.list_products()),
+        "library_intents": db.count_intents("library"),
+    }
+
+
+@app.get("/taxonomy")
+async def taxonomy():
+    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+
+
+@app.get("/engines")
+async def engines():
+    return {"available": engine_status(), "default": config.DEFAULT_ENGINES}
+
+
+# ---------------------------------------------------------------- pipeline runs
+
+class RunCreate(BaseModel):
+    brand: str
+    competitors: Optional[list[str]] = None
+    brand_products: Optional[list[str]] = None
+    category: Optional[str] = None
+    market: Optional[str] = None
+    language: Optional[str] = None
+    personas: Optional[list[str]] = None
+    n_intents: int = Field(default=60, ge=10, le=300)
+    engines: Optional[list[str]] = None
+    mode: Optional[str] = None            # mock | live | auto
+    judge_model: Optional[str] = None     # smart | fast | explicit bedrock id
+    product_refs: Optional[list[str]] = None
+
+
+@app.post("/runs")
+async def create_run(body: RunCreate):
+    cfg = runner.normalize_config(body.model_dump(exclude_none=True))
+    handle = runner.start_run(cfg)
+    return {"run_id": handle.run_id, "status": "running", "config": cfg}
+
+
+@app.get("/runs")
+async def list_runs():
+    return {"runs": db.list_runs()}
+
+
+@app.get("/runs/{run_id}")
+async def get_run(run_id: str):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+    return run
+
+
+@app.post("/runs/{run_id}/cancel")
+async def cancel_run(run_id: str):
+    ok = runner.cancel_run(run_id)
+    return {"run_id": run_id, "cancelled": ok}
+
+
+@app.post("/runs/{run_id}/resume")
+async def resume_run(run_id: str):
+    handle = runner.resume_run(run_id)
+    return {"run_id": handle.run_id, "status": "running"}
+
+
+@app.get("/runs/{run_id}/events")
+async def run_events(run_id: str):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+
+    async def gen() -> AsyncIterator[str]:
+        handle = runner.RUNS.get(run_id)
+        if run["status"] in ("completed", "failed", "cancelled") and (
+                not handle or not handle.task or handle.task.done()):
+            final = "done" if run["status"] == "completed" else "error"
+            yield _sse(final, {"run_id": run_id, "status": run["status"],
+                               "message": run.get("error") or "run " + run["status"], "pct": 100})
+            return
+        if not handle:
+            yield _sse("error", {"run_id": run_id,
+                                 "message": "run not active in this process (restart lost it); "
+                                            "POST /runs/{id}/resume to continue"})
+            return
+        q = handle.subscribe()
+        yield _sse("progress", {"run_id": run_id, "stage": handle.stage,
+                                "message": "subscribed", "pct": 0,
+                                "progress": handle.progress})
+        try:
+            while True:
+                try:
+                    ev = await asyncio.wait_for(q.get(), timeout=15.0)
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+                    continue
+                etype = ev.pop("type", "progress")
+                yield _sse(etype, ev)
+                if etype in ("done", "error"):
+                    return
+        finally:
+            handle.unsubscribe(q)
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+@app.get("/runs/{run_id}/intents")
+async def run_intents(run_id: str):
+    if not db.get_run(run_id):
+        raise KeyError(run_id)
+    return {"intents": db.get_intents(run_id)}
+
+
+@app.get("/runs/{run_id}/responses")
+async def run_responses(run_id: str, engine: Optional[str] = None,
+                        cluster: Optional[str] = None, intent_id: Optional[str] = None,
+                        full: bool = False):
+    if not db.get_run(run_id):
+        raise KeyError(run_id)
+    rows = db.get_responses(run_id, engine=engine, intent_id=intent_id,
+                            cluster_id=cluster, include_text=full)
+    for r in rows:
+        r.pop("ground_truth", None)
+    return {"responses": rows, "n": len(rows)}
+
+
+@app.get("/responses/{response_id}")
+async def get_response(response_id: str):
+    r = db.get_response(response_id)
+    if not r:
+        raise KeyError(response_id)
+    conn = db.connect()
+    try:
+        row = conn.execute("SELECT * FROM funnel WHERE response_id=?", (response_id,)).fetchone()
+    finally:
+        conn.close()
+    annotation = None
+    if row:
+        row = dict(row)
+        annotation = {"top_pick": row["top_pick"], "products": json.loads(row["products_json"]),
+                      "judge_model": row["judge_model"], "is_ground_truth": bool(row["is_ground_truth"])}
+    r.pop("ground_truth", None)
+    return {"response": r, "funnel": annotation}
+
+
+@app.get("/runs/{run_id}/funnel")
+async def run_funnel(run_id: str):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+    if run.get("funnel_summary"):
+        return run["funnel_summary"]
+    return await asyncio.to_thread(funnel_mod.aggregate, run_id, run["config"])
+
+
+@app.get("/runs/{run_id}/losses")
+async def run_losses(run_id: str, canonical: Optional[str] = None,
+                     attribute: Optional[str] = None, cluster: Optional[str] = None,
+                     engine: Optional[str] = None):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+    target = funnel_mod.brand_slug_map(run["config"])["target"]
+    rows = funnel_mod.collect_loss_reasons(run_id, canonical=canonical or target)
+    if attribute:
+        rows = [r for r in rows if r["attribute"] == attribute]
+    if cluster:
+        rows = [r for r in rows if r["cluster_id"] == cluster]
+    if engine:
+        rows = [r for r in rows if r["engine"] == engine]
+    return {"losses": rows, "n": len(rows)}
+
+
+@app.get("/runs/{run_id}/evidence")
+async def run_evidence(run_id: str):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+    return run.get("evidence") or {"attributes": {}}
+
+
+@app.get("/runs/{run_id}/report")
+async def run_report(run_id: str, format: str = Query(default="json")):
+    run = db.get_run(run_id)
+    if not run:
+        raise KeyError(run_id)
+    report = run.get("report")
+    if not report:
+        return _err(409, "not_ready", f"run status={run['status']}, report not generated yet")
+    if format == "md":
+        return PlainTextResponse(report.get("markdown", ""), media_type="text/markdown")
+    return report
+
+
+# ---------------------------------------------------------------- products (P1)
+
+class ProductCreate(BaseModel):
+    source: str                              # url | manual_prototype
+    source_url: Optional[str] = None
+    brand: Optional[str] = None
+    display_name: Optional[str] = None
+    raw_text: Optional[str] = None
+    product_id: Optional[str] = None
+
+
+class VersionCreate(BaseModel):
+    base_version: int
+    additions: list[str]
+    change_note: str
+
+
+@app.post("/products")
+async def create_product(body: ProductCreate):
+    from backend.ingestion.service import create_product as _create
+    return await _create(body.model_dump())
+
+
+@app.get("/products")
+async def list_products():
+    out = []
+    for p in db.list_products():
+        q = dict(p)
+        q["raw_text"] = (q["raw_text"] or "")[:300]
+        out.append(q)
+    return {"products": out}
+
+
+@app.get("/products/{ref}")
+async def get_product(ref: str):
+    p = db.get_product_by_ref(ref)
+    if not p:
+        raise KeyError(ref)
+    return p
+
+
+@app.post("/products/{product_id}/versions")
+async def create_version(product_id: str, body: VersionCreate):
+    from backend.ingestion.service import create_version as _cv
+    return await _cv(product_id, body.base_version, body.additions, body.change_note)
+
+
+# ---------------------------------------------------------------- simulate (P2)
+
+class IntentIn(BaseModel):
+    intent_id: Optional[str] = None
+    text: str
+    cluster_id: str = "other"
+    attributes: list[str] = []
+    language: str = "en"
+
+
+class SimulateReq(BaseModel):
+    intent: IntentIn
+    candidates: list[str]
+    stream: bool = True
+    cached: bool = False
+    mode: Optional[str] = None
+
+
+@app.post("/simulate")
+async def simulate(body: SimulateReq, request: Request):
+    from backend.decision.simulate import run_decision, stream_decision
+    wants_sse = body.stream or "text/event-stream" in (request.headers.get("accept") or "")
+    intent = body.intent.model_dump()
+    if not wants_sse:
+        return await run_decision(intent, body.candidates, cached=body.cached, mode=body.mode)
+
+    async def gen() -> AsyncIterator[str]:
+        try:
+            async for ev in stream_decision(intent, body.candidates, cached=body.cached,
+                                            mode=body.mode):
+                if ev["type"] == "token":
+                    yield _sse("token", {"text": ev["text"]})
+                elif ev["type"] == "result":
+                    yield _sse("done", {"decision": ev["decision"]})
+                elif ev["type"] == "error":
+                    yield _sse("error", {"message": ev["message"]})
+                    return
+        except Exception as e:  # noqa: BLE001
+            yield _sse("error", {"message": str(e)})
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+class BatchReq(BaseModel):
+    cluster_id: str
+    candidates: list[str]
+    runs: int = Field(default=3, ge=1, le=5)
+    cached: bool = True
+    max_intents: int = Field(default=12, ge=2, le=25)
+    wait: bool = False
+    mode: Optional[str] = None
+
+
+@app.post("/simulate/batch")
+async def simulate_batch(body: BatchReq):
+    from backend.decision.simulate import run_batch
+    if body.wait:
+        return await run_batch(body.cluster_id, body.candidates, runs=body.runs,
+                               cached=body.cached, max_intents=body.max_intents, mode=body.mode)
+    batch_id = db.new_id("batch")
+    db.create_batch({"batch_id": batch_id, "cluster_id": body.cluster_id,
+                     "candidates": body.candidates, "runs": body.runs, "status": "running",
+                     "n_intents": 0})
+    asyncio.get_running_loop().create_task(
+        run_batch(body.cluster_id, body.candidates, runs=body.runs, cached=body.cached,
+                  max_intents=body.max_intents, batch_id=batch_id, mode=body.mode))
+    return {"batch_id": batch_id, "status": "running", "cluster_id": body.cluster_id,
+            "candidates": body.candidates}
+
+
+@app.get("/simulate/batch/{batch_id}")
+async def get_batch(batch_id: str):
+    b = db.get_batch(batch_id)
+    if not b:
+        raise KeyError(batch_id)
+    b["n_decisions"] = len(b.get("decision_ids") or [])
+    return b
+
+
+@app.get("/decisions/{decision_id}")
+async def get_decision(decision_id: str):
+    d = db.get_decision(decision_id)
+    if not d:
+        raise KeyError(decision_id)
+    return d
+
+
+# ---------------------------------------------------------------- diagnosis (P3)
+
+@app.get("/products/{ref}/diagnosis")
+async def product_diagnosis(ref: str):
+    from backend.diagnosis.service import get_or_build
+    diag, pending = await get_or_build(ref, allow_trigger=True)
+    if diag:
+        return diag
+    return JSONResponse(status_code=202, content=pending or {"status": "running"})
+
+
+# ---------------------------------------------------------------- debate (P3)
+
+class DebateCreate(BaseModel):
+    product_ref: str
+    focus_defect_id: Optional[str] = None
+
+
+class MessageIn(BaseModel):
+    text: str
+
+
+@app.post("/debate/sessions")
+async def debate_create(body: DebateCreate):
+    from backend.debate.agent import create_session
+    return await create_session(body.product_ref, body.focus_defect_id)
+
+
+@app.get("/debate/sessions/{session_id}")
+async def debate_get(session_id: str):
+    s = db.get_debate_session(session_id)
+    if not s:
+        raise KeyError(session_id)
+    return {"session_id": s["session_id"], "product_ref": s["product_ref"],
+            "messages": [{"role": m["role"], "text": m["text"], "ts": m["ts"],
+                          "action_offer": m.get("action_offer")} for m in s["messages"]]}
+
+
+@app.post("/debate/sessions/{session_id}/messages")
+async def debate_message(session_id: str, body: MessageIn):
+    from backend.debate.agent import stream_reply
+
+    async def gen() -> AsyncIterator[str]:
+        try:
+            async for ev in stream_reply(session_id, body.text):
+                etype = ev.pop("type")
+                yield _sse(etype, ev)
+                if etype in ("done", "error"):
+                    return
+        except Exception as e:  # noqa: BLE001
+            yield _sse("error", {"message": str(e)})
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+# ---------------------------------------------------------------- metrics (P6 support)
+
+def _latest_batch_for(ref: str, cluster: str) -> Optional[dict]:
+    for b in db.list_batches(product_ref=ref):
+        if b and b["cluster_id"] == cluster and b["status"] == "completed" and b.get("shares", {}).get(ref):
+            return b
+    return None
+
+
+@app.get("/metrics/compare")
+async def metrics_compare(a: str, b: str, cluster: str):
+    ba, bb = _latest_batch_for(a, cluster), _latest_batch_for(b, cluster)
+    if not ba or not bb:
+        missing = [x for x, bx in ((a, ba), (b, bb)) if not bx]
+        return JSONResponse(status_code=202, content={
+            "status": "pending", "missing": missing, "cluster_id": cluster,
+            "hint": "run POST /simulate/batch for the missing side or wait for the debate action batches"})
+
+    def side(ref: str, batch: dict) -> dict:
+        s = batch["shares"][ref]
+        return {"product_ref": ref, "recommendation_share": s["recommendation_share"],
+                "consideration_share": s["consideration_share"],
+                "ci95_recommendation": s["ci95_recommendation"]}
+
+    pa, pb = db.get_product_by_ref(a), db.get_product_by_ref(b)
+    changes: list[str] = []
+    if pa and pb and pa["product_id"] == pb["product_id"]:
+        older, newer = (pa, pb) if pa["version"] < pb["version"] else (pb, pa)
+        delta_text = newer["raw_text"][len(older["raw_text"]):].strip()
+        changes = [c.strip() for c in delta_text.split("\n\n") if c.strip()]
+        if newer.get("change_note"):
+            changes.insert(0, f"note: {newer['change_note']}")
+    return {"cluster_id": cluster,
+            "n_per_side": min(len(ba.get("decision_ids") or []), len(bb.get("decision_ids") or [])),
+            "a": side(a, ba), "b": side(b, bb),
+            "delta_recommendation": round(bb["shares"][b]["recommendation_share"]
+                                          - ba["shares"][a]["recommendation_share"], 3),
+            "changes_applied": changes, "diff_url": None}

@@ -1,0 +1,87 @@
+{
+  "product_id": "cabinzero-classic-36l",
+  "version": 1,
+  "brand": "CabinZero",
+  "display_name": "CabinZero Classic 36L",
+  "source": "manual_prototype",
+  "source_url": "https://www.cabinzero.com/products/classic-36l",
+  "raw_text": "CabinZero Classic 36L Cabin Backpack. Travel light. Travel far. The Classic 36L is the original CabinZero: a simple, ultra-light cabin bag designed to make travel stress-free. Weighing just 760 g, it is one of the lightest cabin bags in the world — you pack the weight, not the bag. Dimensions: 44 x 30 x 24 cm, sized to fit within most airline carry-on allowances, including easyJet large cabin bags and British Airways hand luggage, and it clears Ryanair's priority cabin bag sizer with room to spare. Made from tough 600D polyester with premium YKK zippers throughout. Wide-opening main compartment lets you pack it like a suitcase, with an internal zipped mesh pocket for essentials and a padded sleeve section. Padded top and side grab handles for easy carrying. Every CabinZero comes with a built-in Global Luggage Tracker powered by Okoban: register your bag and get notified when it is found. 10-Year Warranty on all bags. Available in more than 25 colours, from Absolute Black to Miami Magenta. Price: $79.95. Free shipping over $49. The Classic 36L is loved by weekend travellers and budget-airline flyers across the world: one bag, zero stress.",
+  "attributes": [
+    {
+      "attribute_id": "price",
+      "value": "$79.95",
+      "evidence": "Price: $79.95.",
+      "confidence": 0.97
+    },
+    {
+      "attribute_id": "weight",
+      "value": "760 g",
+      "evidence": "Weighing just 760 g, it is one of the lightest cabin bags in the world",
+      "confidence": 0.97
+    },
+    {
+      "attribute_id": "comfort",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    },
+    {
+      "attribute_id": "airline_compliance",
+      "value": "44 x 30 x 24 cm; fits most carry-on allowances incl. easyJet/BA; clears Ryanair priority sizer",
+      "evidence": "sized to fit within most airline carry-on allowances ... clears Ryanair's priority cabin bag sizer",
+      "confidence": 0.92
+    },
+    {
+      "attribute_id": "capacity_size",
+      "value": "36L",
+      "evidence": "The Classic 36L is the original CabinZero",
+      "confidence": 0.95
+    },
+    {
+      "attribute_id": "organization",
+      "value": "wide-opening main compartment, internal zipped mesh pocket",
+      "evidence": "Wide-opening main compartment ... internal zipped mesh pocket for essentials",
+      "confidence": 0.6
+    },
+    {
+      "attribute_id": "durability",
+      "value": "600D polyester, YKK zippers",
+      "evidence": "Made from tough 600D polyester with premium YKK zippers",
+      "confidence": 0.85
+    },
+    {
+      "attribute_id": "warranty",
+      "value": "10-year warranty",
+      "evidence": "10-Year Warranty on all bags.",
+      "confidence": 0.95
+    },
+    {
+      "attribute_id": "style_design",
+      "value": "25+ colours",
+      "evidence": "Available in more than 25 colours",
+      "confidence": 0.6
+    },
+    {
+      "attribute_id": "security",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    },
+    {
+      "attribute_id": "sustainability",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    },
+    {
+      "attribute_id": "brand_reputation",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    }
+  ],
+  "parent_version": null,
+  "change_note": null,
+  "created_at": "2026-08-15T03:05:28+00:00",
+  "ref": "cabinzero-classic-36l@v1"
+}

@@ -1,0 +1,12 @@
+event: progress
+data: {"run_id": "run_e2e218a9a3", "stage": "intents", "done": 1, "total": 1, "message": "60 intents ready", "pct": 10}
+
+event: progress
+data: {"run_id": "run_e2e218a9a3", "stage": "execute", "done": 60, "total": 120, "message": "60/120 responses (0 errors)", "pct": 30}
+
+event: progress
+data: {"run_id": "run_e2e218a9a3", "stage": "funnel", "done": 120, "total": 120, "message": "judged 120/120", "pct": 80}
+
+event: done
+data: {"run_id": "run_e2e218a9a3", "pct": 100, "message": "run completed"}
+

@@ -1,0 +1,87 @@
+{
+  "product_id": "cabinzero-classic-36l",
+  "version": 2,
+  "brand": "CabinZero",
+  "display_name": "CabinZero Classic 36L",
+  "source": "manual_prototype",
+  "source_url": "https://www.cabinzero.com/products/classic-36l",
+  "raw_text": "CabinZero Classic 36L Cabin Backpack. Travel light. Travel far. The Classic 36L is the original CabinZero: a simple, ultra-light cabin bag designed to make travel stress-free. Weighing just 760 g, it is one of the lightest cabin bags in the world — you pack the weight, not the bag. Dimensions: 44 x 30 x 24 cm, sized to fit within most airline carry-on allowances, including easyJet large cabin bags and British Airways hand luggage, and it clears Ryanair's priority cabin bag sizer with room to spare. Made from tough 600D polyester with premium YKK zippers throughout. Wide-opening main compartment lets you pack it like a suitcase, with an internal zipped mesh pocket for essentials and a padded sleeve section. Padded top and side grab handles for easy carrying. Every CabinZero comes with a built-in Global Luggage Tracker powered by Okoban: register your bag and get notified when it is found. 10-Year Warranty on all bags. Available in more than 25 colours, from Absolute Black to Miami Magenta. Price: $79.95. Free shipping over $49. The Classic 36L is loved by weekend travellers and budget-airline flyers across the world: one bag, zero stress.\n\nFeatures a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear.",
+  "attributes": [
+    {
+      "attribute_id": "price",
+      "value": "$79.95; free shipping over $49",
+      "evidence": "Price: $79.95. Free shipping over $49.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "weight",
+      "value": "760 g",
+      "evidence": "Weighing just 760 g, it is one of the lightest cabin bags in the world — you pack the weight, not the bag.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "comfort",
+      "value": "Ventilated mesh back panel; extra-thick memory foam shoulder straps (lab-tested for 6+ hours); padded top and side grab handles",
+      "evidence": "Features a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear. Padded top and side grab handles for easy carrying.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "airline_compliance",
+      "value": "Fits most airline carry-on allowances including easyJet large cabin bags, British Airways hand luggage; clears Ryanair priority cabin bag sizer with room to spare",
+      "evidence": "sized to fit within most airline carry-on allowances, including easyJet large cabin bags and British Airways hand luggage, and it clears Ryanair's priority cabin bag sizer with room to spare.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "capacity_size",
+      "value": "36L; 44 x 30 x 24 cm",
+      "evidence": "Dimensions: 44 x 30 x 24 cm",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "organization",
+      "value": "Wide-opening main compartment (suitcase-style); internal zipped mesh pocket; padded sleeve section",
+      "evidence": "Wide-opening main compartment lets you pack it like a suitcase, with an internal zipped mesh pocket for essentials and a padded sleeve section.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "durability",
+      "value": "600D polyester; premium YKK zippers throughout",
+      "evidence": "Made from tough 600D polyester with premium YKK zippers throughout.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "warranty",
+      "value": "10-year warranty",
+      "evidence": "10-Year Warranty on all bags.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "style_design",
+      "value": "Available in more than 25 colours, from Absolute Black to Miami Magenta; simple/minimalist design",
+      "evidence": "Available in more than 25 colours, from Absolute Black to Miami Magenta.",
+      "confidence": 1.0
+    },
+    {
+      "attribute_id": "security",
+      "value": "Built-in Global Luggage Tracker powered by Okoban",
+      "evidence": "Every CabinZero comes with a built-in Global Luggage Tracker powered by Okoban: register your bag and get notified when it is found.",
+      "confidence": 0.8
+    },
+    {
+      "attribute_id": "sustainability",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    },
+    {
+      "attribute_id": "brand_reputation",
+      "value": "Loved by weekend travellers and budget-airline flyers across the world",
+      "evidence": "The Classic 36L is loved by weekend travellers and budget-airline flyers across the world: one bag, zero stress.",
+      "confidence": 0.7
+    }
+  ],
+  "parent_version": 1,
+  "change_note": "debate:dbt_7406af28c3",
+  "created_at": "2026-08-15T03:22:05+00:00",
+  "ref": "cabinzero-classic-36l@v2"
+}

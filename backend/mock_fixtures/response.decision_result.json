@@ -1,0 +1,91 @@
+{
+  "decision_id": "dec_263ec4475e",
+  "intent": {
+    "intent_id": null,
+    "text": "most comfortable travel backpack for walking all day",
+    "cluster_id": "comfort_carry",
+    "attributes": [
+      "comfort"
+    ],
+    "language": "en"
+  },
+  "candidates": [
+    "cabinzero-classic-36l@v1",
+    "osprey-farpoint-40@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "cotopaxi-allpa-35l@v1"
+  ],
+  "winner": "cabinzero-classic-36l@v1",
+  "per_product": [
+    {
+      "product_ref": "cabinzero-classic-36l@v1",
+      "considered": true,
+      "verdict": "recommended",
+      "rank": 1,
+      "reasons_for": [
+        {
+          "text": "at $80 it undercuts everything comparable",
+          "attribute": "price"
+        }
+      ],
+      "reasons_against": []
+    },
+    {
+      "product_ref": "osprey-farpoint-40@v1",
+      "considered": true,
+      "verdict": "rejected",
+      "rank": null,
+      "reasons_for": [
+        {
+          "text": "Osprey's All Mighty Guarantee repairs anything for life",
+          "attribute": "warranty"
+        }
+      ],
+      "reasons_against": [
+        {
+          "text": "at $185 it costs more than twice the budget picks",
+          "attribute": "price"
+        }
+      ]
+    },
+    {
+      "product_ref": "decathlon-forclaz-travel500-40l@v1",
+      "considered": true,
+      "verdict": "rejected",
+      "rank": null,
+      "reasons_for": [
+        {
+          "text": "the foam back and removable waist belt are unusually good at this price",
+          "attribute": "comfort"
+        }
+      ],
+      "reasons_against": [
+        {
+          "text": "it looks unmistakably like budget outdoor gear",
+          "attribute": "style_design"
+        }
+      ]
+    },
+    {
+      "product_ref": "cotopaxi-allpa-35l@v1",
+      "considered": true,
+      "verdict": "rejected",
+      "rank": null,
+      "reasons_for": [
+        {
+          "text": "the TPU-coated 1000D shell is tank-like",
+          "attribute": "durability"
+        }
+      ],
+      "reasons_against": [
+        {
+          "text": "the stiff shell won't squeeze into strict budget-airline sizers",
+          "attribute": "airline_compliance"
+        }
+      ]
+    }
+  ],
+  "narrative": "CabinZero Classic 36L: at $80 it undercuts everything comparable — the best match here.\n\nOsprey Farpoint 40: Osprey's All Mighty Guarantee repairs anything for life. However, at $185 it costs more than twice the budget picks.\n\nDecathlon Forclaz Travel 500 Organizer 40L: the foam back and removable waist belt are unusually good at this price. However, it looks unmistakably like budget outdoor gear.\n\nCotopaxi Allpa 35L: the TPU-coated 1000D shell is tank-like. However, the stiff shell won't squeeze into strict budget-airline sizers.",
+  "model": "mock/decision-v1",
+  "created_at": "2026-08-15T03:26:27+00:00"
+}

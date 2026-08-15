@@ -244,7 +244,7 @@ def start_run(cfg: dict) -> RunHandle:
         db.update_run(run_id, config=cfg, error=None)
     handle = RUNS.get(run_id) or RunHandle(run_id)
     RUNS[run_id] = handle
-    handle.task = asyncio.get_event_loop().create_task(_execute(handle, cfg))
+    handle.task = asyncio.get_running_loop().create_task(_execute(handle, cfg))
     return handle
 
 

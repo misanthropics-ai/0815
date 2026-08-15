@@ -191,20 +191,25 @@ async def evidence_audit(run_id: str, run_cfg: dict, funnel_summary: dict) -> di
         for slug in roster:
             docs = corp.docs_for_brand(slug)
             score, raw, snips = _evidence_score(docs, kws)
-            brands_block[slug] = {"score": score, "raw_hits": raw, "snippets": snips,
-                                  "n_docs": len(docs)}
+            page_score, _, _ = _evidence_score([d for d in docs if d.kind == "product_page"], kws)
+            ext_score, _, _ = _evidence_score([d for d in docs if d.kind != "product_page"], kws)
+            brands_block[slug] = {"score": score, "page_score": page_score,
+                                  "ext_score": ext_score, "raw_hits": raw,
+                                  "snippets": snips, "n_docs": len(docs)}
         t_page = page_map.get(attr, {})
+        t_page_null = t_page.get("value") is None if t_page else True
         best_comp = max((brands_block[s]["score"] for s in slugs["competitors"]), default=0.0)
         t_score = brands_block[target]["score"]
-        # rule-based fallback classification
-        if t_score == 0 and best_comp > 0:
-            rule = "information_gap" if t_page.get("value") is None else "mixed"
+        # rule-based fallback classification (the brand's OWN page is what matters
+        # for an information gap; third-party chatter can be negative evidence)
+        if (t_page_null or brands_block[target]["page_score"] == 0) and best_comp > 0:
+            rule = "information_gap"
         elif t_score > 0 and best_comp > t_score * 1.8:
             rule = "information_gap"
-        elif t_score >= best_comp:
-            rule = "unclear"
-        else:
+        elif best_comp > t_score:
             rule = "mixed"
+        else:
+            rule = "unclear"
         result[attr] = {
             "brands": brands_block,
             "target_page_value": t_page.get("value"),

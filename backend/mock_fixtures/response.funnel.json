@@ -1,0 +1,542 @@
+{
+  "run_id": "run_e2e218a9a3",
+  "n_annotated": 24,
+  "engines": [
+    "mock"
+  ],
+  "clusters": [
+    "airline_compliance",
+    "brand_alternative",
+    "budget_value",
+    "comfort_carry",
+    "durability_warranty",
+    "hiking_crossover",
+    "organization_tech",
+    "weight_minimal"
+  ],
+  "per_product": {
+    "cabinzero": {
+      "display": "CabinZero",
+      "is_target": true,
+      "overall": {
+        "n": 24,
+        "retrieved": 14,
+        "mentioned": 19,
+        "considered": 19,
+        "recommended": 1,
+        "retrieved_rate": 0.583,
+        "mention_rate": 0.792,
+        "consideration_share": 0.792,
+        "recommendation_share": 0.042
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 14,
+          "mentioned": 19,
+          "considered": 19,
+          "recommended": 1,
+          "retrieved_rate": 0.583,
+          "mention_rate": 0.792,
+          "consideration_share": 0.792,
+          "recommendation_share": 0.042
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 1,
+          "considered": 1,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 0.333,
+          "consideration_share": 0.333,
+          "recommendation_share": 0.0
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 0,
+          "mentioned": 2,
+          "considered": 2,
+          "recommended": 1,
+          "retrieved_rate": 0.0,
+          "mention_rate": 0.667,
+          "consideration_share": 0.667,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 1,
+          "considered": 1,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 0.333,
+          "consideration_share": 0.333,
+          "recommendation_share": 0.0
+        }
+      },
+      "loss_attributes": {
+        "comfort": 7,
+        "brand_reputation": 6,
+        "organization": 5
+      }
+    },
+    "cotopaxi": {
+      "display": "Cotopaxi",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 23,
+        "mentioned": 23,
+        "considered": 23,
+        "recommended": 6,
+        "retrieved_rate": 0.958,
+        "mention_rate": 0.958,
+        "consideration_share": 0.958,
+        "recommendation_share": 0.25
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 23,
+          "mentioned": 23,
+          "considered": 23,
+          "recommended": 6,
+          "retrieved_rate": 0.958,
+          "mention_rate": 0.958,
+          "consideration_share": 0.958,
+          "recommendation_share": 0.25
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 2,
+          "considered": 2,
+          "recommended": 1,
+          "retrieved_rate": 0.667,
+          "mention_rate": 0.667,
+          "consideration_share": 0.667,
+          "recommendation_share": 0.333
+        }
+      },
+      "loss_attributes": {
+        "price": 8,
+        "weight": 7,
+        "airline_compliance": 2
+      }
+    },
+    "decathlon": {
+      "display": "Decathlon",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 9,
+        "mentioned": 24,
+        "considered": 24,
+        "recommended": 8,
+        "retrieved_rate": 0.375,
+        "mention_rate": 1.0,
+        "consideration_share": 1.0,
+        "recommendation_share": 0.333
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 9,
+          "mentioned": 24,
+          "considered": 24,
+          "recommended": 8,
+          "retrieved_rate": 0.375,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 3,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 1.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 0,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 0.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        }
+      },
+      "loss_attributes": {
+        "weight": 10,
+        "style_design": 3,
+        "brand_reputation": 3
+      }
+    },
+    "osprey": {
+      "display": "Osprey",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 24,
+        "mentioned": 24,
+        "considered": 24,
+        "recommended": 9,
+        "retrieved_rate": 1.0,
+        "mention_rate": 1.0,
+        "consideration_share": 1.0,
+        "recommendation_share": 0.375
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 24,
+          "mentioned": 24,
+          "considered": 24,
+          "recommended": 9,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.375
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        }
+      },
+      "loss_attributes": {
+        "price": 9,
+        "airline_compliance": 4,
+        "weight": 2
+      }
+    }
+  },
+  "funnel_dropoff": {
+    "cabinzero": {
+      "not_retrieved": 5,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 18,
+      "recommended": 1
+    },
+    "cotopaxi": {
+      "not_retrieved": 1,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 17,
+      "recommended": 6
+    },
+    "decathlon": {
+      "not_retrieved": 0,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 16,
+      "recommended": 8
+    },
+    "osprey": {
+      "not_retrieved": 0,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 15,
+      "recommended": 9
+    }
+  },
+  "other_recommended": {}
+}
