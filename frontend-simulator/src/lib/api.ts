@@ -1,11 +1,53 @@
-import type { DecisionResult, ProductRef } from "../../../contracts/types";
+import type {
+  ComparePending,
+  CompareResult,
+  DecisionResult,
+  Intent,
+  Product,
+  ProductRef,
+} from "../../../contracts/types";
 
-const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
+const configuredBase = import.meta.env.VITE_API_BASE?.trim().replace(/\/$/, "");
+export const API_BASE = configuredBase || (import.meta.env.DEV ? "http://localhost:8000" : "");
+export const apiAvailable = Boolean(API_BASE);
+
+const configuredMode = import.meta.env.VITE_API_MODE;
+const apiMode = configuredMode === "mock" || configuredMode === "live" ? configuredMode : undefined;
+const useCache = import.meta.env.VITE_USE_CACHE !== "false";
 
 export type StreamEvent = {
   event: string;
   data: Record<string, unknown>;
 };
+
+type CompareResponse =
+  | { pending: false; data: CompareResult }
+  | { pending: true; data: ComparePending };
+
+function urlFor(path: string): string {
+  if (!apiAvailable) throw new Error("No API is configured. Set VITE_API_BASE to enable live mode.");
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+async function jsonRequest<T>(path: string): Promise<T> {
+  const response = await fetch(urlFor(path), { headers: { accept: "application/json" } });
+  const data = await response.json();
+  if (!response.ok) {
+    const message = data?.error?.message || `Request failed (${response.status}).`;
+    throw new Error(message);
+  }
+  return data as T;
+}
+
+export async function getProduct(ref: ProductRef): Promise<Product> {
+  return jsonRequest<Product>(`/products/${encodeURIComponent(ref)}`);
+}
+
+export async function listProducts(): Promise<Product[]> {
+  const result = await jsonRequest<{ products: Product[] }>("/products");
+  return result.products;
+}
 
 export async function* readSse(response: Response): AsyncGenerator<StreamEvent> {
   if (!response.body) throw new Error("The server returned an empty stream.");
@@ -34,14 +76,21 @@ export async function* readSse(response: Response): AsyncGenerator<StreamEvent> 
 }
 
 export async function simulate(
-  intent: { text: string; cluster_id: string; attributes: string[] },
+  intent: Intent,
   candidates: ProductRef[],
   onToken: (text: string) => void,
+  options: { cached?: boolean } = {},
 ): Promise<DecisionResult> {
-  const response = await fetch(`${API_BASE}/simulate`, {
+  const response = await fetch(urlFor("/simulate"), {
     method: "POST",
     headers: { "content-type": "application/json", accept: "text/event-stream" },
-    body: JSON.stringify({ intent, candidates, stream: true, cached: true, mode: "mock" }),
+    body: JSON.stringify({
+      intent,
+      candidates,
+      stream: true,
+      cached: options.cached ?? useCache,
+      ...(apiMode ? { mode: apiMode } : {}),
+    }),
   });
   if (!response.ok) throw new Error(`Simulation failed (${response.status}).`);
 
@@ -59,11 +108,15 @@ export async function compare(
   before: ProductRef,
   after: ProductRef,
   cluster: string,
-): Promise<Record<string, unknown>> {
-  const response = await fetch(
-    `${API_BASE}/metrics/compare?a=${encodeURIComponent(before)}&b=${encodeURIComponent(after)}&cluster=${encodeURIComponent(cluster)}`,
-  );
-  if (response.status === 202) throw new Error("Comparison is still running.");
-  if (!response.ok) throw new Error(`Comparison failed (${response.status}).`);
-  return (await response.json()) as Record<string, unknown>;
+  comparePath?: string,
+): Promise<CompareResponse> {
+  const path = comparePath || `/metrics/compare?a=${encodeURIComponent(before)}&b=${encodeURIComponent(after)}&cluster=${encodeURIComponent(cluster)}`;
+  const response = await fetch(urlFor(path), { headers: { accept: "application/json" } });
+  const data = await response.json();
+  if (response.status === 202) return { pending: true, data: data as ComparePending };
+  if (!response.ok) {
+    const message = data?.error?.message || `Comparison failed (${response.status}).`;
+    throw new Error(message);
+  }
+  return { pending: false, data: data as CompareResult };
 }

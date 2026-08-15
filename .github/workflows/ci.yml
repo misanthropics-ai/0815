@@ -131,3 +131,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Runtime smoke test
+        run: npm test --if-present
