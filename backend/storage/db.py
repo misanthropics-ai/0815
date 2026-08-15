@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS products (
   product_id TEXT NOT NULL, version INTEGER NOT NULL,
   brand TEXT, display_name TEXT, source TEXT, source_url TEXT,
   raw_text TEXT, attributes_json TEXT, parent_version INTEGER, change_note TEXT,
-  created_at TEXT, category TEXT, PRIMARY KEY (product_id, version)
+  created_at TEXT, category TEXT, personas_json TEXT, PRIMARY KEY (product_id, version)
 );
 CREATE TABLE IF NOT EXISTS runs (
   run_id TEXT PRIMARY KEY, config_json TEXT, status TEXT, stage TEXT,
@@ -130,6 +130,8 @@ def init_db() -> None:
         product_columns = {row["name"] for row in conn.execute("PRAGMA table_info(products)")}
         if "category" not in product_columns:
             conn.execute("ALTER TABLE products ADD COLUMN category TEXT")
+        if "personas_json" not in product_columns:
+            conn.execute("ALTER TABLE products ADD COLUMN personas_json TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -148,8 +150,8 @@ def upsert_product(p: dict) -> dict:
         conn.execute(
             """INSERT OR REPLACE INTO products
                (product_id, version, brand, display_name, source, source_url, raw_text,
-                attributes_json, parent_version, change_note, created_at, category)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                attributes_json, parent_version, change_note, created_at, category, personas_json)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 p["product_id"],
                 p.get("version", 1),
@@ -163,6 +165,7 @@ def upsert_product(p: dict) -> dict:
                 p.get("change_note"),
                 p.get("created_at") or now_iso(),
                 p.get("category"),
+                _j(p.get("personas")) if p.get("personas") else None,
             ),
         )
         conn.commit()
@@ -185,6 +188,7 @@ def _product_from_row(r: dict) -> dict:
         "change_note": r["change_note"],
         "created_at": r["created_at"],
         "category": r["category"] if "category" in r.keys() else None,
+        "personas": _uj(r["personas_json"]) if "personas_json" in r.keys() else None,
         "ref": make_ref(r["product_id"], r["version"]),
     }
 
@@ -234,12 +238,40 @@ def list_products_by_source_url(source_url: str) -> list[dict]:
         conn.close()
 
 
+def set_product_personas(product_id: str, personas) -> int:
+    """Set vendor-defined target personas on ALL versions. Returns rows updated."""
+    conn = connect()
+    try:
+        cur = conn.execute("UPDATE products SET personas_json=? WHERE product_id=?",
+                           (_j(personas) if personas else None, product_id))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
 def set_product_category(product_id: str, category: Optional[str]) -> int:
     """Set category on ALL versions of a product. Returns rows updated."""
     conn = connect()
     try:
         cur = conn.execute("UPDATE products SET category=? WHERE product_id=?",
                            (category, product_id))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
+def delete_batch_decisions_for_product(product_ref: str) -> int:
+    """Remove a product's batch simulation decisions (fresh re-diagnosis after
+    persona/category changes). Pipeline-run funnel data is untouched."""
+    conn = connect()
+    try:
+        cur = conn.execute(
+            "DELETE FROM decisions WHERE batch_id IS NOT NULL AND candidates_json LIKE ?",
+            (f'%"{product_ref}"%',))
+        conn.execute("DELETE FROM batches WHERE candidates_json LIKE ?",
+                     (f'%"{product_ref}"%',))
         conn.commit()
         return cur.rowcount
     finally:
@@ -756,6 +788,15 @@ def save_diagnosis(key: str, product_ref: str, source: str, payload: dict) -> No
             "INSERT OR REPLACE INTO diagnoses (key, product_ref, source, json, generated_at) VALUES (?,?,?,?,?)",
             (key, product_ref, source, _j(payload), now_iso()),
         )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def delete_diagnosis(key: str) -> None:
+    conn = connect()
+    try:
+        conn.execute("DELETE FROM diagnoses WHERE key=?", (key,))
         conn.commit()
     finally:
         conn.close()
