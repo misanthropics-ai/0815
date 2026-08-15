@@ -1,0 +1,13 @@
+{
+  "cluster_id": "comfort_carry",
+  "candidates": [
+    "cabinzero-classic-36l@v1",
+    "osprey-farpoint-40@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "cotopaxi-allpa-35l@v1"
+  ],
+  "runs": 2,
+  "max_intents": 6,
+  "wait": true,
+  "cached": true
+}

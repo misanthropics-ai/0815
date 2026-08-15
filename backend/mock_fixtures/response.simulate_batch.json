@@ -1,0 +1,69 @@
+{
+  "batch_id": "batch_d857248a8a",
+  "cluster_id": "weight_minimal",
+  "candidates": [
+    "cabinzero-classic-36l@v2",
+    "cotopaxi-allpa-35l@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "osprey-farpoint-40@v1"
+  ],
+  "runs": 2,
+  "status": "completed",
+  "n_intents": 8,
+  "shares": {
+    "cabinzero-classic-36l@v2": {
+      "recommendation_share": 1.0,
+      "consideration_share": 1.0,
+      "ci95_recommendation": [
+        0.806,
+        1.0
+      ]
+    },
+    "cotopaxi-allpa-35l@v1": {
+      "recommendation_share": 0.0,
+      "consideration_share": 1.0,
+      "ci95_recommendation": [
+        0.0,
+        0.194
+      ]
+    },
+    "decathlon-forclaz-travel500-40l@v1": {
+      "recommendation_share": 0.0,
+      "consideration_share": 1.0,
+      "ci95_recommendation": [
+        0.0,
+        0.194
+      ]
+    },
+    "osprey-farpoint-40@v1": {
+      "recommendation_share": 0.0,
+      "consideration_share": 1.0,
+      "ci95_recommendation": [
+        0.0,
+        0.194
+      ]
+    }
+  },
+  "decision_ids": [
+    "dec_a01b470356",
+    "dec_3b6fd88676",
+    "dec_8ef4abed58",
+    "dec_06e902ff61",
+    "dec_84442bcd68",
+    "dec_f1ab146883",
+    "dec_86bc782518",
+    "dec_d017ec6a72",
+    "dec_eb6abffd83",
+    "dec_596da63991",
+    "dec_ce285e712d",
+    "dec_f56e95ecca",
+    "dec_cc8915bf77",
+    "dec_2ee435aec3",
+    "dec_22087198cb",
+    "dec_f7820ac7e1"
+  ],
+  "error": null,
+  "created_at": "2026-08-15T03:24:17+00:00",
+  "updated_at": "2026-08-15T03:24:17+00:00",
+  "n_decisions": 16
+}

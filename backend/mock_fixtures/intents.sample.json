@@ -1,0 +1,2170 @@
+{
+  "version": 1,
+  "category": "travel_backpack",
+  "count": 163,
+  "intents": [
+    {
+      "intent_id": "lib_budget_value_00",
+      "text": "best budget travel backpack under $80",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_01",
+      "text": "cheapest carry-on backpack that won't fall apart after one trip, budget $60",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_02",
+      "text": "I'm a digital nomad living out of one bag and can spend at most $150 on a travel backpack for a one-week trip to Korea — what should I get?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_03",
+      "text": "is an expensive travel backpack actually worth it, or is a $100 one fine for Japan?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_04",
+      "text": "best value 40L backpack for a weekend trip, ideally under $130",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_05",
+      "text": "good travel backpack for a broke college student going to eastern Europe",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_06",
+      "text": "what 35L travel backpack gives the most for the money right now?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_07",
+      "text": "recommend a no-frills carry-on backpack under $80 for an engineer who carries a 16-inch laptop everywhere",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_08",
+      "text": "decent travel backpack under $60 that still looks okay for hostels in Europe",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_09",
+      "text": "best cheap alternative to the popular travel backpacks everyone recommends, max $150",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_10",
+      "text": "travel backpack under $100 with the fewest compromises for a weekend trip",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_11",
+      "text": "best budget travel backpack under $130",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_12",
+      "text": "cheapest carry-on backpack that won't fall apart after one trip, budget €120",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_13",
+      "text": "I'm a gym-goer commuting daily with training gear and can spend at most €90 on a travel backpack for a weekend trip to eastern Europe — what should I get?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": "a gym-goer commuting daily with training gear",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_14",
+      "text": "is an expensive travel backpack actually worth it, or is a $80 one fine for Southeast Asia?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_15",
+      "text": "best value 38L backpack for a 3-week trip, ideally under $60",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_16",
+      "text": "good travel backpack for a broke college student going to Europe",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_17",
+      "text": "what 36L travel backpack gives the most for the money right now?",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_18",
+      "text": "recommend a no-frills carry-on backpack under $130 for a digital nomad living out of one bag",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_19",
+      "text": "decent travel backpack under €120 that still looks okay for hostels in Japan",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_20",
+      "text": "best cheap alternative to the popular travel backpacks everyone recommends, max €90",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_budget_value_21",
+      "text": "travel backpack under $80 with the fewest compromises for a 3-week trip",
+      "cluster_id": "budget_value",
+      "cluster_label": "Budget / Value",
+      "attributes": [
+        "price",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_00",
+      "text": "backpack that definitely fits easyJet cabin size limits",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_01",
+      "text": "best 35L backpack that passes the Wizz Air sizer — I refuse to pay bag fees",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_02",
+      "text": "I'm a weekend hiker who wants one bag for city and trail flying Spirit to eastern Europe; which backpack fits under the seat?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": "a weekend hiker who wants one bag for city and trail",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_03",
+      "text": "largest backpack I can take on AirAsia as a personal item?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_04",
+      "text": "carry-on backpack guaranteed 55x40x20 compliant for a 2-month trip",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_05",
+      "text": "one-bag setup for Ryanair strict limits, a 5-day trip to Europe",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_06",
+      "text": "backpack that works as underseat bag on budget airlines in Portugal",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_07",
+      "text": "will a 35L travel backpack pass Wizz Air cabin rules? if not what should I buy",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_08",
+      "text": "best cabin-size backpack for a university student on a tight budget who only flies low-cost airlines",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": "a university student on a tight budget",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_09",
+      "text": "travel backpack that never gets gate-checked on AirAsia",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_10",
+      "text": "what backpack do frequent Vueling flyers actually use?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_11",
+      "text": "backpack that definitely fits Ryanair cabin size limits",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_12",
+      "text": "best 36L backpack that passes the easyJet sizer — I refuse to pay bag fees",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_13",
+      "text": "I'm a parent traveling with two kids flying Wizz Air to Europe; which backpack fits under the seat?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": "a parent traveling with two kids",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_14",
+      "text": "largest backpack I can take on Spirit as a personal item?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_15",
+      "text": "carry-on backpack guaranteed 55x40x20 compliant for a 10-day trip",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_16",
+      "text": "one-bag setup for Vueling strict limits, a 2-month trip to Japan",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_17",
+      "text": "backpack that works as underseat bag on budget airlines in Italy",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_18",
+      "text": "will a 36L travel backpack pass easyJet cabin rules? if not what should I buy",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_19",
+      "text": "best cabin-size backpack for a hobby photographer carrying a mirrorless kit who only flies low-cost airlines",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_20",
+      "text": "travel backpack that never gets gate-checked on Spirit",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_airline_compliance_21",
+      "text": "what backpack do frequent AirAsia flyers actually use?",
+      "cluster_id": "airline_compliance",
+      "cluster_label": "Airline Compliance",
+      "attributes": [
+        "airline_compliance",
+        "capacity_size",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_00",
+      "text": "most comfortable travel backpack for walking all day",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_01",
+      "text": "I'm a weekend hiker who wants one bag for city and trail and will walk 20k steps a day in Iceland — which backpack won't kill my back?",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "a weekend hiker who wants one bag for city and trail",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_02",
+      "text": "best travel backpack with real back support and a hip belt",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_03",
+      "text": "45L backpack comfortable enough to wear for hours in Portugal heat",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_04",
+      "text": "travel backpack for someone with lower back pain, a one-week trip",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_05",
+      "text": "which backpack carries heavy loads most comfortably for an engineer who carries a 16-inch laptop everywhere?",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_06",
+      "text": "backpack with ventilated back panel for sweaty summer travel in Italy",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_07",
+      "text": "most ergonomic carry-on backpack for a one-week trip with lots of walking",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_08",
+      "text": "do I need a hip belt on a 35L travel pack? what should I buy for Southeast Asia",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_09",
+      "text": "backpack that distributes weight well for a small-framed traveler",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_10",
+      "text": "comfort-first travel backpack recommendation for a hobby photographer carrying a mirrorless kit",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_12",
+      "text": "I'm a parent traveling with two kids and will walk 20k steps a day in Korea — which backpack won't kill my back?",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "a parent traveling with two kids",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_14",
+      "text": "35L backpack comfortable enough to wear for hours in Italy heat",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_15",
+      "text": "travel backpack for someone with lower back pain, a weekend trip",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_16",
+      "text": "which backpack carries heavy loads most comfortably for a digital nomad living out of one bag?",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_17",
+      "text": "backpack with ventilated back panel for sweaty summer travel in Iceland",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_18",
+      "text": "most ergonomic carry-on backpack for a weekend trip with lots of walking",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_19",
+      "text": "do I need a hip belt on a 36L travel pack? what should I buy for Portugal",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_21",
+      "text": "comfort-first travel backpack recommendation for an engineer who carries a 16-inch laptop everywhere",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "weight"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_00",
+      "text": "most durable travel backpack that will last 10 years",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_01",
+      "text": "buy-it-for-life travel backpack for a hobby photographer carrying a mirrorless kit",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_02",
+      "text": "backpack with the best warranty in case zippers break on a 10-day trip",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_03",
+      "text": "toughest 35L backpack for rough handling and Italy weather",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_04",
+      "text": "travel backpack with lifetime guarantee — which brands honor it?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_05",
+      "text": "which travel backpack survives being crammed into Wizz Air sizers weekly?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_06",
+      "text": "waterproof-ish durable backpack for monsoon season in Iceland",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_07",
+      "text": "backpack materials: what should a digital nomad living out of one bag look for to avoid tearing, and which model?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_08",
+      "text": "best-built travel backpack under $100 — durability over features",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_09",
+      "text": "travel pack that handles a 2-month overland trip through Korea without falling apart",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_10",
+      "text": "which backpack brand has the best repair program?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_12",
+      "text": "buy-it-for-life travel backpack for an engineer who carries a 16-inch laptop everywhere",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_13",
+      "text": "backpack with the best warranty in case zippers break on a 5-day trip",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_14",
+      "text": "toughest 36L backpack for rough handling and Iceland weather",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_16",
+      "text": "which travel backpack survives being crammed into easyJet sizers weekly?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_17",
+      "text": "waterproof-ish durable backpack for monsoon season in Korea",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_18",
+      "text": "backpack materials: what should a gym-goer commuting daily with training gear look for to avoid tearing, and which model?",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": "a gym-goer commuting daily with training gear",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_19",
+      "text": "best-built travel backpack under $80 — durability over features",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_durability_warranty_20",
+      "text": "travel pack that handles a 10-day overland trip through eastern Europe without falling apart",
+      "cluster_id": "durability_warranty",
+      "cluster_label": "Durability / Warranty",
+      "attributes": [
+        "durability",
+        "warranty"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_00",
+      "text": "best travel backpack with a proper 16-inch laptop compartment",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_01",
+      "text": "backpack with great organization for chargers, cables and documents for a gym-goer commuting daily with training gear",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": "a gym-goer commuting daily with training gear",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_02",
+      "text": "clamshell travel backpack that opens flat like a suitcase, around 40L",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_03",
+      "text": "one bag for work and travel: laptop, gym kit, a one-week trip — what fits?",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_04",
+      "text": "travel backpack with best pocket layout for a 32-year-old accountant heading to Europe for three weeks going to Europe",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": "a 32-year-old accountant heading to Europe for three weeks",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_05",
+      "text": "backpack for carrying camera gear plus clothes for a weekend trip",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_06",
+      "text": "tech-friendly carry-on backpack under $130",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_07",
+      "text": "best travel backpack for staying organized living out of packing cubes in Japan",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_08",
+      "text": "backpack with quick-access laptop sleeve for airport security, 40L size",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_09",
+      "text": "minimalist backpack that still organizes a laptop, tablet and travel documents",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_10",
+      "text": "which 35L pack has the best internal organization for one-baggers?",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_12",
+      "text": "backpack with great organization for chargers, cables and documents for a 32-year-old accountant heading to Europe for three weeks",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": "a 32-year-old accountant heading to Europe for three weeks",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_13",
+      "text": "clamshell travel backpack that opens flat like a suitcase, around 38L",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_14",
+      "text": "one bag for work and travel: laptop, gym kit, a weekend trip — what fits?",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_15",
+      "text": "travel backpack with best pocket layout for a weekend hiker who wants one bag for city and trail going to Japan",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": "a weekend hiker who wants one bag for city and trail",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_16",
+      "text": "backpack for carrying camera gear plus clothes for a 3-week trip",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_17",
+      "text": "tech-friendly carry-on backpack under $60",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_18",
+      "text": "best travel backpack for staying organized living out of packing cubes in Southeast Asia",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_19",
+      "text": "backpack with quick-access laptop sleeve for airport security, 38L size",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_organization_tech_21",
+      "text": "which 36L pack has the best internal organization for one-baggers?",
+      "cluster_id": "organization_tech",
+      "cluster_label": "Organization / Tech Carry",
+      "attributes": [
+        "organization",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_00",
+      "text": "lightest travel backpack that still holds a 5-day trip of clothes",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_01",
+      "text": "ultralight 30L backpack for one-bag travel to Europe",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_02",
+      "text": "I want my empty bag under 1 kg — best options for an engineer who carries a 16-inch laptop everywhere?",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_03",
+      "text": "lightest carry-on backpack that fits Wizz Air limits",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_04",
+      "text": "minimalist travel backpack for packing light, a 10-day trip",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_05",
+      "text": "best sub-1kg travel pack that isn't fragile",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_06",
+      "text": "how light can a 45L travel backpack get without losing comfort — recommendations?",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_07",
+      "text": "featherweight backpack for a hobby photographer carrying a mirrorless kit who hates heavy bags",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_08",
+      "text": "light and simple travel backpack under $150",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_09",
+      "text": "best lightweight backpack for summer travel around Europe",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_10",
+      "text": "ultralight one-bag setup recommendation for a 10-day trip",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_11",
+      "text": "lightest travel backpack that still holds a 2-month trip of clothes",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_12",
+      "text": "ultralight 45L backpack for one-bag travel to Japan",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_13",
+      "text": "I want my empty bag under 1 kg — best options for a digital nomad living out of one bag?",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_14",
+      "text": "lightest carry-on backpack that fits easyJet limits",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_15",
+      "text": "minimalist travel backpack for packing light, a 5-day trip",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_17",
+      "text": "how light can a 35L travel backpack get without losing comfort — recommendations?",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_18",
+      "text": "featherweight backpack for an engineer who carries a 16-inch laptop everywhere who hates heavy bags",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_19",
+      "text": "light and simple travel backpack under €90",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_20",
+      "text": "best lightweight backpack for summer travel around Japan",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_weight_minimal_21",
+      "text": "ultralight one-bag setup recommendation for a 5-day trip",
+      "cluster_id": "weight_minimal",
+      "cluster_label": "Ultralight / Minimal",
+      "attributes": [
+        "weight",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_00",
+      "text": "travel backpack that doubles as a day-hike pack in Korea",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_01",
+      "text": "one bag for city travel plus mountain trails on a weekend trip",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_02",
+      "text": "best crossover pack for a 32-year-old accountant heading to Europe for three weeks doing both hostels and hiking",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": "a 32-year-old accountant heading to Europe for three weeks",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_03",
+      "text": "backpack for eastern Europe trip with a few serious hikes — travel-friendly but trail-capable",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_04",
+      "text": "40L pack comfortable enough for a full-day trek but airline-cabin sized",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_05",
+      "text": "do I need a real hiking pack for Iceland or will a travel backpack do? recommend one",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_06",
+      "text": "travel pack with trekking-level suspension for a 3-week adventure trip",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_07",
+      "text": "hybrid hiking/travel backpack under $130",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_08",
+      "text": "best pack for hut-to-hut walking plus city stops in Korea",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_09",
+      "text": "backpack for an engineer who carries a 16-inch laptop everywhere mixing camping and cheap flights on Spirit",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_10",
+      "text": "adventure travel backpack that handles trails and AirAsia sizers",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_11",
+      "text": "travel backpack that doubles as a day-hike pack in eastern Europe",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_12",
+      "text": "one bag for city travel plus mountain trails on a 3-week trip",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_13",
+      "text": "best crossover pack for a weekend hiker who wants one bag for city and trail doing both hostels and hiking",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": "a weekend hiker who wants one bag for city and trail",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_14",
+      "text": "backpack for Europe trip with a few serious hikes — travel-friendly but trail-capable",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_15",
+      "text": "38L pack comfortable enough for a full-day trek but airline-cabin sized",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_16",
+      "text": "do I need a real hiking pack for Korea or will a travel backpack do? recommend one",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_17",
+      "text": "travel pack with trekking-level suspension for a one-week adventure trip",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_18",
+      "text": "hybrid hiking/travel backpack under $60",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_19",
+      "text": "best pack for hut-to-hut walking plus city stops in eastern Europe",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_20",
+      "text": "backpack for a digital nomad living out of one bag mixing camping and cheap flights on Wizz Air",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": "a digital nomad living out of one bag",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_hiking_crossover_21",
+      "text": "adventure travel backpack that handles trails and Spirit sizers",
+      "cluster_id": "hiking_crossover",
+      "cluster_label": "Hiking Crossover",
+      "attributes": [
+        "comfort",
+        "durability",
+        "capacity_size"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_00",
+      "text": "cheaper alternatives to Osprey Farpoint that are just as good",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_01",
+      "text": "is CabinZero-style simplicity better than feature-heavy packs for a 2-month trip?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_02",
+      "text": "alternatives to the Osprey Farpoint 40 for a university student on a tight budget",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": "a university student on a tight budget",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_03",
+      "text": "backpacks like the Cotopaxi Allpa but lighter or cheaper",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_04",
+      "text": "what do people buy instead of Osprey for one-bag travel to Portugal?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_05",
+      "text": "Decathlon backpack vs premium brands — which should a hobby photographer carrying a mirrorless kit pick?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_06",
+      "text": "best non-mainstream travel backpack brand worth trying under €90",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_07",
+      "text": "which brand makes the most recommended 35L travel pack right now?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_08",
+      "text": "trusted travel backpack brands for a 5-day trip — who actually delivers?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_09",
+      "text": "reddit-favorite travel backpacks that beat the big brands on value",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_10",
+      "text": "underrated alternatives to the most recommended travel backpacks",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_12",
+      "text": "is CabinZero-style simplicity better than feature-heavy packs for a 10-day trip?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_13",
+      "text": "alternatives to the Osprey Farpoint 40 for a hobby photographer carrying a mirrorless kit",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_15",
+      "text": "what do people buy instead of Osprey for one-bag travel to Italy?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_16",
+      "text": "Decathlon backpack vs premium brands — which should an engineer who carries a 16-inch laptop everywhere pick?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": "an engineer who carries a 16-inch laptop everywhere",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_17",
+      "text": "best non-mainstream travel backpack brand worth trying under $100",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_18",
+      "text": "which brand makes the most recommended 36L travel pack right now?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_brand_alternative_19",
+      "text": "trusted travel backpack brands for a 2-month trip — who actually delivers?",
+      "cluster_id": "brand_alternative",
+      "cluster_label": "Brand Alternatives",
+      "attributes": [
+        "brand_reputation",
+        "price"
+      ],
+      "persona": null,
+      "language": "en",
+      "source": "library"
+    }
+  ]
+}

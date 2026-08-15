@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: AI Recommendation Diagnostics API
+  version: "contract-v3"
+  description: >
+    唯一真相來源 (v3: 五階段 pipeline + v2 product/simulate/diagnosis/debate 相容)。
+    Schemas 細節見 contracts/schemas.py 與 backend/mock_fixtures/ 實例。
+    所有 LLM 呼叫走 AWS Bedrock; 無 creds 時整套 API 以 mock 模式運作。
+    錯誤統一 {"error": {"code", "message"}}。
+    SSE 事件型別 (全站僅這六種): token / action / progress / result(併入 done payload) / error / done。
+paths:
+  # ---- meta ----
+  /health:
+    get: { summary: "服務狀態 + bedrock 模型 + 引擎可用性", responses: { "200": { description: HealthStatus } } }
+  /taxonomy:
+    get: { summary: "attribute taxonomy + intent clusters", responses: { "200": { description: Taxonomy } } }
+  /engines:
+    get: { summary: "引擎可用性與預設引擎組", responses: { "200": { description: EngineStatus } } }
+
+  # ---- 五階段 pipeline (runs) ----
+  /runs:
+    post:
+      summary: "啟動五階段 pipeline (intents→execute→funnel→attribution→report)"
+      description: "request 見 request.post_runs.json; 回 {run_id, status, config}"
+      responses: { "200": { description: RunCreated }, "400": { description: ErrorResponse } }
+    get: { summary: "列出 runs", responses: { "200": { description: "{runs: RunStatus[]}" } } }
+  /runs/{run_id}:
+    get: { summary: "run 狀態+config+summary/report (見 response.run_status.json)", responses: { "200": { description: RunStatus }, "404": { description: ErrorResponse } } }
+  /runs/{run_id}/events:
+    get: { summary: "SSE 進度 (progress/done/error; 見 sse.run_events.txt)", responses: { "200": { description: "text/event-stream" } } }
+  /runs/{run_id}/cancel:
+    post: { summary: "取消執行中 run", responses: { "200": { description: "{cancelled: bool}" } } }
+  /runs/{run_id}/resume:
+    post: { summary: "續跑 failed/interrupted run (已完成部分自動跳過)", responses: { "200": { description: RunCreated } } }
+  /runs/{run_id}/intents:
+    get: { summary: "Stage1 產出的 intents", responses: { "200": { description: "{intents: Intent[]}" } } }
+  /runs/{run_id}/responses:
+    get: { summary: "Stage2 responses (?engine&cluster&intent_id&full)", responses: { "200": { description: "{responses: EngineResponse[]}" } } }
+  /responses/{response_id}:
+    get: { summary: "單筆 response 全文 + funnel 標註", responses: { "200": { description: "{response, funnel}" } } }
+  /runs/{run_id}/funnel:
+    get: { summary: "Stage3 聚合: per product × engine × cluster 漏斗 (見 response.funnel.json)", responses: { "200": { description: FunnelSummary } } }
+  /runs/{run_id}/losses:
+    get: { summary: "loss reasons (?canonical&attribute&cluster&engine)", responses: { "200": { description: "{losses: LossReason[]}" } } }
+  /runs/{run_id}/evidence:
+    get: { summary: "Stage4 evidence audit (per attribute, per brand, gap 分類)", responses: { "200": { description: EvidenceAudit } } }
+  /runs/{run_id}/report:
+    get: { summary: "Stage5 報告 (?format=json|md; 見 response.report.json)", responses: { "200": { description: Report }, "409": { description: "not ready" } } }
+
+  # ---- products (P1) ----
+  /products:
+    post:
+      summary: "輸入 URL 或 manual prototype → LLM 抽取 attributes (null=頁面沒寫)"
+      description: "request 見 request.post_products.manual.json"
+      responses: { "200": { description: Product }, "400": { description: ErrorResponse } }
+    get: { summary: "列出產品 (raw_text 截斷)", responses: { "200": { description: "{products: Product[]}" } } }
+  /products/{ref}:
+    get: { summary: "取產品 (ref=product_id@vN; 無@v=最新版)", responses: { "200": { description: Product }, "404": { description: ErrorResponse } } }
+  /products/{id}/versions:
+    post: { summary: "建立修改版並重抽 attributes (before/after 與 debate v2 迴圈)", responses: { "200": { description: Product } } }
+  /products/{ref}/diagnosis:
+    get:
+      summary: "取診斷 (優先: 最新完成 run; 次之: batches; 皆無→觸發 batch 回 202)"
+      responses: { "200": { description: Diagnosis }, "202": { description: "{status: running}" } }
+
+  # ---- simulate (P2) ----
+  /simulate:
+    post:
+      summary: "單次購物決策模擬 (SSE: token…→done{decision}; stream=false 回 DecisionResult)"
+      description: "request 見 request.post_simulate.json; SSE 見 sse.simulate.stream.txt"
+      responses: { "200": { description: "DecisionResult 或 SSE" } }
+  /simulate/batch:
+    post:
+      summary: "cluster×runs 批次 (wait=true 同步回 BatchResult; 否則回 {batch_id,status} 用 GET 輪詢)"
+      responses: { "200": { description: BatchResult } }
+  /simulate/batch/{batch_id}:
+    get: { summary: "batch 狀態 + shares", responses: { "200": { description: BatchResult } } }
+  /decisions/{decision_id}:
+    get: { summary: "單筆 DecisionResult", responses: { "200": { description: DecisionResult } } }
+
+  # ---- debate (P3) ----
+  /debate/sessions:
+    post: { summary: "開辯論 session (診斷未就緒會自動觸發)", responses: { "200": { description: "{session_id, product_ref}" } } }
+  /debate/sessions/{id}:
+    get: { summary: "完整對話歷史 (重整頁面用)", responses: { "200": { description: DebateSession } } }
+  /debate/sessions/{id}/messages:
+    post:
+      summary: "送使用者訊息 → SSE (token…/action{create_version_and_rerun}/done; 見 sse.debate.stream.txt)"
+      responses: { "200": { description: "SSE stream" } }
+
+  # ---- metrics (P6) ----
+  /metrics/compare:
+    get:
+      summary: "兩個 product version 的 share 對照 (?a&b&cluster); 缺 batch 回 202 pending"
+      responses: { "200": { description: CompareResult }, "202": { description: "{status: pending}" } }

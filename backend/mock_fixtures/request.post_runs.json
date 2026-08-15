@@ -1,0 +1,15 @@
+{
+  "brand": "CabinZero",
+  "competitors": [
+    "Osprey",
+    "Decathlon",
+    "Cotopaxi"
+  ],
+  "category": "travel backpack",
+  "n_intents": 60,
+  "engines": [
+    "sim-sonnet",
+    "sim-haiku"
+  ],
+  "mode": "auto"
+}

@@ -1,0 +1,805 @@
+{
+  "run_id": "run_e2e218a9a3",
+  "brand": "CabinZero",
+  "target_slug": "cabinzero",
+  "category": "travel backpack",
+  "generated_at": "2026-08-15T03:12:57+00:00",
+  "n_responses": 24,
+  "engines": [
+    "mock"
+  ],
+  "exec_summary": "CabinZero is recommended in 4% of 24 simulated answers and considered in 79%. The defect list identifies where the losses concentrate and which ones look like information gaps rather than product gaps.",
+  "quick_wins": [
+    "Fix def_001 (comfort): 7 stated losses",
+    "Fix def_002 (brand_reputation): 6 stated losses",
+    "Fix def_003 (organization): 5 stated losses"
+  ],
+  "defects": [
+    {
+      "defect_id": "def_001",
+      "type": "missing_attribute",
+      "attribute_id": "comfort",
+      "severity": "high",
+      "gap": "unclear",
+      "gap_rationale": "",
+      "headline": "No comfort information on the page — losing 100% of weight_minimal comparisons",
+      "why_it_happens": "minimal strap padding means your shoulders take the entire load",
+      "suggested_fix": "Publish concrete comfort specs on the product page (structured section + schema.org attributes).",
+      "content_patch": "[comfort] Add to product page: state the comfort facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.",
+      "impact": 9.8,
+      "clusters": [
+        "weight_minimal",
+        "hiking_crossover",
+        "budget_value"
+      ],
+      "evidence": {
+        "cluster_id": "weight_minimal",
+        "losing_share_in_cluster": 1.0,
+        "n_losses": 7,
+        "sample_rejection_reasons": [
+          "minimal strap padding means your shoulders take the entire load",
+          "minimal strap padding means your shoulders take the entire load",
+          "minimal strap padding means your shoulders take the entire load"
+        ],
+        "competitor_contrast": "Cotopaxi: Padded laptop sleeve (fits 15\") plus a tablet sleeve with soft lining, accessible from the top."
+      }
+    },
+    {
+      "defect_id": "def_002",
+      "type": "missing_attribute",
+      "attribute_id": "brand_reputation",
+      "severity": "high",
+      "gap": "information_gap",
+      "gap_rationale": "",
+      "headline": "No brand_reputation information on the page — losing 100% of brand_alternative comparisons",
+      "why_it_happens": "there are far fewer in-depth reviews of it than of the big names",
+      "suggested_fix": "Publish concrete brand_reputation specs on the product page (structured section + schema.org attributes).",
+      "content_patch": "[brand_reputation] Add to product page: state the brand_reputation facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.",
+      "impact": 8.4,
+      "clusters": [
+        "brand_alternative",
+        "durability_warranty",
+        "budget_value"
+      ],
+      "evidence": {
+        "cluster_id": "brand_alternative",
+        "losing_share_in_cluster": 1.0,
+        "n_losses": 6,
+        "sample_rejection_reasons": [
+          "there are far fewer in-depth reviews of it than of the big names",
+          "there are far fewer in-depth reviews of it than of the big names",
+          "there are far fewer in-depth reviews of it than of the big names"
+        ],
+        "competitor_contrast": "Osprey: The Farpoint 40 is the carry-on travel pack trusted by world travelers."
+      }
+    },
+    {
+      "defect_id": "def_003",
+      "type": "weak_evidence",
+      "attribute_id": "organization",
+      "severity": "high",
+      "gap": "unclear",
+      "gap_rationale": "",
+      "headline": "Weak organization evidence vs competitors — 5 stated losses",
+      "why_it_happens": "it's one big compartment with almost no internal organization",
+      "suggested_fix": "Strengthen organization evidence: specifics, numbers, FAQ entry, third-party quotes.",
+      "content_patch": "[organization] Add to product page: state the organization facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.",
+      "impact": 7.0,
+      "clusters": [
+        "organization_tech",
+        "budget_value",
+        "weight_minimal"
+      ],
+      "evidence": {
+        "cluster_id": "organization_tech",
+        "losing_share_in_cluster": 1.0,
+        "n_losses": 5,
+        "sample_rejection_reasons": [
+          "it's one big compartment with almost no internal organization",
+          "it's one big compartment with almost no internal organization",
+          "it's one big compartment with almost no internal organization"
+        ],
+        "competitor_contrast": "Cotopaxi: The Allpa is the adventure travel pack that opens like a suitcase and carries like a dream of organization."
+      }
+    },
+    {
+      "defect_id": "def_004",
+      "type": "positioning",
+      "attribute_id": "brand_reputation",
+      "severity": "medium",
+      "gap": "information_gap",
+      "gap_rationale": "brand content not retrieved for these intents",
+      "headline": "Brand missing from retrieved sources in 5 answers",
+      "why_it_happens": "brand absent from retrieved sources in 5/24 answers",
+      "suggested_fix": "Improve discoverability: product feed/schema markup, presence in roundups and community threads.",
+      "content_patch": "[brand_reputation] Add to product page: state the brand_reputation facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.",
+      "impact": 4.0,
+      "clusters": [
+        "airline_compliance"
+      ],
+      "evidence": {
+        "cluster_id": "airline_compliance",
+        "losing_share_in_cluster": 1.0,
+        "n_losses": 5,
+        "sample_rejection_reasons": [
+          "brand absent from retrieved sources in 5/24 answers"
+        ],
+        "competitor_contrast": ""
+      }
+    }
+  ],
+  "funnel": {
+    "cabinzero": {
+      "display": "CabinZero",
+      "is_target": true,
+      "overall": {
+        "n": 24,
+        "retrieved": 14,
+        "mentioned": 19,
+        "considered": 19,
+        "recommended": 1,
+        "retrieved_rate": 0.583,
+        "mention_rate": 0.792,
+        "consideration_share": 0.792,
+        "recommendation_share": 0.042
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 14,
+          "mentioned": 19,
+          "considered": 19,
+          "recommended": 1,
+          "retrieved_rate": 0.583,
+          "mention_rate": 0.792,
+          "consideration_share": 0.792,
+          "recommendation_share": 0.042
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 1,
+          "considered": 1,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 0.333,
+          "consideration_share": 0.333,
+          "recommendation_share": 0.0
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 0,
+          "mentioned": 2,
+          "considered": 2,
+          "recommended": 1,
+          "retrieved_rate": 0.0,
+          "mention_rate": 0.667,
+          "consideration_share": 0.667,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 1,
+          "considered": 1,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 0.333,
+          "consideration_share": 0.333,
+          "recommendation_share": 0.0
+        }
+      },
+      "loss_attributes": {
+        "comfort": 7,
+        "brand_reputation": 6,
+        "organization": 5
+      }
+    },
+    "cotopaxi": {
+      "display": "Cotopaxi",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 23,
+        "mentioned": 23,
+        "considered": 23,
+        "recommended": 6,
+        "retrieved_rate": 0.958,
+        "mention_rate": 0.958,
+        "consideration_share": 0.958,
+        "recommendation_share": 0.25
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 23,
+          "mentioned": 23,
+          "considered": 23,
+          "recommended": 6,
+          "retrieved_rate": 0.958,
+          "mention_rate": 0.958,
+          "consideration_share": 0.958,
+          "recommendation_share": 0.25
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 2,
+          "considered": 2,
+          "recommended": 1,
+          "retrieved_rate": 0.667,
+          "mention_rate": 0.667,
+          "consideration_share": 0.667,
+          "recommendation_share": 0.333
+        }
+      },
+      "loss_attributes": {
+        "price": 8,
+        "weight": 7,
+        "airline_compliance": 2
+      }
+    },
+    "decathlon": {
+      "display": "Decathlon",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 9,
+        "mentioned": 24,
+        "considered": 24,
+        "recommended": 8,
+        "retrieved_rate": 0.375,
+        "mention_rate": 1.0,
+        "consideration_share": 1.0,
+        "recommendation_share": 0.333
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 9,
+          "mentioned": 24,
+          "considered": 24,
+          "recommended": 8,
+          "retrieved_rate": 0.375,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 3,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 1.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 0,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 0.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 1,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 0.333,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 2,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 0.667,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        }
+      },
+      "loss_attributes": {
+        "weight": 10,
+        "style_design": 3,
+        "brand_reputation": 3
+      }
+    },
+    "osprey": {
+      "display": "Osprey",
+      "is_target": false,
+      "overall": {
+        "n": 24,
+        "retrieved": 24,
+        "mentioned": 24,
+        "considered": 24,
+        "recommended": 9,
+        "retrieved_rate": 1.0,
+        "mention_rate": 1.0,
+        "consideration_share": 1.0,
+        "recommendation_share": 0.375
+      },
+      "by_engine": {
+        "mock": {
+          "n": 24,
+          "retrieved": 24,
+          "mentioned": 24,
+          "considered": 24,
+          "recommended": 9,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.375
+        }
+      },
+      "by_cluster": {
+        "budget_value": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "organization_tech": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "weight_minimal": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "hiking_crossover": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        },
+        "durability_warranty": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 0,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.0
+        },
+        "airline_compliance": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "brand_alternative": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 1,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.333
+        },
+        "comfort_carry": {
+          "n": 3,
+          "retrieved": 3,
+          "mentioned": 3,
+          "considered": 3,
+          "recommended": 2,
+          "retrieved_rate": 1.0,
+          "mention_rate": 1.0,
+          "consideration_share": 1.0,
+          "recommendation_share": 0.667
+        }
+      },
+      "loss_attributes": {
+        "price": 9,
+        "airline_compliance": 4,
+        "weight": 2
+      }
+    }
+  },
+  "funnel_dropoff": {
+    "cabinzero": {
+      "not_retrieved": 5,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 18,
+      "recommended": 1
+    },
+    "cotopaxi": {
+      "not_retrieved": 1,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 17,
+      "recommended": 6
+    },
+    "decathlon": {
+      "not_retrieved": 0,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 16,
+      "recommended": 8
+    },
+    "osprey": {
+      "not_retrieved": 0,
+      "retrieved_not_mentioned": 0,
+      "mentioned_not_considered": 0,
+      "considered_not_recommended": 15,
+      "recommended": 9
+    }
+  },
+  "evidence_audit": {
+    "attributes": {
+      "comfort": {
+        "brands": {
+          "cabinzero": {
+            "score": 3.0,
+            "raw_hits": 18,
+            "snippets": [
+              "Wide-opening main compartment lets you pack it like a suitcase, with an internal zipped mesh pocket for essentials and a padded sleeve section.",
+              "Padded top and side grab handles for easy carrying.",
+              "It opens flat like a suitcase, has an internal divider, mesh pockets and a separate shoe compartment, plus a foam back with ventilation channels and a removable waist belt — comfort features usually absent at this price."
+            ],
+            "n_docs": 5
+          },
+          "cotopaxi": {
+            "score": 3.0,
+            "raw_hits": 20,
+            "snippets": [
+              "Padded laptop sleeve (fits 15\") plus a tablet sleeve with soft lining, accessible from the top.",
+              "Low-profile harness with padded shoulder straps and a removable padded hip belt.",
+              "Carry is good, not great: the padded straps and removable hipbelt handle medium loads happily, though it lacks the ventilated structure of a true suspension pack on multi-hour walks."
+            ],
+            "n_docs": 4
+          },
+          "decathlon": {
+            "score": 3.0,
+            "raw_hits": 18,
+            "snippets": [
+              "Carrying system: foam back panel with ventilation channels, padded adjustable shoulder straps and a removable waist belt for load support on transfer days.",
+              "It opens flat like a suitcase, has an internal divider, mesh pockets and a separate shoe compartment, plus a foam back with ventilation channels and a removable waist belt — comfort features usually absent at this price.",
+              "No other pack matches its carrying comfort — the ventilated AirScape back panel and a real, padded hipbelt move the load onto your hips, and after a 12-hour travel day our testers' shoulders were the least sore with the "
+            ],
+            "n_docs": 3
+          },
+          "osprey": {
+            "score": 3.0,
+            "raw_hits": 26,
+            "snippets": [
+              "Carry comfort is where the Farpoint earns its reputation: an injection-molded, ventilated AirScape back panel keeps air moving against your back, while the padded hipbelt and shoulder harness transfer load to your hips f",
+              "Load-lifter straps and an adjustable sternum strap with emergency whistle fine-tune the fit.",
+              "The suspension is the whole story: the ventilated back panel keeps your shirt dry in Lisbon summer, and the hipbelt genuinely carries 70-80% of the load — I tracked 60,000-step weeks with zero shoulder pain."
+            ],
+            "n_docs": 4
+          }
+        },
+        "target_page_value": null,
+        "target_page_null": true,
+        "loss_mentions": 7,
+        "evidence_gap": 0.0,
+        "classification": "unclear",
+        "classification_source": "rule",
+        "rationale": ""
+      },
+      "brand_reputation": {
+        "brands": {
+          "cabinzero": {
+            "score": 0.68,
+            "raw_hits": 1,
+            "snippets": [
+              "Honest long-term review."
+            ],
+            "n_docs": 5
+          },
+          "cotopaxi": {
+            "score": 0.0,
+            "raw_hits": 0,
+            "snippets": [],
+            "n_docs": 4
+          },
+          "decathlon": {
+            "score": 0.0,
+            "raw_hits": 0,
+            "snippets": [],
+            "n_docs": 3
+          },
+          "osprey": {
+            "score": 1.58,
+            "raw_hits": 2,
+            "snippets": [
+              "The Farpoint 40 is the carry-on travel pack trusted by world travelers.",
+              "Carry comfort is where the Farpoint earns its reputation: an injection-molded, ventilated AirScape back panel keeps air moving against your back, while the padded hipbelt and shoulder harness transfer load to your hips f"
+            ],
+            "n_docs": 4
+          }
+        },
+        "target_page_value": null,
+        "target_page_null": true,
+        "loss_mentions": 6,
+        "evidence_gap": 0.9,
+        "classification": "information_gap",
+        "classification_source": "rule",
+        "rationale": ""
+      },
+      "organization": {
+        "brands": {
+          "cabinzero": {
+            "score": 3.0,
+            "raw_hits": 19,
+            "snippets": [
+              "Wide-opening main compartment lets you pack it like a suitcase, with an internal zipped mesh pocket for essentials and a padded sleeve section.",
+              "Cotopaxi Allpa 35 (51 x 33 x 25 cm) — same depth problem on Ryanair, borderline on Wizz; the stiff clamshell shell does not compress into sizers.",
+              "It opens flat like a suitcase, has an internal divider, mesh pockets and a separate shoe compartment, plus a foam back with ventilation channels and a removable waist belt — comfort features usually absent at this price."
+            ],
+            "n_docs": 5
+          },
+          "cotopaxi": {
+            "score": 3.0,
+            "raw_hits": 20,
+            "snippets": [
+              "The Allpa is the adventure travel pack that opens like a suitcase and carries like a dream of organization.",
+              "Full-wrap zipper with a clamshell opening: the entire bag opens flat, revealing a large mesh-covered right-side compartment and a subdivided left side with zippered mesh pockets — organization built in, no packing cubes ",
+              "Cotopaxi Allpa 35 (51 x 33 x 25 cm) — same depth problem on Ryanair, borderline on Wizz; the stiff clamshell shell does not compress into sizers."
+            ],
+            "n_docs": 4
+          },
+          "decathlon": {
+            "score": 3.0,
+            "raw_hits": 19,
+            "snippets": [
+              "Forclaz Travel 500 Organizer 40 L Backpack by Decathlon.",
+              "Full-front opening: the main compartment unzips fully like a suitcase for easy packing, with an internal divider, two zipped mesh pockets, a separate bottom shoe/laundry compartment and side water-bottle pockets.",
+              "It opens flat like a suitcase, has an internal divider, mesh pockets and a separate shoe compartment, plus a foam back with ventilation channels and a removable waist belt — comfort features usually absent at this price."
+            ],
+            "n_docs": 3
+          },
+          "osprey": {
+            "score": 3.0,
+            "raw_hits": 13,
+            "snippets": [
+              "Large panel-loading main compartment with internal compression straps; padded 15-inch laptop and tablet sleeve in a lockable compartment; dual front mesh pockets and dual compression straps.",
+              "Lockable zipper sliders on the main compartment.",
+              "Cotopaxi Allpa 35 (51 x 33 x 25 cm) — same depth problem on Ryanair, borderline on Wizz; the stiff clamshell shell does not compress into sizers."
+            ],
+            "n_docs": 4
+          }
+        },
+        "target_page_value": "wide-opening main compartment, internal zipped mesh pocket",
+        "target_page_null": false,
+        "loss_mentions": 5,
+        "evidence_gap": 0.0,
+        "classification": "unclear",
+        "classification_source": "rule",
+        "rationale": ""
+      }
+    },
+    "corpus_hash": "3911cc7268ff",
+    "n_docs": 10,
+    "target": "cabinzero"
+  },
+  "markdown": "# AI Recommendation Diagnosis — CabinZero\n_run run_e2e218a9a3 · 24 answers · engines: mock_\n\n## Executive summary\nCabinZero is recommended in 4% of 24 simulated answers and considered in 79%. The defect list identifies where the losses concentrate and which ones look like information gaps rather than product gaps.\n\n## Funnel\n- **CabinZero** (target): retrieved 58% → considered 79% → recommended 4% (n=24)\n- **Cotopaxi**: retrieved 95% → considered 95% → recommended 25% (n=24)\n- **Decathlon**: retrieved 37% → considered 100% → recommended 33% (n=24)\n- **Osprey**: retrieved 100% → considered 100% → recommended 37% (n=24)\n\n## Quick wins\n1. Fix def_001 (comfort): 7 stated losses\n2. Fix def_002 (brand_reputation): 6 stated losses\n3. Fix def_003 (organization): 5 stated losses\n\n## Defects\n### def_001 · No comfort information on the page — losing 100% of weight_minimal comparisons\n- type: `missing_attribute` · attribute: `comfort` · severity: **high** · gap: **unclear**\n- cluster: weight_minimal (losing share 100%, n_losses 7)\n- AI's stated reasons: “minimal strap padding means your shoulders take the entire load” | “minimal strap padding means your shoulders take the entire load”\n- competitor contrast: Cotopaxi: Padded laptop sleeve (fits 15\") plus a tablet sleeve with soft lining, accessible from the top.\n- why: minimal strap padding means your shoulders take the entire load\n- **fix**: Publish concrete comfort specs on the product page (structured section + schema.org attributes).\n\n```\n[comfort] Add to product page: state the comfort facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.\n```\n\n### def_002 · No brand_reputation information on the page — losing 100% of brand_alternative comparisons\n- type: `missing_attribute` · attribute: `brand_reputation` · severity: **high** · gap: **information_gap**\n- cluster: brand_alternative (losing share 100%, n_losses 6)\n- AI's stated reasons: “there are far fewer in-depth reviews of it than of the big names” | “there are far fewer in-depth reviews of it than of the big names”\n- competitor contrast: Osprey: The Farpoint 40 is the carry-on travel pack trusted by world travelers.\n- why: there are far fewer in-depth reviews of it than of the big names\n- **fix**: Publish concrete brand_reputation specs on the product page (structured section + schema.org attributes).\n\n```\n[brand_reputation] Add to product page: state the brand_reputation facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.\n```\n\n### def_003 · Weak organization evidence vs competitors — 5 stated losses\n- type: `weak_evidence` · attribute: `organization` · severity: **high** · gap: **unclear**\n- cluster: organization_tech (losing share 100%, n_losses 5)\n- AI's stated reasons: “it's one big compartment with almost no internal organization” | “it's one big compartment with almost no internal organization”\n- competitor contrast: Cotopaxi: The Allpa is the adventure travel pack that opens like a suitcase and carries like a dream of organization.\n- why: it's one big compartment with almost no internal organization\n- **fix**: Strengthen organization evidence: specifics, numbers, FAQ entry, third-party quotes.\n\n```\n[organization] Add to product page: state the organization facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.\n```\n\n### def_004 · Brand missing from retrieved sources in 5 answers\n- type: `positioning` · attribute: `brand_reputation` · severity: **medium** · gap: **information_gap**\n- cluster: airline_compliance (losing share 100%, n_losses 5)\n- AI's stated reasons: “brand absent from retrieved sources in 5/24 answers”\n- why: brand absent from retrieved sources in 5/24 answers\n- **fix**: Improve discoverability: product feed/schema markup, presence in roundups and community threads.\n\n```\n[brand_reputation] Add to product page: state the brand_reputation facts explicitly (what, numbers, proof). See defect evidence for the competitor bar.\n```\n"
+}

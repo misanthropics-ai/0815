@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "category": "travel_backpack",
+  "attributes": [
+    {
+      "id": "price",
+      "label": "Price / Value",
+      "description": "Price point, value for money, discounts, budget fit",
+      "keywords": ["price", "cost", "budget", "cheap", "affordable", "value for money", "under $", "expensive", "deal", "discount", "usd", "eur"]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "description": "Empty pack weight, lightweight construction",
+      "keywords": ["weight", "lightweight", "ultralight", "grams", " kg", "lbs", "ounce", "heavy", "760g", "1.2kg"]
+    },
+    {
+      "id": "comfort",
+      "label": "Carry Comfort / Back Support",
+      "description": "Back panel structure, hip belt, shoulder straps, padding, ventilation, long-wear comfort",
+      "keywords": ["comfort", "comfortable", "back panel", "back support", "hip belt", "hipbelt", "waist belt", "shoulder strap", "padded", "padding", "ventilat", "airflow", "airscape", "ergonomic", "torso", "load lifter", "sternum", "suspension", "carry comfort", "breathable back"]
+    },
+    {
+      "id": "airline_compliance",
+      "label": "Airline / Carry-on Compliance",
+      "description": "Cabin size limits, budget airline compliance, underseat fit",
+      "keywords": ["carry-on", "carry on", "cabin bag", "cabin size", "personal item", "ryanair", "easyjet", "spirit", "wizz", "underseat", "under-seat", "airline", "55 x 40", "55x40x20", "40x20x25", "45 x 36", "overhead bin", "ig cabin", "flight compliant"]
+    },
+    {
+      "id": "capacity_size",
+      "label": "Capacity / Size",
+      "description": "Volume in liters, dimensions, expandability",
+      "keywords": ["liter", "litre", "capacity", "volume", "expandable", "dimensions", "35l", "36l", "40l", "45l", "cubic"]
+    },
+    {
+      "id": "organization",
+      "label": "Organization / Compartments",
+      "description": "Compartments, laptop sleeve, pockets, clamshell opening, packing organization",
+      "keywords": ["compartment", "pocket", "laptop sleeve", "laptop compartment", "organizer", "organization", "packing cube", "clamshell", "full-open", "divider", "mesh pocket", "water bottle pocket", "tech pouch"]
+    },
+    {
+      "id": "durability",
+      "label": "Durability / Materials",
+      "description": "Fabric denier,材質耐用度, zippers, stitching, water resistance",
+      "keywords": ["durable", "durability", "ripstop", "denier", "1000d", "900d", "600d", "nylon", "polyester", "cordura", "ykk", "zipper", "stitching", "abrasion", "waterproof", "water resistant", "water-resistant", "weatherproof", "tear", "build quality"]
+    },
+    {
+      "id": "warranty",
+      "label": "Warranty / Guarantee",
+      "description": "Warranty length, repair program, return policy",
+      "keywords": ["warranty", "guarantee", "lifetime", "repair", "all mighty guarantee", "return policy", "10-year", "25-year"]
+    },
+    {
+      "id": "style_design",
+      "label": "Style / Design",
+      "description": "Aesthetics, colors, minimalist look",
+      "keywords": ["style", "stylish", "design", "look", "aesthetic", "color", "colour", "minimalist", "sleek", "professional look"]
+    },
+    {
+      "id": "security",
+      "label": "Security / Anti-theft",
+      "description": "Lockable zippers, hidden pockets, anti-theft features",
+      "keywords": ["security", "anti-theft", "lockable", "lock", "rfid", "hidden pocket", "slash-proof", "theft"]
+    },
+    {
+      "id": "sustainability",
+      "label": "Sustainability / Ethics",
+      "description": "Recycled materials, certifications, ethical manufacturing",
+      "keywords": ["sustainab", "recycled", "eco-friendly", "bluesign", "fair trade", "ethical", "repurposed", "b corp", "carbon"]
+    },
+    {
+      "id": "brand_reputation",
+      "label": "Brand Reputation / Reviews",
+      "description": "Review volume and sentiment, community trust, awards",
+      "keywords": ["review", "reviews", "reputation", "trusted", "award", "popular", "best-selling", "reddit", "community favorite", "editor's pick"]
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "description": "Anything not covered by the taxonomy",
+      "keywords": []
+    }
+  ],
+  "clusters": [
+    { "id": "budget_value", "label": "Budget / Value", "description": "Price-sensitive buyers looking for best value", "attributes": ["price", "capacity_size"] },
+    { "id": "airline_compliance", "label": "Airline Compliance", "description": "Budget-airline travelers needing guaranteed cabin/underseat fit", "attributes": ["airline_compliance", "capacity_size", "weight"] },
+    { "id": "comfort_carry", "label": "Comfort / Long Carry", "description": "Long walking days, back support, all-day carry", "attributes": ["comfort", "weight"] },
+    { "id": "durability_warranty", "label": "Durability / Warranty", "description": "Buy-it-for-life, rough handling, warranty coverage", "attributes": ["durability", "warranty"] },
+    { "id": "organization_tech", "label": "Organization / Tech Carry", "description": "Laptop + gear organization, commute and work travel", "attributes": ["organization", "capacity_size"] },
+    { "id": "weight_minimal", "label": "Ultralight / Minimal", "description": "Minimalist one-bag travelers optimizing for weight", "attributes": ["weight", "capacity_size"] },
+    { "id": "hiking_crossover", "label": "Hiking Crossover", "description": "Travel packs doubling as day-hike / trekking packs", "attributes": ["comfort", "durability", "capacity_size"] },
+    { "id": "brand_alternative", "label": "Brand Alternatives", "description": "Users explicitly asking for alternatives to a known brand", "attributes": ["brand_reputation", "price"] }
+  ]
+}

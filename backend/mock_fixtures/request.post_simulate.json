@@ -1,0 +1,17 @@
+{
+  "intent": {
+    "text": "most comfortable travel backpack for walking all day",
+    "cluster_id": "comfort_carry",
+    "attributes": [
+      "comfort"
+    ]
+  },
+  "candidates": [
+    "cabinzero-classic-36l@v1",
+    "osprey-farpoint-40@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "cotopaxi-allpa-35l@v1"
+  ],
+  "stream": true,
+  "cached": false
+}

@@ -1,0 +1,28 @@
+{
+  "cluster_id": "weight_minimal",
+  "n_per_side": 16,
+  "a": {
+    "product_ref": "cabinzero-classic-36l@v1",
+    "recommendation_share": 0.75,
+    "consideration_share": 1.0,
+    "ci95_recommendation": [
+      0.505,
+      0.898
+    ]
+  },
+  "b": {
+    "product_ref": "cabinzero-classic-36l@v2",
+    "recommendation_share": 1.0,
+    "consideration_share": 1.0,
+    "ci95_recommendation": [
+      0.806,
+      1.0
+    ]
+  },
+  "delta_recommendation": 0.25,
+  "changes_applied": [
+    "note: debate:dbt_7406af28c3",
+    "Features a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear."
+  ],
+  "diff_url": null
+}

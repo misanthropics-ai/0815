@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "not_found",
+    "message": "product not found: foo@v9",
+    "hint": "GET /products for valid refs"
+  }
+}
