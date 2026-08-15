@@ -173,6 +173,8 @@ Returns a full `Product` (10–20 s live — show an "extracting attributes…" 
 - `?min_decisions=12` — declare done as soon as 12 decisions exist
 - `?retry=true` — clear a failed state and re-trigger
 
+**Image-only specs (vision fallback):** when text extraction fills <60% of attributes, the backend reads the product IMAGES with Claude vision and fills the gaps. Those attributes come back with `source: "image"` and evidence prefixed `[from image]` — render them with a 📷 badge and a warning: *"這些規格只存在於圖片中，AI 爬蟲讀不到"*. The diagnosis also emits an `image_only: true` defect telling the vendor to duplicate them into page text/spec table/schema.org. `POST /products` response includes `image_derived_attributes: [...]`.
+
 **URL-mode failures (important UX):** sites that block server-side access (Shopee, some JS-only stores) return `422`:
 
 ```json

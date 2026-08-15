@@ -124,8 +124,9 @@ class PersonaProfile(BaseModel):
 class ProductAttribute(BaseModel):
     attribute_id: AttributeId
     value: Optional[str]  # None = 頁面上找不到 → 缺陷分析的原料
-    evidence: Optional[str]  # 從 raw_text 引用的原句
+    evidence: Optional[str]  # 從 raw_text 引用的原句; 圖片來源時前綴 "[from image]"
     confidence: float = Field(ge=0, le=1)
+    source: Optional[Literal["text", "image"]] = None  # image = vision 補抽(AI爬蟲看不到!)
 
 
 class Product(BaseModel):

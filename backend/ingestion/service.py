@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
+from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
@@ -149,6 +150,68 @@ async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str,
             "attributes": attributes}
 
 
+VISION_SCHEMA = {
+    "type": "object",
+    "properties": {"attributes": {"type": "array", "items": {
+        "type": "object",
+        "properties": {
+            "attribute_id": {"type": "string"},
+            "value": {"type": ["string", "null"]},
+            "evidence": {"type": ["string", "null"]},
+            "confidence": {"type": "number"},
+        },
+        "required": ["attribute_id", "confidence"],
+    }}},
+    "required": ["attributes"],
+}
+_IMG_FMT = {"image/jpeg": "jpeg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+
+
+async def _extract_from_images(image_urls: list[str], category, missing_ids: list[str]) -> list[dict]:
+    """Claude vision over product images: fill ONLY attributes the text missed."""
+    import httpx
+
+    from backend.ingestion.fetcher import UA
+    max_imgs = int(config.env("IMG_EXTRACT_MAX", "6") or 6)
+    blocks: list[dict] = []
+    used: list[str] = []
+    async with httpx.AsyncClient(follow_redirects=True, timeout=15,
+                                 headers={"User-Agent": UA}) as client:
+        for u in image_urls:
+            if len(blocks) >= max_imgs:
+                break
+            try:
+                r = await client.get(u)
+                ct = (r.headers.get("content-type") or "").split(";")[0].strip().lower()
+                fmt = _IMG_FMT.get(ct) or _IMG_FMT.get(
+                    "image/" + u.rsplit(".", 1)[-1].lower().replace("jpg", "jpeg"), None)
+                data = r.content
+                if r.status_code != 200 or not fmt or not (3_000 < len(data) < 4_000_000):
+                    continue
+                blocks.append({"image": {"format": fmt, "source": {"bytes": data}}})
+                used.append(u)
+            except Exception:
+                continue
+    if not blocks:
+        return []
+    tax = _tax(category)
+    subset = [a for a in tax["attributes"] if a["id"] in set(missing_ids)]
+    tax_block = "\n".join(f'- {a["id"]}: {a["label"]} — {a["description"]}' for a in subset)
+    prompt = (
+        "These are product images from an e-commerce page (spec banners often contain the "
+        "real specifications). Extract ONLY attributes clearly VISIBLE in these images for "
+        "this taxonomy (value=null when not shown; never guess):\n" + tax_block
+        + "\nFor each: attribute_id, value (concise fact as shown), evidence (short "
+          "description of where/what in the image, e.g. 'spec table in image 2: 120Hz'), "
+          "confidence 0..1.")
+    out = await bedrock.acomplete_json(
+        messages=[{"role": "user", "content": blocks + [{"text": prompt}]}],
+        schema=VISION_SCHEMA, max_tokens=2500,
+        cache_key=cache_key_for("imgextract", used, sorted(missing_ids),
+                                tax.get("category")))
+    return out.get("attributes", []) if isinstance(out, dict) else []
+
+
 def _unique_product_id(candidate: str) -> str:
     pid = slugify(candidate) or db.new_id("product")
     if db.latest_version(pid) is None:
@@ -184,13 +247,14 @@ async def create_product(body: dict) -> dict:
             raise ValueError("source_url required for source=url")
         import httpx
 
-        from backend.ingestion.fetcher import fetch_url, unwrap_url
+        from backend.ingestion.fetcher import fetch_page, unwrap_url
         body["source_url"] = unwrap_url(body["source_url"])  # store the real page as source
         existing = _reusable_url_product(body["source_url"], body.get("category"))
         if existing:
             return existing
         try:
-            title, raw_text = await fetch_url(body["source_url"])
+            page = await fetch_page(body["source_url"])
+            title, raw_text, images = page["title"], page["text"], page["images"]
         except httpx.HTTPError as e:
             raise IngestionError(
                 f"could not fetch the page ({e})", code="fetch_failed",
@@ -207,6 +271,7 @@ async def create_product(body: dict) -> dict:
         display_hint = body.get("display_name") or title[:80]
         brand_hint = body.get("brand") or (title.split("|")[0].split("—")[0].strip()[:40] if title else "")
     elif source == "manual_prototype":
+        images = []
         raw_text = (body.get("raw_text") or "").strip()
         if not raw_text or not body.get("brand"):
             raise ValueError("brand and raw_text required for manual_prototype")
@@ -235,6 +300,34 @@ async def create_product(body: dict) -> dict:
                                                    category=category)
         except Exception:
             pass
+    # --- vision fallback: too many attributes missing from TEXT => read the product
+    # images (spec banners). Image-derived attrs are flagged — they are INVISIBLE to
+    # AI crawlers, which becomes an explicit visibility warning in the diagnosis.
+    image_derived: list[str] = []
+    if source == "url" and images and get_bedrock().available():
+        total = len(ext["attributes"]) or 1
+        filled = sum(1 for a in ext["attributes"] if a["value"])
+        if filled / total < float(config.env("IMG_COVERAGE_THRESHOLD", "0.6") or 0.6):
+            missing = [a["attribute_id"] for a in ext["attributes"] if not a["value"]]
+            try:
+                vis = await _extract_from_images(images, category, missing)
+                by = {a.get("attribute_id"): a for a in vis if a.get("value")}
+                for a in ext["attributes"]:
+                    v = by.get(a["attribute_id"])
+                    if v and not a["value"]:
+                        a["value"] = str(v["value"]).strip()[:200]
+                        a["evidence"] = ("[from image] "
+                                         + str(v.get("evidence") or v["value"]).strip()[:180])
+                        a["confidence"] = min(0.85, float(v.get("confidence") or 0.6))
+                        a["source"] = "image"
+                        image_derived.append(a["attribute_id"])
+                from backend.loglib import log
+                log("ingest.image_extract", url=body.get("source_url", "")[:80],
+                    images_used=min(len(images), int(config.env("IMG_EXTRACT_MAX", "6") or 6)),
+                    attrs_filled=len(image_derived))
+            except Exception:
+                pass
+
     pid = body.get("product_id") or ext.get("product_id") or f"{ext['brand']}-{ext['display_name']}"
     product = {
         "product_id": _unique_product_id(pid),
@@ -253,6 +346,7 @@ async def create_product(body: dict) -> dict:
         product["personas"] = normalize_personas(body["personas"], product.get("category"))
     db.upsert_product(product)
     product["ref"] = f"{product['product_id']}@v1"
+    product["image_derived_attributes"] = image_derived
     return product
 
 

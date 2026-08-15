@@ -74,8 +74,9 @@ export interface PersonaProfile {
 export interface ProductAttribute {
   attribute_id: AttributeId;
   value: string | null;            // null = "the page doesn't say it" → grey "?" chip
-  evidence: string | null;         // verbatim quote from the page
+  evidence: string | null;         // verbatim quote; image-derived ones start with "[from image]"
   confidence: number;              // 0..1
+  source?: "text" | "image";       // "image" = recovered by vision — render a 📷 badge + warning
 }
 
 export interface Product {
