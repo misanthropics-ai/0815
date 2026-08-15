@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Diagnosis, Product } from '../../contracts/types'
-import { Attributes, latestProductVersions, PaywalledDiagnosisReport } from './App'
+import { Attributes, ContentPatch, latestProductVersions, PaywalledDiagnosisReport } from './App'
 
 const diagnosis: Diagnosis = {
   product_ref: 'test-product@v1',
@@ -98,5 +98,17 @@ describe('latestProductVersions', () => {
     ] as Product[]
 
     expect(latestProductVersions(products).map(product => `${product.product_id}@v${product.version}`)).toEqual(['alpha@v2', 'beta@v1', 'zebra@v1'])
+  })
+})
+
+describe('ContentPatch', () => {
+  it('formats mixed HTML and JSON-LD patches as safe, copyable source blocks', () => {
+    const markup = renderToStaticMarkup(<ContentPatch enriched text={'<!-- ① 規格表 -->\n<tr><th>連接埠</th><td>[FILL IN: USB ports]</td></tr>\n<!-- ③ JSON-LD -->\n{"@type":"PropertyValue","name":"連接埠"}'} />)
+
+    expect(markup).toContain('Review and fill every')
+    expect(markup).toContain('HTML')
+    expect(markup).toContain('JSON-LD')
+    expect(markup).toContain('Copy')
+    expect(markup).toContain('&lt;tr&gt;')
   })
 })
