@@ -10,7 +10,8 @@ from pathlib import Path
 TAXONOMY_DIR = Path(__file__).resolve().parent
 DEFAULT_PATH = TAXONOMY_DIR / "taxonomy.json"
 GENERIC_PATH = TAXONOMY_DIR / "generic.json"
-DEFAULT_CATEGORY_ALIASES = {"travel-backpack", "travel_backpack", "travelbackpack"}
+DEFAULT_CATEGORY_ALIASES = {"travel-backpack", "travel_backpack", "travelbackpack",
+                            "backpack", "backpacks", "travel_backpacks", "cabin_backpack"}
 
 
 def category_slug(category: str | None) -> str:
@@ -19,7 +20,11 @@ def category_slug(category: str | None) -> str:
 
 def taxonomy_path(category: str | None = None) -> Path:
     slug = category_slug(category)
-    if not slug or slug in DEFAULT_CATEGORY_ALIASES:
+    if not slug:
+        # no category at all => default demo taxonomy; a NON-ASCII category that
+        # slugs to nothing (e.g. 中文類別) => generic, never the backpack file
+        return DEFAULT_PATH if not (category or "").strip() else GENERIC_PATH
+    if slug in DEFAULT_CATEGORY_ALIASES:
         return DEFAULT_PATH
     candidate = TAXONOMY_DIR / f"{slug}.json"
     return candidate if candidate.exists() else GENERIC_PATH

@@ -16,6 +16,8 @@ paths:
     get: { summary: "category-aware attribute taxonomy + intent clusters (?category; generic fallback)", responses: { "200": { description: Taxonomy } } }
   /engines:
     get: { summary: "引擎可用性與預設引擎組", responses: { "200": { description: EngineStatus } } }
+  /personas:
+    get: { summary: "指定 category 的預設 persona profiles (?category; personas/{slug}.json → generic fallback)", responses: { "200": { description: PersonasResponse } } }
 
   # ---- 五階段 pipeline (runs) ----
   /runs:

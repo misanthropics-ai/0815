@@ -163,6 +163,10 @@ POST /products        // manual prototype mode (paste text)
 
 Returns a full `Product` (10–20 s live — show an "extracting attributes…" progress state). Render the attribute table: value+evidence rows, **null rows in grey with "not on page"**. Fixtures: `request/response.post_products.manual.json`.
 
+**Categories (cross-product support):** add optional `"category"` to POST /products (e.g. `"wireless earbuds"`). Omit it and the extractor **auto-detects** the category from the page text. The category picks the attribute taxonomy (backpacks keep the rich demo taxonomy; anything else uses the generic one — fetch it via `GET /taxonomy?category=...` to render the right attribute chips). Competitors in diagnosis/runs stay within the same category automatically.
+
+**Personas:** `GET /personas?category=...` returns the default structured persona profiles for that category (backpack set or generic set) — use it to build a persona picker; pass the chosen/edited profiles into `POST /runs` `personas`.
+
 **URL-mode failures (important UX):** sites that block server-side access (Shopee, some JS-only stores) return `422`:
 
 ```json

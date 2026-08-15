@@ -20,6 +20,7 @@ from backend.pipeline import intents as intents_mod
 from backend.pipeline.corpus import build_corpus, slugify
 from backend.pipeline.engines import RunContext, default_engines, make_engine
 from backend.storage import db
+from backend.taxonomy import category_slug
 
 STAGES = ["intents", "execute", "funnel", "attribution", "report"]
 STAGE_WEIGHTS = {"intents": 10, "execute": 40, "funnel": 30, "attribution": 10, "report": 10}
@@ -73,7 +74,12 @@ def normalize_config(body: dict) -> dict:
     if mode == "live" and not get_bedrock().available():
         raise ValueError(f"live mode requested but Bedrock unavailable: {get_bedrock().error}")
 
-    products = db.list_products()
+    category = body.get("category") or "travel backpack"
+    cslug = category_slug(category)
+    all_products = db.list_products()
+    # keep the run inside one product category (legacy null category = travel backpack)
+    products = [p for p in all_products
+                if category_slug(p.get("category") or "travel backpack") == cslug] or all_products
     tslug = slugify(brand)
     competitors = body.get("competitors")
     if not competitors:
@@ -102,7 +108,6 @@ def normalize_config(body: dict) -> dict:
     for e in engines:
         make_engine(e)  # validates names early
 
-    category = body.get("category") or "travel backpack"
     cfg = {
         "run_id": body.get("run_id") or db.new_id("run"),
         "brand": brand,

@@ -119,6 +119,15 @@ async def engines():
     return {"available": engine_status(), "default": config.DEFAULT_ENGINES}
 
 
+@app.get("/personas")
+async def personas(category: Optional[str] = Query(default=None)):
+    """Default persona profiles for a category (frontend persona pickers).
+    Custom personas go directly in POST /runs body."""
+    from backend.pipeline.intents import default_personas, personas_path
+    return {"category": category, "source_file": personas_path(category).name,
+            "profiles": default_personas(category)}
+
+
 @app.post("/runs")
 async def create_run(body: RunCreateRequest):
     cfg = runner.normalize_config(body.model_dump(exclude_none=True))
@@ -288,6 +297,7 @@ class ProductCreate(BaseModel):
     display_name: Optional[str] = None
     raw_text: Optional[str] = None
     product_id: Optional[str] = None
+    category: Optional[str] = None           # omit => auto-detected from the page text
 
 
 class VersionCreate(BaseModel):

@@ -139,6 +139,7 @@ class Product(BaseModel):
     parent_version: Optional[int] = None
     change_note: Optional[str] = None
     ref: Optional[ProductRef] = None
+    category: Optional[str] = None          # 決定 taxonomy; 未給時由抽取自動偵測
 
 
 class CreateProductRequest(BaseModel):
@@ -148,6 +149,7 @@ class CreateProductRequest(BaseModel):
     display_name: Optional[str] = None
     raw_text: Optional[str] = None          # manual 時必填
     product_id: Optional[str] = None
+    category: Optional[str] = None          # 省略 => 從頁面文字自動偵測
 
 
 class CreateVersionRequest(BaseModel):

@@ -52,9 +52,13 @@ DECISION_SCHEMA = {
 }
 
 
-def _taxonomy_ids() -> list[str]:
-    tax = json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
-    return [a["id"] for a in tax["attributes"]]
+def _taxonomy_ids(category: Optional[str] = None) -> list[str]:
+    from backend.taxonomy import load_taxonomy
+    return [a["id"] for a in load_taxonomy(category)["attributes"]]
+
+
+def _category_of(products: dict[str, dict]) -> Optional[str]:
+    return next((p.get("category") for p in products.values() if p and p.get("category")), None)
 
 
 def _candidates_block(refs: list[str]) -> tuple[str, dict[str, dict]]:
@@ -76,8 +80,10 @@ def _candidates_block(refs: list[str]) -> tuple[str, dict[str, dict]]:
     return "\n".join(lines), products
 
 
-def _base_prompt(intent: dict, refs: list[str]) -> str:
-    block, _ = _candidates_block(refs)
+def _base_prompt(intent: dict, refs: list[str]) -> tuple[str, Optional[str]]:
+    """Returns (prompt, category-of-candidates)."""
+    block, products = _candidates_block(refs)
+    category = _category_of(products)
     return render_prompt(
         PROMPT_VERSION,
         engine_persona="an impartial AI shopping assistant",
@@ -86,11 +92,12 @@ def _base_prompt(intent: dict, refs: list[str]) -> str:
         style_hint="balanced and specific, comparing candidates head-to-head",
         length_hint="250-350 words",
     ) + ("\nCandidates (use these exact refs in structured output): "
-         + ", ".join(refs))
+         + ", ".join(refs)), category
 
 
-def _normalize_decision(raw: dict, intent: dict, refs: list[str], model_label: str) -> dict:
-    valid_attrs = set(_taxonomy_ids())
+def _normalize_decision(raw: dict, intent: dict, refs: list[str], model_label: str,
+                        category: Optional[str] = None) -> dict:
+    valid_attrs = set(_taxonomy_ids(category))
 
     def _reasons(lst):
         out = []
@@ -172,7 +179,7 @@ def _mock_decision(intent: dict, refs: list[str], run_idx: int) -> dict:
                                 "rank": None, "reasons_for": [{"text": f[0], "attribute": f[1]}],
                                 "reasons_against": [{"text": g[0], "attribute": g[1]}]})
     raw = {"narrative": "\n\n".join(narrative), "winner": winner, "per_product": per_product}
-    return _normalize_decision(raw, intent, refs, "mock/decision-v1")
+    return _normalize_decision(raw, intent, refs, "mock/decision-v1", _category_of(products))
 
 
 # ---------------------------------------------------------------- single
@@ -194,17 +201,17 @@ async def run_decision(intent: dict, candidates: list[str], *, cached: bool = Tr
     br = get_bedrock()
     mid = model or br.smart
     ck = cache_key_for("decision", intent["text"], candidates, run_idx, PROMPT_VERSION, mid)
-    prompt = _base_prompt(intent, candidates)
+    prompt, category = _base_prompt(intent, candidates)
     raw = await bedrock.acomplete_json(
         prompt=prompt + "\nProduce the structured decision via the tool: narrative (the full "
                         "consumer-advice answer), winner (exact candidate_ref of your top pick, "
                         "or null), per_product rows for EVERY candidate with verdict, "
                         "reasons_for/against (short quotes from your narrative; attribute must be "
-                        "one of: " + ", ".join(_taxonomy_ids()) + ").",
+                        "one of: " + ", ".join(_taxonomy_ids(category)) + ").",
         schema=DECISION_SCHEMA, model=mid, max_tokens=3000,
         temperature=0.4 if run_idx else 0.2,
         cache_key=(ck if cached else None))
-    d = _normalize_decision(raw, intent, candidates, f"{MODEL_TAG}@{mid}")
+    d = _normalize_decision(raw, intent, candidates, f"{MODEL_TAG}@{mid}", category)
     db.save_decision(d)
     return d
 
@@ -229,12 +236,13 @@ async def stream_decision(intent: dict, candidates: list[str], *, cached: bool =
     mid = br.smart
     ck = cache_key_for("decision_stream", intent["text"], candidates, PROMPT_VERSION, mid)
     cached_full = db.kv_get(f"llm:{ck}") if cached else None
-    prompt = _base_prompt(intent, candidates) + (
+    base, category = _base_prompt(intent, candidates)
+    prompt = base + (
         "\nAfter your final recommendation sentence, output EXACTLY one fenced code block:\n"
         "```json\n{\"winner\": \"<candidate_ref or null>\", \"per_product\": [{\"product_ref\", "
         "\"considered\", \"verdict\": \"recommended|rejected|not_considered\", \"rank\", "
         "\"reasons_for\": [{\"text\", \"attribute\"}], \"reasons_against\": [...]}]}\n```\n"
-        "attribute must be one of: " + ", ".join(_taxonomy_ids()))
+        "attribute must be one of: " + ", ".join(_taxonomy_ids(category)))
     full = ""
     emitted = 0
     try:
@@ -264,7 +272,7 @@ async def stream_decision(intent: dict, candidates: list[str], *, cached: bool =
         parsed = {}
     parsed = parsed if isinstance(parsed, dict) else {}
     parsed["narrative"] = narrative
-    d = _normalize_decision(parsed, intent, candidates, f"{MODEL_TAG}@{mid}")
+    d = _normalize_decision(parsed, intent, candidates, f"{MODEL_TAG}@{mid}", category)
     db.save_decision(d)
     yield {"type": "result", "decision": d}
 
