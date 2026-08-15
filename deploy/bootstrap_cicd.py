@@ -29,8 +29,33 @@ def s3_website_url(bucket: str, region: str) -> str:
     return f"http://{bucket}.s3-website-{region}.amazonaws.com"
 
 
-def github_subject(owner: str, repository: str, branch: str) -> str:
-    return f"repo:{owner}/{repository}:ref:refs/heads/{branch}"
+def github_subject(
+    owner: str,
+    repository: str,
+    branch: str,
+    *,
+    prefix: str | None = None,
+) -> str:
+    return f"{prefix or f'repo:{owner}/{repository}'}:ref:refs/heads/{branch}"
+
+
+def resolve_github_subject(owner: str, repository: str, branch: str) -> str:
+    result = subprocess.run(
+        [
+            "gh",
+            "api",
+            f"repos/{owner}/{repository}/actions/oidc/customization/sub",
+            "--jq",
+            ".sub_claim_prefix // empty",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    prefix = result.stdout.strip()
+    if prefix and not prefix.startswith("repo:"):
+        raise RuntimeError(f"unexpected GitHub OIDC subject prefix: {prefix}")
+    return github_subject(owner, repository, branch, prefix=prefix or None)
 
 
 def ensure_oidc_provider(iam) -> str:
@@ -313,11 +338,13 @@ def main() -> int:
     account_id = identity["Account"]
     p4_bucket = args.p4_bucket or f"ai-rec-diagnostics-p4-{account_id}"
     p5_bucket = args.p5_bucket or f"ai-rec-diagnostics-p5-{account_id}"
-    print(f"AWS identity: {identity['Arn']}")
-    print(
-        "OIDC subject: "
-        + github_subject(args.github_owner, args.github_repository, args.github_branch)
+    oidc_subject = resolve_github_subject(
+        args.github_owner,
+        args.github_repository,
+        args.github_branch,
     )
+    print(f"AWS identity: {identity['Arn']}")
+    print(f"OIDC subject: {oidc_subject}")
     if args.allowed_cidr == "0.0.0.0/0":
         print("WARNING: port 8000 will be public; this stack is for demo/staging only")
 
@@ -361,9 +388,7 @@ def main() -> int:
         api_url = ""
 
     values = {
-        "GitHubOwner": args.github_owner,
-        "GitHubRepository": args.github_repository,
-        "GitHubBranch": args.github_branch,
+        "GitHubSubject": oidc_subject,
         "GitHubOidcProviderArn": oidc_arn,
         "EcrRepositoryName": args.ecr_repository,
         "P4FrontendBucketName": p4_bucket,

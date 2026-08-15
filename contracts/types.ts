@@ -90,6 +90,7 @@ export interface Product {
   parent_version?: number | null;
   change_note?: string | null;
   ref?: ProductRef;
+  category?: string | null;        // drives which taxonomy applies; auto-detected if omitted
 }
 
 export interface CreateProductRequest {
@@ -98,6 +99,14 @@ export interface CreateProductRequest {
   brand?: string;                  // manual mode (required)
   display_name?: string;
   raw_text?: string;               // manual mode (required)
+  category?: string;               // omit => auto-detected from page text
+}
+
+// GET /personas?category=  → default persona profiles for that category
+export interface PersonasResponse {
+  category: string | null;
+  source_file: string;             // personas/default.json | personas/generic.json | personas/{slug}.json
+  profiles: PersonaProfile[];
 }
 
 export interface CreateVersionRequest {

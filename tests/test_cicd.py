@@ -14,6 +14,15 @@ def test_github_oidc_subject_is_restricted_to_main() -> None:
         github_subject("misanthropics-ai", "0815", "main")
         == "repo:misanthropics-ai/0815:ref:refs/heads/main"
     )
+    assert (
+        github_subject(
+            "misanthropics-ai",
+            "0815",
+            "main",
+            prefix="repo:misanthropics-ai@313478481/0815@1334320087",
+        )
+        == "repo:misanthropics-ai@313478481/0815@1334320087:ref:refs/heads/main"
+    )
 
 
 def test_s3_website_url_uses_the_configured_region() -> None:
@@ -52,6 +61,7 @@ def test_demo_runtime_preserves_data_and_requires_imdsv2() -> None:
     assert "HttpTokens: required" in template
     assert "HttpPutResponseHopLimit: 2" in template
     assert "token.actions.githubusercontent.com:sub" in template
+    assert "GitHubSubject" in template
 
 
 class CloudFormationLoader(yaml.SafeLoader):

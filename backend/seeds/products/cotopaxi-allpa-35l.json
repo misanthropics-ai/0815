@@ -6,17 +6,78 @@
   "source_url": "https://www.cotopaxi.com/products/allpa-35l-travel-pack",
   "raw_text": "Cotopaxi Allpa 35L Travel Pack. Gear for good. The Allpa is the adventure travel pack that opens like a suitcase and carries like a dream of organization. Price: $200.00. Weight: 1.6 kg. Capacity: 35 liters. Dimensions: 51 x 33 x 25 cm — carry-on compatible on most airlines. Full-wrap zipper with a clamshell opening: the entire bag opens flat, revealing a large mesh-covered right-side compartment and a subdivided left side with zippered mesh pockets — organization built in, no packing cubes needed. Padded laptop sleeve (fits 15\") plus a tablet sleeve with soft lining, accessible from the top. Low-profile harness with padded shoulder straps and a removable padded hip belt. Theft-proof: security YKK zippers throughout and reinforced anti-slash TPU-coated 1000D polyester shell with 840D ballistic nylon paneling. Each Del Día colorway is one of a kind, made with repurposed fabric decided by workers in the factory — llama approved. Covered by our Guaranteed for Good lifetime warranty. B Corp certified company.",
   "attributes": [
-    { "attribute_id": "price", "value": "$200.00", "evidence": "Price: $200.00.", "confidence": 0.97 },
-    { "attribute_id": "weight", "value": "1.6 kg", "evidence": "Weight: 1.6 kg.", "confidence": 0.97 },
-    { "attribute_id": "comfort", "value": "padded shoulder straps, removable padded hip belt (low-profile harness)", "evidence": "Low-profile harness with padded shoulder straps and a removable padded hip belt.", "confidence": 0.75 },
-    { "attribute_id": "airline_compliance", "value": "51 x 33 x 25 cm, carry-on compatible on most airlines", "evidence": "carry-on compatible on most airlines", "confidence": 0.75 },
-    { "attribute_id": "capacity_size", "value": "35L", "evidence": "Capacity: 35 liters.", "confidence": 0.95 },
-    { "attribute_id": "organization", "value": "clamshell opening, mesh compartments both sides, 15\" laptop + tablet sleeve", "evidence": "the entire bag opens flat, revealing a large mesh-covered right-side compartment and a subdivided left side", "confidence": 0.95 },
-    { "attribute_id": "durability", "value": "TPU-coated 1000D polyester + 840D ballistic nylon", "evidence": "anti-slash TPU-coated 1000D polyester shell with 840D ballistic nylon paneling", "confidence": 0.9 },
-    { "attribute_id": "warranty", "value": "Guaranteed for Good lifetime warranty", "evidence": "Covered by our Guaranteed for Good lifetime warranty.", "confidence": 0.9 },
-    { "attribute_id": "style_design", "value": "one-of-a-kind Del Día colorways", "evidence": "Each Del Día colorway is one of a kind", "confidence": 0.85 },
-    { "attribute_id": "security", "value": "security YKK zippers, anti-slash shell", "evidence": "security YKK zippers throughout and reinforced anti-slash TPU-coated shell", "confidence": 0.9 },
-    { "attribute_id": "sustainability", "value": "repurposed fabric, B Corp certified", "evidence": "made with repurposed fabric ... B Corp certified company", "confidence": 0.9 },
-    { "attribute_id": "brand_reputation", "value": null, "evidence": null, "confidence": 0.0 }
-  ]
+    {
+      "attribute_id": "price",
+      "value": "$200.00",
+      "evidence": "Price: $200.00.",
+      "confidence": 0.97
+    },
+    {
+      "attribute_id": "weight",
+      "value": "1.6 kg",
+      "evidence": "Weight: 1.6 kg.",
+      "confidence": 0.97
+    },
+    {
+      "attribute_id": "comfort",
+      "value": "padded shoulder straps, removable padded hip belt (low-profile harness)",
+      "evidence": "Low-profile harness with padded shoulder straps and a removable padded hip belt.",
+      "confidence": 0.75
+    },
+    {
+      "attribute_id": "airline_compliance",
+      "value": "51 x 33 x 25 cm, carry-on compatible on most airlines",
+      "evidence": "carry-on compatible on most airlines",
+      "confidence": 0.75
+    },
+    {
+      "attribute_id": "capacity_size",
+      "value": "35L",
+      "evidence": "Capacity: 35 liters.",
+      "confidence": 0.95
+    },
+    {
+      "attribute_id": "organization",
+      "value": "clamshell opening, mesh compartments both sides, 15\" laptop + tablet sleeve",
+      "evidence": "the entire bag opens flat, revealing a large mesh-covered right-side compartment and a subdivided left side",
+      "confidence": 0.95
+    },
+    {
+      "attribute_id": "durability",
+      "value": "TPU-coated 1000D polyester + 840D ballistic nylon",
+      "evidence": "anti-slash TPU-coated 1000D polyester shell with 840D ballistic nylon paneling",
+      "confidence": 0.9
+    },
+    {
+      "attribute_id": "warranty",
+      "value": "Guaranteed for Good lifetime warranty",
+      "evidence": "Covered by our Guaranteed for Good lifetime warranty.",
+      "confidence": 0.9
+    },
+    {
+      "attribute_id": "style_design",
+      "value": "one-of-a-kind Del Día colorways",
+      "evidence": "Each Del Día colorway is one of a kind",
+      "confidence": 0.85
+    },
+    {
+      "attribute_id": "security",
+      "value": "security YKK zippers, anti-slash shell",
+      "evidence": "security YKK zippers throughout and reinforced anti-slash TPU-coated shell",
+      "confidence": 0.9
+    },
+    {
+      "attribute_id": "sustainability",
+      "value": "repurposed fabric, B Corp certified",
+      "evidence": "made with repurposed fabric ... B Corp certified company",
+      "confidence": 0.9
+    },
+    {
+      "attribute_id": "brand_reputation",
+      "value": null,
+      "evidence": null,
+      "confidence": 0.0
+    }
+  ],
+  "category": "travel backpack"
 }

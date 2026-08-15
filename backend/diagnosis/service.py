@@ -12,6 +12,7 @@ from typing import Optional
 
 from backend.pipeline.corpus import slugify
 from backend.storage import db
+from backend.taxonomy import category_slug
 
 TRIGGER_CLUSTERS = ["comfort_carry", "budget_value", "organization_tech"]
 _TRIGGERED: dict[str, dict] = {}
@@ -26,13 +27,19 @@ def _find_run_for_brand(brand: str) -> Optional[dict]:
 
 
 def _competitor_refs(product: dict, limit: int = 3) -> list[str]:
+    """Competitors = other brands in the SAME category (legacy null = travel backpack)."""
     tslug = slugify(product["brand"])
+    tcat = category_slug(product.get("category") or "travel backpack")
+    pool = [p for p in db.list_products()
+            if slugify(p["brand"]) != tslug
+            and category_slug(p.get("category") or "travel backpack") == tcat]
+    if not pool:  # no same-category competitors ingested yet — fall back to all
+        pool = [p for p in db.list_products() if slugify(p["brand"]) != tslug]
     latest: dict[str, dict] = {}
-    for p in db.list_products():
-        if slugify(p["brand"]) != tslug:
-            cur = latest.get(p["product_id"])
-            if not cur or p["version"] > cur["version"]:
-                latest[p["product_id"]] = p
+    for p in pool:
+        cur = latest.get(p["product_id"])
+        if not cur or p["version"] > cur["version"]:
+            latest[p["product_id"]] = p
     return [f"{p['product_id']}@v{p['version']}" for p in list(latest.values())[:limit]]
 
 
