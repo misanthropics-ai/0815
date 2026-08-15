@@ -65,7 +65,9 @@ paths:
   /products/{ref}/diagnosis:
     get:
       summary: "取診斷 (優先: 最新完成 run; 次之: batches; 皆無→觸發 batch 回 202)"
-      responses: { "200": { description: Diagnosis }, "202": { description: "{status: running}" } }
+      responses:
+        "200": { description: Diagnosis }
+        "202": { description: "Diagnosis progress or actionable needs_competitors/failed state" }
 
   # ---- simulate (P2) ----
   /simulate:

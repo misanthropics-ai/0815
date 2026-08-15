@@ -16,7 +16,7 @@ from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.pipeline.corpus import slugify
 from backend.storage import db
-from backend.taxonomy import GENERIC_PATH, load_taxonomy, taxonomy_path
+from backend.taxonomy import GENERIC_PATH, category_slug, load_taxonomy, taxonomy_path
 
 PROMPT_VERSION = "extract_v1"
 
@@ -159,6 +159,24 @@ def _unique_product_id(candidate: str) -> str:
     return f"{pid}-{i}"
 
 
+def _reusable_url_product(source_url: str, category: Optional[str]) -> Optional[dict]:
+    """Reuse an already-ingested URL when it belongs to the requested category.
+
+    Legacy products without a category are treated as travel backpacks, matching
+    the diagnosis service's backward-compatibility rule.
+    """
+    candidates = db.list_products_by_source_url(source_url)
+    requested = (category or "").strip()
+    if requested:
+        wanted = category_slug(requested)
+        candidates = [
+            product
+            for product in candidates
+            if category_slug(product.get("category") or "travel backpack") == wanted
+        ]
+    return candidates[0] if candidates else None
+
+
 async def create_product(body: dict) -> dict:
     source = body.get("source")
     if source == "url":
@@ -168,6 +186,9 @@ async def create_product(body: dict) -> dict:
 
         from backend.ingestion.fetcher import fetch_url, unwrap_url
         body["source_url"] = unwrap_url(body["source_url"])  # store the real page as source
+        existing = _reusable_url_product(body["source_url"], body.get("category"))
+        if existing:
+            return existing
         try:
             title, raw_text = await fetch_url(body["source_url"])
         except httpx.HTTPError as e:
