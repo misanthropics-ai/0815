@@ -61,4 +61,17 @@ describe('PaywalledDiagnosisReport', () => {
     expect(markup).not.toContain('aria-hidden="true"')
     expect(markup).not.toContain('inert=""')
   })
+
+  it('marks fallback guidance as still generating when enrichment is pending', () => {
+    const pendingDiagnosis: Diagnosis = {
+      ...diagnosis,
+      partial: true,
+      defects: [{ ...diagnosis.defects[0], content_patch: "Add a prominent 'comfort' section near the top." }],
+    }
+    const markup = renderToStaticMarkup(<PaywalledDiagnosisReport diagnosis={pendingDiagnosis} fieldLabel={value => value} unlocked onUnlock={() => undefined} onDiscuss={() => undefined} />)
+
+    expect(markup).toContain('GENERATING DETAILED COPY')
+    expect(markup).toContain('Product-specific copy will update automatically')
+    expect(markup).not.toContain('READY-TO-PASTE COPY')
+  })
 })

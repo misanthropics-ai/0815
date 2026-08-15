@@ -221,6 +221,7 @@ export interface Defect {
   gap?: GapClass;                             // 🟢 information_gap vs 🔴 product_gap
   content_patch?: string;                     // ready-to-paste copy → copyable code block
   why_it_happens?: string;
+  enriched?: boolean;                         // false while the tailored copy is still pending
 }
 
 export interface Diagnosis {                  // GET /products/{ref}/diagnosis (200)
@@ -238,6 +239,7 @@ export interface Diagnosis {                  // GET /products/{ref}/diagnosis (
   source?: { type: "run" | "batches"; run_id?: string; engines?: string[] };
   funnel_dropoff?: Record<string, number>;
   exec_summary?: string;
+  partial?: boolean;                          // deadline mode: diagnosis is usable but still enriching
 }
 export interface DiagnosisPending {
   status: "running" | "failed" | "needs_competitors";
