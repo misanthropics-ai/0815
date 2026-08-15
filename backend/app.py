@@ -137,6 +137,36 @@ async def logs(n: int = Query(default=200, ge=1, le=800), event: Optional[str] =
     return {"events": recent(n, event_prefix=event)}
 
 
+# USD per 1M tokens (input, output) — Bedrock on-demand, matched by substring.
+# Adjust here if AWS repricing; source of truth = AWS Bedrock pricing page.
+PRICES_PER_MTOK = {"sonnet": (3.0, 15.0), "haiku": (1.0, 5.0),
+                   "nova-pro": (0.8, 3.2), "nova-lite": (0.06, 0.24)}
+
+
+@app.get("/usage")
+async def usage():
+    """Cumulative LLM token usage + estimated USD since process start (or last reset)."""
+    from backend.llm.bedrock import usage_snapshot
+
+    rows, total_cost = [], 0.0
+    for model, u in sorted(usage_snapshot().items()):
+        price = next((p for k, p in PRICES_PER_MTOK.items() if k in model), (3.0, 15.0))
+        cost = u["input_tokens"] / 1e6 * price[0] + u["output_tokens"] / 1e6 * price[1]
+        total_cost += cost
+        rows.append({**u, "model": model, "price_per_mtok": {"input": price[0], "output": price[1]},
+                     "est_cost_usd": round(cost, 4)})
+    return {"models": rows, "total_est_cost_usd": round(total_cost, 4),
+            "note": "estimates use PRICES_PER_MTOK; POST /usage/reset to start a measurement window"}
+
+
+@app.post("/usage/reset")
+async def usage_reset_ep():
+    from backend.llm.bedrock import usage_reset
+
+    usage_reset()
+    return {"reset": True}
+
+
 @app.get("/personas")
 async def personas(category: Optional[str] = Query(default=None)):
     """Default persona profiles for a category (frontend persona pickers).

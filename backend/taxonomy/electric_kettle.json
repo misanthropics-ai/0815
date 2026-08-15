@@ -1,0 +1,282 @@
+{
+  "version": 1,
+  "category": "electric_kettle",
+  "learned": true,
+  "attributes": [
+    {
+      "id": "temperature_control",
+      "label": "Temperature Control",
+      "description": "Whether the kettle offers variable/precise temperature settings vs. boil-only, and the accuracy of those settings.",
+      "keywords": [
+        "variable temperature",
+        "temperature control",
+        "temp setting",
+        "pid",
+        "precision temp",
+        "°f",
+        "°c",
+        "溫度控制",
+        "調溫",
+        "恆溫"
+      ]
+    },
+    {
+      "id": "capacity",
+      "label": "Capacity",
+      "description": "The water volume the kettle can hold, affecting how many cups or brew sessions can be served per fill.",
+      "keywords": [
+        "capacity",
+        "liter",
+        "litre",
+        "0.9l",
+        "1.0l",
+        "1.5l",
+        "ml",
+        "容量",
+        "公升"
+      ]
+    },
+    {
+      "id": "heating_speed",
+      "label": "Heating Speed",
+      "description": "How quickly the kettle brings water to the target temperature, typically expressed in wattage or time-to-boil.",
+      "keywords": [
+        "watt",
+        "1200w",
+        "1500w",
+        "heat time",
+        "boil time",
+        "quick heat",
+        "fast boil",
+        "加熱速度",
+        "功率",
+        "瓦"
+      ]
+    },
+    {
+      "id": "keep_warm_hold",
+      "label": "Keep-Warm / Hold Mode",
+      "description": "Ability to maintain water at a set temperature for an extended period after reaching it, and the maximum hold duration.",
+      "keywords": [
+        "keep warm",
+        "hold mode",
+        "hold temperature",
+        "stay warm",
+        "保溫",
+        "保溫時間",
+        "恆溫模式",
+        "hold"
+      ]
+    },
+    {
+      "id": "spout_design",
+      "label": "Spout Design",
+      "description": "Shape and precision of the spout — gooseneck for controlled pour-over flow vs. wide-mouth for speed and convenience.",
+      "keywords": [
+        "gooseneck",
+        "spout",
+        "pour-over",
+        "pour over",
+        "flow control",
+        "neck",
+        "鵝頸",
+        "細口",
+        "出水口",
+        "手沖"
+      ]
+    },
+    {
+      "id": "smart_connectivity",
+      "label": "Smart Connectivity",
+      "description": "App control, WiFi/Bluetooth scheduling, and integration with smart-home ecosystems.",
+      "keywords": [
+        "wifi",
+        "bluetooth",
+        "app",
+        "smart",
+        "schedule",
+        "alexa",
+        "google home",
+        "智能",
+        "藍牙",
+        "wifi控制",
+        "app控制"
+      ]
+    },
+    {
+      "id": "material_build_quality",
+      "label": "Material & Build Quality",
+      "description": "Inner and outer construction materials — stainless steel, BPA-free plastic, glass — affecting durability, taste neutrality, and aesthetics.",
+      "keywords": [
+        "stainless steel",
+        "bpa",
+        "glass",
+        "plastic",
+        "matte",
+        "walnut",
+        "build quality",
+        "不鏽鋼",
+        "玻璃",
+        "材質",
+        "無bpa"
+      ]
+    },
+    {
+      "id": "display_interface",
+      "label": "Display & Interface",
+      "description": "Presence and quality of an onboard display (LCD, LED) and physical controls for reading and setting temperature.",
+      "keywords": [
+        "display",
+        "lcd",
+        "led",
+        "screen",
+        "dial",
+        "button",
+        "interface",
+        "顯示",
+        "螢幕",
+        "顯示屏",
+        "旋鈕"
+      ]
+    },
+    {
+      "id": "base_cord_design",
+      "label": "Base & Cord Design",
+      "description": "Whether the kettle uses a 360° cordless base, cord length, and how easy it is to lift and manoeuvre.",
+      "keywords": [
+        "360",
+        "cordless",
+        "base",
+        "cord",
+        "swivel",
+        "wireless base",
+        "底座",
+        "無線底座",
+        "旋轉底座",
+        "電源線"
+      ]
+    },
+    {
+      "id": "noise_level",
+      "label": "Noise Level",
+      "description": "How loud the kettle is during heating and boiling — relevant for quiet kitchens, offices, or early-morning use.",
+      "keywords": [
+        "quiet",
+        "noise",
+        "loud",
+        "silent",
+        "boiling sound",
+        "db",
+        "靜音",
+        "噪音",
+        "聲音",
+        "安靜"
+      ]
+    },
+    {
+      "id": "brew_extras",
+      "label": "Brewing Extras",
+      "description": "Bonus features aimed at specialty coffee or tea brewing: built-in stopwatch/timer, brew presets, or tea-specific modes.",
+      "keywords": [
+        "stopwatch",
+        "timer",
+        "brew preset",
+        "coffee mode",
+        "tea mode",
+        "countdown",
+        "計時",
+        "沖泡模式",
+        "預設",
+        "咖啡模式"
+      ]
+    },
+    {
+      "id": "price",
+      "label": "Price / Value",
+      "description": "Price, budget fit and overall value",
+      "keywords": [
+        "price",
+        "cost",
+        "budget",
+        "affordable",
+        "value",
+        "discount"
+      ]
+    },
+    {
+      "id": "brand_reputation",
+      "label": "Brand Reputation",
+      "description": "Reviews, support and brand trust",
+      "keywords": [
+        "review",
+        "rating",
+        "reputation",
+        "support",
+        "trusted",
+        "brand"
+      ]
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "description": "Category-specific attributes not yet normalized",
+      "keywords": []
+    }
+  ],
+  "clusters": [
+    {
+      "id": "pour_over_barista",
+      "label": "Pour-Over & Specialty Coffee Enthusiast",
+      "description": "Buyers brewing pour-over, V60, Chemex, or AeroPress who need precise temperature, a gooseneck spout, and timing tools to replicate café-quality results at home.",
+      "attributes": [
+        "temperature_control",
+        "spout_design",
+        "brew_extras",
+        "keep_warm_hold"
+      ]
+    },
+    {
+      "id": "smart_home_tech",
+      "label": "Smart Home & Tech-Forward User",
+      "description": "Buyers who want app scheduling, voice-assistant integration, and remote control to fit the kettle into a connected morning routine.",
+      "attributes": [
+        "smart_connectivity",
+        "temperature_control",
+        "display_interface",
+        "keep_warm_hold"
+      ]
+    },
+    {
+      "id": "everyday_convenience",
+      "label": "Everyday Convenience Seeker",
+      "description": "Buyers who primarily want fast boiling, large capacity, and simple operation for tea, instant noodles, or general hot-water tasks — minimal fuss.",
+      "attributes": [
+        "heating_speed",
+        "capacity",
+        "base_cord_design",
+        "noise_level"
+      ]
+    },
+    {
+      "id": "health_conscious",
+      "label": "Health & Material-Conscious Buyer",
+      "description": "Buyers focused on safe, taste-neutral materials (stainless steel interior, BPA-free) and clean build quality to avoid plastic off-flavours or leaching.",
+      "attributes": [
+        "material_build_quality",
+        "capacity",
+        "noise_level"
+      ]
+    },
+    {
+      "id": "office_desk",
+      "label": "Office / Desk User",
+      "description": "Buyers using the kettle in a workspace who prioritise quiet operation, compact size, keep-warm functionality, and a tidy cordless base.",
+      "attributes": [
+        "noise_level",
+        "keep_warm_hold",
+        "base_cord_design",
+        "capacity"
+      ]
+    }
+  ]
+}
