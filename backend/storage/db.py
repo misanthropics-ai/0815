@@ -74,7 +74,8 @@ CREATE TABLE IF NOT EXISTS runs (
 );
 CREATE TABLE IF NOT EXISTS intents (
   intent_id TEXT PRIMARY KEY, run_id TEXT, text TEXT, cluster_id TEXT, cluster_label TEXT,
-  attributes_json TEXT, persona TEXT, language TEXT, source TEXT, created_at TEXT
+  attributes_json TEXT, persona TEXT, persona_id TEXT, persona_json TEXT,
+  language TEXT, source TEXT, created_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_intents_run ON intents(run_id);
 CREATE TABLE IF NOT EXISTS responses (
@@ -119,6 +120,11 @@ def init_db() -> None:
     conn = connect()
     try:
         conn.executescript(SCHEMA)
+        intent_columns = {row["name"] for row in conn.execute("PRAGMA table_info(intents)")}
+        if "persona_id" not in intent_columns:
+            conn.execute("ALTER TABLE intents ADD COLUMN persona_id TEXT")
+        if "persona_json" not in intent_columns:
+            conn.execute("ALTER TABLE intents ADD COLUMN persona_json TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -273,10 +279,12 @@ def save_intents(intents: list[dict]) -> None:
     try:
         conn.executemany(
             """INSERT OR REPLACE INTO intents
-               (intent_id, run_id, text, cluster_id, cluster_label, attributes_json, persona, language, source, created_at)
-               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+               (intent_id, run_id, text, cluster_id, cluster_label, attributes_json,
+                persona, persona_id, persona_json, language, source, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             [(i["intent_id"], i.get("run_id", "library"), i["text"], i.get("cluster_id", "other"),
               i.get("cluster_label"), _j(i.get("attributes", [])), i.get("persona"),
+              i.get("persona_id"), _j(i.get("persona_profile")) if i.get("persona_profile") else None,
               i.get("language", "en"), i.get("source", "generated"), i.get("created_at") or now_iso())
              for i in intents],
         )
@@ -299,6 +307,8 @@ def get_intents(run_id: str = "library", cluster_id: Optional[str] = None) -> li
             out.append({"intent_id": r["intent_id"], "run_id": r["run_id"], "text": r["text"],
                         "cluster_id": r["cluster_id"], "cluster_label": r["cluster_label"],
                         "attributes": _uj(r["attributes_json"], []), "persona": r["persona"],
+                        "persona_id": r.get("persona_id"),
+                        "persona_profile": _uj(r.get("persona_json")),
                         "language": r["language"], "source": r["source"]})
         return out
     finally:

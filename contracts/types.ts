@@ -9,12 +9,66 @@ export type ProductRef = string;   // "cabinzero-classic-36l@v1"
 export type AttributeId =
   | "price" | "weight" | "comfort" | "airline_compliance" | "capacity_size"
   | "organization" | "durability" | "warranty" | "style_design" | "security"
-  | "sustainability" | "brand_reputation" | "other";
+  | "sustainability" | "brand_reputation" | "quality" | "features" | "compatibility"
+  | "size_dimensions" | "performance" | "ease_of_use" | "design" | "availability"
+  | "other" | (string & {});                 // category-specific taxonomy extension
 export type BrandSlug = string;    // "cabinzero" | "osprey" | ...
 export type GapClass = "information_gap" | "product_gap" | "mixed" | "unclear";
 export type Severity = "high" | "medium" | "low";
+export type SearchValue =
+  | string | number | boolean | null
+  | Array<string | number | boolean | null>
+  | Record<string, string | number | boolean | null>;
 
 export interface ApiError { error: { code: string; message: string; hint?: string } }
+
+// ---------- cross-category shopper / search profile ----------
+export interface SearchLocation {
+  country?: string | null;
+  region?: string | null;
+  city?: string | null;
+}
+
+export interface SearchBudget {
+  min_amount?: number | null;
+  max_amount?: number | null;
+  currency?: string | null;
+  flexibility?: "hard" | "soft";
+}
+
+export type SearchOperator =
+  | "eq" | "neq" | "lte" | "gte" | "between" | "in" | "not_in"
+  | "contains" | "not_contains" | "supports" | "exists" | "maximize" | "minimize";
+
+export interface SearchCriterion {
+  attribute: string;                         // category-specific taxonomy key
+  operator: SearchOperator;
+  value?: SearchValue;
+  unit?: string | null;
+  importance?: "must" | "should" | "nice_to_have";
+  reason?: string | null;
+}
+
+export interface ReferenceProduct {
+  name: string;
+  relation?: "owns" | "likes" | "dislikes" | "compare_with" | "alternative_to" | "compatible_with";
+  notes?: string | null;
+}
+
+export interface PersonaProfile {
+  persona_id: string;
+  label: string;
+  relationship_to_buyer?: string;
+  age?: number | null;
+  occupation?: string | null;
+  location?: SearchLocation | null;
+  budget?: SearchBudget | null;
+  use_cases?: string[];
+  criteria?: SearchCriterion[];
+  reference_products?: ReferenceProduct[];
+  context?: Record<string, SearchValue>;
+  notes?: string[];
+}
 
 // ---------- product (P1) ----------
 export interface ProductAttribute {
@@ -63,6 +117,9 @@ export interface Intent {
   text: string;
   cluster_id: string;              // taxonomy cluster id, or "other"
   attributes: AttributeId[];
+  persona?: string | null;                    // legacy display value
+  persona_id?: string | null;
+  persona_profile?: PersonaProfile | null;
   language?: string;
 }
 
@@ -205,10 +262,15 @@ export interface DebateSession { session_id: string; product_ref: ProductRef; me
 export interface RunCreateRequest {
   brand: string;
   competitors?: string[];
+  brand_products?: string[];
   category?: string;
+  market?: string;
+  language?: string;
+  personas?: Array<PersonaProfile | string>;  // strings remain accepted for v3 compatibility
   n_intents?: number;                          // 10..300, default 60
   engines?: ("sim-sonnet" | "sim-haiku" | "mock")[];
   mode?: "mock" | "live" | "auto";
+  judge_model?: string;
   product_refs?: ProductRef[];                 // pin @v1 for baseline runs!
 }
 

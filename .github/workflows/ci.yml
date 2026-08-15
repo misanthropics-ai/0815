@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python quality and contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Check installed dependencies
+        run: python -m pip check
+
+      - name: Lint Python
+        run: PYTHON=python make lint
+
+      - name: Check Python formatting
+        run: PYTHON=python make format-check
+
+      - name: Check shell scripts
+        run: bash -n scripts/bootstrap.sh
+
+      - name: Validate API contracts
+        run: PYTHON=python make contract
+
+      - name: Run tests
+        run: PYTHON=python make test

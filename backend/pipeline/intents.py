@@ -11,28 +11,17 @@ import json
 import math
 import re
 from functools import lru_cache
-from typing import Awaitable, Callable, Optional
+from typing import Awaitable, Callable, Optional, Union
 
 from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.storage import db
+from backend.taxonomy import category_slug, load_taxonomy
+from contracts.schemas import PersonaProfile
 
 PROMPT_VERSION = "intent_v1"
-
-DEFAULT_PERSONAS = [
-    "32-year-old accountant, three-week Europe trip, packs light",
-    "13-year-old student going on a school trip",
-    "33-year-old gym-goer commuting daily with training gear",
-    "engineer carrying a 16-inch laptop, chargers and documents",
-    "budget-constrained university student",
-    "frequent budget-airline traveler (Ryanair / easyJet)",
-    "hobby photographer carrying a mirrorless kit",
-    "weekend hiker who wants one bag for city and trail",
-    "digital nomad living out of one bag",
-    "parent traveling with two kids",
-]
 
 INTENT_SCHEMA = {
     "type": "object",
@@ -43,10 +32,10 @@ INTENT_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "text": {"type": "string"},
-                    "persona": {"type": "string"},
+                    "persona_id": {"type": "string"},
                     "attributes": {"type": "array", "items": {"type": "string"}},
                 },
-                "required": ["text"],
+                "required": ["text", "persona_id"],
             },
         }
     },
@@ -54,21 +43,95 @@ INTENT_SCHEMA = {
 }
 
 
-@lru_cache(maxsize=1)
-def taxonomy() -> dict:
-    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
-
-
-def clusters() -> list[dict]:
-    return taxonomy()["clusters"]
-
-
-def attribute_ids() -> list[str]:
-    return [a["id"] for a in taxonomy()["attributes"]]
-
-
 def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9一-鿿]+", " ", text.lower()).strip()
+
+
+def personas_path(category: Optional[str] = None):
+    slug = category_slug(category)
+    if not slug or load_taxonomy(category)["category"] == "travel_backpack":
+        return config.PERSONAS_PATH
+    candidate = config.PERSONAS_DIR / f"{slug}.json"
+    return candidate if candidate.exists() else config.PERSONAS_DIR / "generic.json"
+
+
+@lru_cache(maxsize=32)
+def default_personas(category: Optional[str] = None) -> list[dict]:
+    payload = json.loads(personas_path(category).read_text(encoding="utf-8"))
+    return [
+        PersonaProfile.model_validate(profile).model_dump(mode="json", exclude_none=True)
+        for profile in payload["profiles"]
+    ]
+
+
+def _legacy_profile(text: str, index: int) -> dict:
+    label = text.strip()
+    slug = re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_")[:48]
+    suffix = slug or f"{index:03d}"
+    return PersonaProfile(
+        persona_id=f"legacy_{suffix}",
+        label=label,
+        notes=[label],
+    ).model_dump(mode="json", exclude_none=True)
+
+
+def normalize_personas(
+    personas: Optional[list[Union[str, dict, PersonaProfile]]],
+    category: Optional[str] = None,
+) -> list[dict]:
+    if not personas:
+        return [dict(profile) for profile in default_personas(category)]
+
+    profiles: list[dict] = []
+    for index, raw in enumerate(personas):
+        if isinstance(raw, str):
+            profile = _legacy_profile(raw, index)
+        else:
+            profile = PersonaProfile.model_validate(raw).model_dump(mode="json", exclude_none=True)
+        profiles.append(profile)
+
+    ids = [profile["persona_id"] for profile in profiles]
+    if len(ids) != len(set(ids)):
+        raise ValueError("persona_id values must be unique within a run")
+    return profiles
+
+
+def clusters(category: Optional[str] = None) -> list[dict]:
+    return load_taxonomy(category)["clusters"]
+
+
+def attribute_ids(category: Optional[str] = None) -> list[str]:
+    return [attribute["id"] for attribute in load_taxonomy(category)["attributes"]]
+
+
+def persona_summary(profile: dict) -> str:
+    """Compact deterministic text used when live intent generation is unavailable."""
+    parts = [profile["label"]]
+    if profile.get("age") is not None:
+        parts.append(f"age {profile['age']}")
+    if profile.get("occupation"):
+        parts.append(f"occupation {profile['occupation']}")
+    if profile.get("budget"):
+        budget = profile["budget"]
+        maximum = budget.get("max_amount")
+        if maximum is not None:
+            parts.append(f"budget up to {maximum:g} {budget.get('currency') or ''}".strip())
+    if profile.get("use_cases"):
+        parts.append("use cases: " + ", ".join(profile["use_cases"]))
+    if profile.get("criteria"):
+        criteria = []
+        for criterion in profile["criteria"]:
+            value = criterion.get("value")
+            value_text = "" if value is None else f" {value}"
+            unit = f" {criterion['unit']}" if criterion.get("unit") else ""
+            criteria.append(
+                f"{criterion['attribute']} {criterion['operator']}{value_text}{unit}"
+                f" ({criterion.get('importance', 'should')})"
+            )
+        parts.append("criteria: " + ", ".join(criteria))
+    if profile.get("notes"):
+        parts.append("notes: " + ", ".join(profile["notes"]))
+    return "; ".join(parts)
 
 
 def ensure_library_loaded() -> int:
@@ -84,8 +147,54 @@ def ensure_library_loaded() -> int:
     return len(rows)
 
 
-def library_sample(run_id: str, n: int) -> list[dict]:
+def _template_sample(
+    run_id: str,
+    n: int,
+    personas: list[dict],
+    category: str,
+    language: str = "en",
+    selected_clusters: Optional[list[dict]] = None,
+) -> list[dict]:
+    """Build category-neutral fallback intents from profiles and taxonomy clusters."""
+    cluster_pool = selected_clusters or clusters(category)
+    out: list[dict] = []
+    for idx in range(n):
+        cluster = cluster_pool[idx % len(cluster_pool)]
+        profile = personas[idx % len(personas)]
+        use_case = next(iter(profile.get("use_cases") or []), "the buyer's use case")
+        out.append(
+            {
+                "intent_id": f"{run_id}_i{idx:03d}",
+                "run_id": run_id,
+                "text": (
+                    f"Help me choose a {category} for {use_case}. "
+                    f"Prioritize {cluster['label'].lower()}. "
+                    f"Shopper context: {persona_summary(profile)}."
+                ),
+                "cluster_id": cluster["id"],
+                "cluster_label": cluster["label"],
+                "attributes": cluster["attributes"][:3],
+                "persona": profile["label"],
+                "persona_id": profile["persona_id"],
+                "persona_profile": profile,
+                "language": language,
+                "source": "template",
+            }
+        )
+    return out
+
+
+def library_sample(
+    run_id: str,
+    n: int,
+    personas: list[dict],
+    category: str = "travel backpack",
+    language: str = "en",
+) -> list[dict]:
     """Evenly sample n intents across clusters from the library, re-ID'd for this run."""
+    if load_taxonomy(category)["category"] != "travel_backpack":
+        return _template_sample(run_id, n, personas, category, language)
+
     ensure_library_loaded()
     by_cluster: dict[str, list[dict]] = {}
     for it in db.get_intents("library"):
@@ -96,8 +205,20 @@ def library_sample(run_id: str, n: int) -> list[dict]:
         for cid in list(by_cluster.keys()):
             if by_cluster[cid] and len(out) < n:
                 src = by_cluster[cid].pop(0)
-                out.append({**src, "intent_id": f"{run_id}_i{idx:03d}", "run_id": run_id,
-                            "source": "library"})
+                profile = personas[idx % len(personas)]
+                out.append(
+                    {
+                        **src,
+                        "intent_id": f"{run_id}_i{idx:03d}",
+                        "run_id": run_id,
+                        "text": f"{src['text']} Shopper context: {persona_summary(profile)}.",
+                        "persona": profile["label"],
+                        "persona_id": profile["persona_id"],
+                        "persona_profile": profile,
+                        "language": language,
+                        "source": "library",
+                    }
+                )
                 idx += 1
     return out
 
@@ -111,15 +232,19 @@ async def generate_intents(run_cfg: dict,
     if existing:
         return existing
 
+    category = run_cfg.get("category") or "travel backpack"
+    language = run_cfg.get("language") or "en"
+    personas = normalize_personas(run_cfg.get("personas"), category)
     use_llm = run_cfg.get("mode") != "mock" and get_bedrock().available()
     if not use_llm:
-        out = library_sample(run_id, n)
+        out = library_sample(run_id, n, personas, category, language)
         db.save_intents(out)
         if progress:
-            await progress(1, 1, f"loaded {len(out)} library intents (mock mode)")
+            source = "library" if out and out[0]["source"] == "library" else "templates"
+            await progress(1, 1, f"loaded {len(out)} {source} (mock mode)")
         return out
 
-    cls = clusters()
+    cls = clusters(category)
     per = math.ceil(n / len(cls))
     done = 0
 
@@ -132,31 +257,69 @@ async def generate_intents(run_cfg: dict,
             language=run_cfg.get("language", "en"),
             brand=run_cfg["brand"],
             competitors=", ".join(run_cfg.get("competitors", [])),
-            personas="\n".join(f"- {p}" for p in (run_cfg.get("personas") or DEFAULT_PERSONAS)),
+            personas_json=json.dumps(personas, ensure_ascii=False, indent=2, sort_keys=True),
             cluster_id=c["id"], cluster_label=c["label"],
             cluster_description=c["description"],
             cluster_attributes=", ".join(c["attributes"]),
-            count=per, attribute_ids=", ".join(attribute_ids()),
+            count=per, attribute_ids=", ".join(attribute_ids(category)),
         )
         items: list[dict] = []
         try:
             out = await bedrock.acomplete_json(
                 prompt=prompt, schema=INTENT_SCHEMA, max_tokens=4096, temperature=0.8,
-                cache_key=cache_key_for("intents", run_cfg["brand"], run_cfg.get("category"),
-                                        c["id"], per, PROMPT_VERSION))
+                cache_key=cache_key_for(
+                    "intents",
+                    run_cfg["brand"],
+                    category,
+                    run_cfg.get("market"),
+                    run_cfg.get("language"),
+                    run_cfg.get("competitors"),
+                    personas,
+                    c["id"],
+                    per,
+                    PROMPT_VERSION,
+                ),
+            )
             items = out.get("intents", []) or []
         except Exception:
             items = []
-        if not items:  # per-cluster fallback to library
-            items = [{"text": i["text"], "persona": i.get("persona"), "attributes": i.get("attributes", [])}
-                     for i in db.get_intents("library", cluster_id=c["id"])[:per]]
-        valid_attrs = set(attribute_ids())
+        if not items:  # per-cluster deterministic fallback
+            fallback = _template_sample(
+                run_id,
+                per,
+                personas,
+                category,
+                language,
+                selected_clusters=[c],
+            )
+            items = [
+                {
+                    "text": item["text"],
+                    "persona_id": item["persona_id"],
+                    "attributes": item["attributes"],
+                }
+                for item in fallback
+            ]
+        valid_attrs = set(attribute_ids(category))
+        profiles_by_id = {profile["persona_id"]: profile for profile in personas}
         rows = []
-        for it in items[:per + 5]:
+        for index, it in enumerate(items[: per + 5]):
             attrs = [a for a in (it.get("attributes") or []) if a in valid_attrs] or c["attributes"]
-            rows.append({"text": (it.get("text") or "").strip(), "persona": it.get("persona"),
-                         "attributes": attrs[:3], "cluster_id": c["id"], "cluster_label": c["label"],
-                         "language": run_cfg.get("language", "en"), "source": "generated"})
+            persona_id = it.get("persona_id")
+            profile = profiles_by_id.get(persona_id) or personas[index % len(personas)]
+            rows.append(
+                {
+                    "text": (it.get("text") or "").strip(),
+                    "persona": profile["label"],
+                    "persona_id": profile["persona_id"],
+                    "persona_profile": profile,
+                    "attributes": attrs[:3],
+                    "cluster_id": c["id"],
+                    "cluster_label": c["label"],
+                    "language": language,
+                    "source": "generated",
+                }
+            )
         done += 1
         if progress:
             await progress(done, len(cls), f"cluster {c['id']}: {len(rows)} intents")

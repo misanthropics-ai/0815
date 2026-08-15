@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "persona_id": "accountant_europe_trip",
+      "label": "Europe trip office worker",
+      "age": 32,
+      "occupation": "accountant",
+      "location": { "country": "TW", "city": "Taipei" },
+      "budget": { "max_amount": 150, "currency": "EUR", "flexibility": "soft" },
+      "use_cases": ["three-week Europe trip", "daily city walking", "one-bag travel"],
+      "criteria": [
+        { "attribute": "comfort", "operator": "maximize", "importance": "should", "reason": "long walking days" },
+        { "attribute": "weight", "operator": "minimize", "importance": "should", "reason": "packs light" }
+      ],
+      "context": { "trip_duration_days": 21, "daily_walking_hours": 8 },
+      "notes": []
+    },
+    {
+      "persona_id": "student_school_trip",
+      "label": "Student on a school trip",
+      "age": 13,
+      "occupation": "student",
+      "budget": { "max_amount": 80, "currency": "USD", "flexibility": "hard" },
+      "use_cases": ["school trip", "short travel"],
+      "criteria": [
+        { "attribute": "price", "operator": "lte", "value": 80, "unit": "USD", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+      ],
+      "context": {},
+      "notes": ["Easy to carry and simple to organize"]
+    },
+    {
+      "persona_id": "gym_commuter",
+      "label": "Daily gym commuter",
+      "age": 33,
+      "occupation": null,
+      "use_cases": ["daily commute", "carrying training gear"],
+      "criteria": [
+        { "attribute": "organization", "operator": "maximize", "importance": "must", "reason": "separate work and gym gear" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "usage_frequency": "daily" },
+      "notes": []
+    },
+    {
+      "persona_id": "engineer_tech_carry",
+      "label": "Engineer carrying work equipment",
+      "occupation": "engineer",
+      "use_cases": ["work commute", "business travel", "tech carry"],
+      "criteria": [
+        { "attribute": "laptop_size", "operator": "gte", "value": 16, "unit": "inch", "importance": "must", "reason": "must fit a work laptop" },
+        { "attribute": "organization", "operator": "maximize", "importance": "should", "reason": "chargers and documents" }
+      ],
+      "context": { "carried_items": ["16-inch laptop", "chargers", "documents"] },
+      "notes": []
+    },
+    {
+      "persona_id": "budget_university_student",
+      "label": "Budget-constrained university student",
+      "age": 20,
+      "occupation": "university student",
+      "budget": { "max_amount": 100, "currency": "USD", "flexibility": "hard" },
+      "use_cases": ["budget travel", "university commute"],
+      "criteria": [
+        { "attribute": "price", "operator": "lte", "value": 100, "unit": "USD", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should", "reason": "cannot replace it frequently" }
+      ],
+      "context": {},
+      "notes": []
+    },
+    {
+      "persona_id": "frequent_budget_airline",
+      "label": "Frequent budget-airline traveler",
+      "occupation": null,
+      "use_cases": ["frequent low-cost flights", "one-bag travel"],
+      "criteria": [
+        { "attribute": "airline_compliance", "operator": "supports", "value": ["Ryanair", "easyJet"], "importance": "must" },
+        { "attribute": "weight", "operator": "minimize", "importance": "should" }
+      ],
+      "context": { "airlines": ["Ryanair", "easyJet"] },
+      "notes": ["Avoid checked-bag and gate fees"]
+    },
+    {
+      "persona_id": "hobby_photographer",
+      "label": "Hobby photographer",
+      "occupation": "photographer",
+      "use_cases": ["travel photography", "carrying a mirrorless camera kit"],
+      "criteria": [
+        { "attribute": "camera_protection", "operator": "exists", "importance": "must" },
+        { "attribute": "organization", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "carried_items": ["mirrorless camera", "two lenses", "travel tripod"] },
+      "notes": []
+    },
+    {
+      "persona_id": "weekend_hiker",
+      "label": "Weekend city and trail traveler",
+      "occupation": null,
+      "use_cases": ["city travel", "day hiking"],
+      "criteria": [
+        { "attribute": "comfort", "operator": "maximize", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "environments": ["urban", "trail"] },
+      "notes": ["Wants one product for both city and outdoor use"]
+    },
+    {
+      "persona_id": "digital_nomad",
+      "label": "Digital nomad",
+      "occupation": "remote worker",
+      "budget": { "max_amount": 200, "currency": "USD", "flexibility": "soft" },
+      "use_cases": ["long-term travel", "remote work", "one-bag living"],
+      "criteria": [
+        { "attribute": "organization", "operator": "maximize", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "must" },
+        { "attribute": "comfort", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "usage_frequency": "daily" },
+      "notes": []
+    },
+    {
+      "persona_id": "parent_family_travel",
+      "label": "Parent traveling with two children",
+      "relationship_to_buyer": "self",
+      "occupation": "parent",
+      "use_cases": ["family travel", "carrying shared essentials"],
+      "criteria": [
+        { "attribute": "capacity_size", "operator": "maximize", "importance": "should" },
+        { "attribute": "organization", "operator": "maximize", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "travel_party_size": 3, "children_count": 2 },
+      "notes": ["Needs quick access to shared items"]
+    }
+  ]
+}

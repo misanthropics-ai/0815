@@ -56,7 +56,9 @@ class ClaudeSimEngine(Engine):
     async def run(self, intent: dict, ctx: RunContext) -> EngineResult:
         t0 = time.time()
         model = self._model()
-        kw = corpus_mod.attr_keywords(intent.get("attributes", []))
+        kw = corpus_mod.attr_keywords(
+            intent.get("attributes", []), category=ctx.run_cfg.get("category")
+        )
         hits = corpus_mod.retrieve(ctx.corpus, intent["text"], kw, k=4,
                                    seed=f"{intent['intent_id']}:{self.name}")
         citations = [{"url": h["doc"].url, "title": h["doc"].title, "doc_id": h["doc"].doc_id,

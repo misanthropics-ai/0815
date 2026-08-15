@@ -15,6 +15,8 @@ FIXTURES_DIR = BACKEND_DIR / "mock_fixtures"
 PROMPTS_DIR = BACKEND_DIR / "prompts"
 SEEDS_DIR = BACKEND_DIR / "seeds"
 TAXONOMY_PATH = BACKEND_DIR / "taxonomy" / "taxonomy.json"
+PERSONAS_DIR = BACKEND_DIR / "personas"
+PERSONAS_PATH = PERSONAS_DIR / "default.json"
 DB_PATH = DATA_DIR / "app.db"
 
 
