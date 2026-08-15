@@ -19,6 +19,7 @@ from typing import Optional
 
 from backend import config
 from backend.storage import db
+from backend.taxonomy import load_taxonomy
 
 STOP = {"the", "a", "an", "and", "or", "for", "with", "of", "to", "in", "on", "is", "it", "that",
         "i", "im", "my", "me", "at", "as", "be", "do", "what", "which", "who", "how", "should",
@@ -110,8 +111,8 @@ def retrieve(corpus: Corpus, query: str, extra_keywords: Optional[list[str]] = N
     return scored[:k]
 
 
-def attr_keywords(attribute_ids: list[str]) -> list[str]:
-    tax = json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+def attr_keywords(attribute_ids: list[str], category: Optional[str] = None) -> list[str]:
+    tax = load_taxonomy(category)
     out: list[str] = []
     for a in tax["attributes"]:
         if a["id"] in attribute_ids:

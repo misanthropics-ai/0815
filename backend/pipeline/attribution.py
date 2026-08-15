@@ -14,13 +14,13 @@ import re
 from functools import lru_cache
 from typing import Optional
 
-from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import cache_key_for, get_bedrock
 from backend.llm.prompts import render_prompt
 from backend.pipeline import corpus as corpus_mod
 from backend.pipeline.funnel import brand_slug_map, collect_loss_reasons
 from backend.storage import db
+from backend.taxonomy import load_taxonomy
 
 PROMPT_VERSION = "attribution_v1"
 
@@ -47,19 +47,22 @@ CLASSIFY_SCHEMA = {
 }
 
 
-@lru_cache(maxsize=1)
-def _tax() -> dict:
-    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+@lru_cache(maxsize=32)
+def _tax(category: Optional[str] = None) -> dict:
+    return load_taxonomy(category)
 
 
-def _attr_keywords() -> dict[str, list[str]]:
-    return {a["id"]: [k.lower() for k in a.get("keywords", [])] for a in _tax()["attributes"]}
+def _attr_keywords(category: Optional[str] = None) -> dict[str, list[str]]:
+    return {
+        attribute["id"]: [keyword.lower() for keyword in attribute.get("keywords", [])]
+        for attribute in _tax(category)["attributes"]
+    }
 
 
-def keyword_map_reason(text: str) -> Optional[str]:
+def keyword_map_reason(text: str, category: Optional[str] = None) -> Optional[str]:
     t = (text or "").lower()
     best, best_hits = None, 0
-    for attr, kws in _attr_keywords().items():
+    for attr, kws in _attr_keywords(category).items():
         hits = sum(1 for k in kws if k and k in t)
         if hits > best_hits:
             best, best_hits = attr, hits
@@ -69,13 +72,14 @@ def keyword_map_reason(text: str) -> Optional[str]:
 # ---------------------------------------------------------------- 4.1 loss reason mapping
 
 async def map_loss_reasons(run_id: str, run_cfg: dict) -> dict:
+    category = run_cfg.get("category")
     rows = db.get_funnel(run_id)
     pending: list[tuple[str, int, int, str]] = []  # (response_id, product_idx, lr_idx, text)
     for row in rows:
         for pi, p in enumerate(row["products"]):
             for li, lr in enumerate(p.get("loss_reasons", [])):
                 if not lr.get("attribute"):
-                    kw = keyword_map_reason(lr.get("text", ""))
+                    kw = keyword_map_reason(lr.get("text", ""), category)
                     if kw:
                         lr["attribute"] = kw
                         lr["attribute_source"] = "keyword"
@@ -84,9 +88,11 @@ async def map_loss_reasons(run_id: str, run_cfg: dict) -> dict:
 
     llm_mapped = 0
     if pending and run_cfg.get("mode") != "mock" and get_bedrock().available():
-        tax_block = "\n".join(f'- {a["id"]}: {a["label"]} — {a["description"]}'
-                              for a in _tax()["attributes"])
-        valid = {a["id"] for a in _tax()["attributes"]}
+        tax_block = "\n".join(
+            f'- {attribute["id"]}: {attribute["label"]} — {attribute["description"]}'
+            for attribute in _tax(category)["attributes"]
+        )
+        valid = {attribute["id"] for attribute in _tax(category)["attributes"]}
         by_row = {(r, pi, li): txt for r, pi, li, txt in pending}
         items = [{"id": f"{r}|{pi}|{li}", "text": txt} for (r, pi, li), txt in by_row.items()]
         results: dict[str, str] = {}
@@ -171,7 +177,7 @@ async def evidence_audit(run_id: str, run_cfg: dict, funnel_summary: dict) -> di
     target = slugs["target"]
     roster = [target] + slugs["competitors"]
     corp = corpus_mod.build_corpus(run_cfg.get("product_refs", []))
-    kwmap = _attr_keywords()
+    kwmap = _attr_keywords(run_cfg.get("category"))
 
     # attribute set: top loss attrs for target + target-page nulls that got loss mentions
     loss_attrs = funnel_summary["per_product"].get(target, {}).get("loss_attributes", {})
@@ -226,7 +232,7 @@ async def evidence_audit(run_id: str, run_cfg: dict, funnel_summary: dict) -> di
         losses = collect_loss_reasons(run_id, canonical=target)
         payload = []
         for attr, r in result.items():
-            samples = [l["text"] for l in losses if l["attribute"] == attr][:3]
+            samples = [loss["text"] for loss in losses if loss["attribute"] == attr][:3]
             best_slug = max(slugs["competitors"], key=lambda s: r["brands"][s]["score"], default=None)
             payload.append({
                 "attribute": attr,

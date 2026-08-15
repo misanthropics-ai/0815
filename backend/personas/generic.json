@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "persona_id": "value_focused_shopper",
+      "label": "Value-focused shopper",
+      "use_cases": ["everyday use"],
+      "criteria": [
+        { "attribute": "price", "operator": "minimize", "importance": "must" },
+        { "attribute": "quality", "operator": "maximize", "importance": "should" }
+      ],
+      "notes": ["Wants the fewest meaningful compromises for the price"]
+    },
+    {
+      "persona_id": "busy_professional",
+      "label": "Busy professional",
+      "occupation": "professional",
+      "use_cases": ["frequent daily use", "work"],
+      "criteria": [
+        { "attribute": "ease_of_use", "operator": "maximize", "importance": "must" },
+        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "usage_frequency": "daily" },
+      "notes": ["Limited time for setup or maintenance"]
+    },
+    {
+      "persona_id": "first_time_buyer",
+      "label": "First-time buyer",
+      "use_cases": ["learning the product category", "occasional use"],
+      "criteria": [
+        { "attribute": "ease_of_use", "operator": "maximize", "importance": "must" },
+        { "attribute": "brand_reputation", "operator": "maximize", "importance": "should" }
+      ],
+      "notes": ["Needs clear trade-offs and low-risk recommendations"]
+    },
+    {
+      "persona_id": "experienced_power_user",
+      "label": "Experienced power user",
+      "use_cases": ["advanced workflows", "frequent use"],
+      "criteria": [
+        { "attribute": "performance", "operator": "maximize", "importance": "must" },
+        { "attribute": "features", "operator": "maximize", "importance": "should" }
+      ],
+      "context": { "experience_level": "advanced" },
+      "notes": ["Accepts complexity when it produces meaningful capability"]
+    },
+    {
+      "persona_id": "ecosystem_constrained_buyer",
+      "label": "Existing-ecosystem buyer",
+      "use_cases": ["adding the product to an existing setup"],
+      "criteria": [
+        {
+          "attribute": "compatibility",
+          "operator": "supports",
+          "value": "existing setup",
+          "importance": "must"
+        },
+        { "attribute": "ease_of_use", "operator": "maximize", "importance": "should" }
+      ],
+      "notes": ["Compatibility is more important than optional features"]
+    }
+  ]
+}

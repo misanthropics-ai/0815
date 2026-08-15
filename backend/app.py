@@ -22,6 +22,8 @@ from backend.pipeline import funnel as funnel_mod
 from backend.pipeline import runner
 from backend.pipeline.engines import engine_status
 from backend.storage import db
+from backend.taxonomy import load_taxonomy
+from contracts.schemas import RunCreateRequest
 
 app = FastAPI(title="AI Recommendation Diagnostics API", version="v3")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -90,8 +92,8 @@ async def health():
 
 
 @app.get("/taxonomy")
-async def taxonomy():
-    return json.loads(config.TAXONOMY_PATH.read_text(encoding="utf-8"))
+async def taxonomy(category: Optional[str] = Query(default=None)):
+    return load_taxonomy(category)
 
 
 @app.get("/engines")
@@ -99,25 +101,8 @@ async def engines():
     return {"available": engine_status(), "default": config.DEFAULT_ENGINES}
 
 
-# ---------------------------------------------------------------- pipeline runs
-
-class RunCreate(BaseModel):
-    brand: str
-    competitors: Optional[list[str]] = None
-    brand_products: Optional[list[str]] = None
-    category: Optional[str] = None
-    market: Optional[str] = None
-    language: Optional[str] = None
-    personas: Optional[list[str]] = None
-    n_intents: int = Field(default=60, ge=10, le=300)
-    engines: Optional[list[str]] = None
-    mode: Optional[str] = None            # mock | live | auto
-    judge_model: Optional[str] = None     # smart | fast | explicit bedrock id
-    product_refs: Optional[list[str]] = None
-
-
 @app.post("/runs")
-async def create_run(body: RunCreate):
+async def create_run(body: RunCreateRequest):
     cfg = runner.normalize_config(body.model_dump(exclude_none=True))
     handle = runner.start_run(cfg)
     return {"run_id": handle.run_id, "status": "running", "config": cfg}

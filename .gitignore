@@ -4,6 +4,8 @@ __pycache__/
 .venv/
 venv/
 .env
+.env.*
+!.env.example
 backend/.env
 backend/data/
 *.db
@@ -11,3 +13,6 @@ backend/data/
 node_modules/
 .DS_Store
 .pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/

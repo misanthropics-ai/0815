@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "category": "generic_product",
+  "attributes": [
+    { "id": "price", "label": "Price / Value", "description": "Price, budget fit and overall value", "keywords": ["price", "cost", "budget", "affordable", "value", "discount"] },
+    { "id": "quality", "label": "Quality", "description": "Overall product quality and construction", "keywords": ["quality", "build", "materials", "premium", "reliable"] },
+    { "id": "features", "label": "Features", "description": "Functions and capabilities relevant to the use case", "keywords": ["feature", "function", "capability", "includes", "supports"] },
+    { "id": "compatibility", "label": "Compatibility", "description": "Compatibility with devices, systems, people or environments", "keywords": ["compatible", "works with", "supports", "fits", "requirements"] },
+    { "id": "size_dimensions", "label": "Size / Dimensions", "description": "Physical size, dimensions, capacity and fit", "keywords": ["size", "dimensions", "width", "height", "length", "capacity", "fit"] },
+    { "id": "performance", "label": "Performance", "description": "Speed, effectiveness, output or measured performance", "keywords": ["performance", "speed", "effective", "power", "output", "benchmark"] },
+    { "id": "durability", "label": "Durability / Reliability", "description": "Expected life, reliability, warranty and repairability", "keywords": ["durable", "reliable", "warranty", "repair", "lifespan", "long-lasting"] },
+    { "id": "ease_of_use", "label": "Ease of Use", "description": "Setup, learning curve, controls and maintenance", "keywords": ["easy", "setup", "simple", "intuitive", "maintenance", "clean"] },
+    { "id": "design", "label": "Design", "description": "Appearance, ergonomics and form factor", "keywords": ["design", "style", "appearance", "ergonomic", "color", "compact"] },
+    { "id": "availability", "label": "Availability", "description": "Market availability, delivery time and stock", "keywords": ["available", "stock", "shipping", "delivery", "market", "region"] },
+    { "id": "brand_reputation", "label": "Brand Reputation", "description": "Reviews, support and brand trust", "keywords": ["review", "rating", "reputation", "support", "trusted", "brand"] },
+    { "id": "sustainability", "label": "Sustainability", "description": "Environmental and ethical considerations", "keywords": ["sustainable", "recycled", "ethical", "energy", "carbon", "eco"] },
+    { "id": "other", "label": "Other", "description": "Category-specific attributes not yet normalized", "keywords": [] }
+  ],
+  "clusters": [
+    { "id": "budget_value", "label": "Budget / Value", "description": "Price-sensitive shoppers balancing cost and quality", "attributes": ["price", "quality"] },
+    { "id": "feature_fit", "label": "Feature Fit", "description": "Shoppers looking for specific functions or capabilities", "attributes": ["features", "performance"] },
+    { "id": "compatibility_fit", "label": "Compatibility / Fit", "description": "Hard compatibility, dimensions or ecosystem requirements", "attributes": ["compatibility", "size_dimensions"] },
+    { "id": "quality_reliability", "label": "Quality / Reliability", "description": "Long-term quality, durability and warranty concerns", "attributes": ["quality", "durability"] },
+    { "id": "usability_design", "label": "Usability / Design", "description": "Ease of use, ergonomics and appearance", "attributes": ["ease_of_use", "design"] },
+    { "id": "brand_alternative", "label": "Brand Alternatives", "description": "Comparison and alternative-to-known-product searches", "attributes": ["brand_reputation", "price", "features"] }
+  ]
+}

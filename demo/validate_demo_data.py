@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate P6 demo products against Contract v3 and the live taxonomy."""
+
 from __future__ import annotations
 
 import json
@@ -45,6 +46,29 @@ def check_product(path: Path, taxonomy: set[str]) -> None:
             raise ValueError(f"{attribute_id}: evidence is not a raw_text substring")
 
 
+def check_experiment() -> None:
+    config = load(ROOT / "demo" / "before_after" / "experiment.config.json")
+    library = load(ROOT / "backend" / "mock_fixtures" / "intents.sample.json")
+    if library["count"] != len(library["intents"]):
+        raise ValueError("intent library count does not match the number of rows")
+
+    cluster_intents = [
+        intent for intent in library["intents"] if intent["cluster_id"] == config["cluster_id"]
+    ]
+    if len(cluster_intents) < config["expected_intents"]:
+        raise ValueError(
+            f"{config['cluster_id']} has {len(cluster_intents)} intents; "
+            f"expected at least {config['expected_intents']}"
+        )
+    if config["max_intents"] != config["expected_intents"]:
+        raise ValueError("max_intents must equal expected_intents for a controlled experiment")
+    expected_decisions = config["expected_intents"] * config["runs"]
+    if config["expected_decisions_per_side"] != expected_decisions:
+        raise ValueError(
+            "expected_decisions_per_side must equal expected_intents multiplied by runs"
+        )
+
+
 def main() -> int:
     taxonomy_payload = load(ROOT / "backend" / "taxonomy" / "taxonomy.json")
     taxonomy = {item["id"] for item in taxonomy_payload["attributes"]}
@@ -68,7 +92,16 @@ def main() -> int:
         except Exception as exc:
             failures += 1
             print(f"FAIL  {path.relative_to(ROOT)}: {exc}")
-    print(f"SUMMARY {len(PRODUCTS) + len(typed) - failures} passed, {failures} failed")
+
+    try:
+        check_experiment()
+        print("PASS  demo/before_after/experiment.config.json")
+    except Exception as exc:
+        failures += 1
+        print(f"FAIL  demo/before_after/experiment.config.json: {exc}")
+
+    total = len(PRODUCTS) + len(typed) + 1
+    print(f"SUMMARY {total - failures} passed, {failures} failed")
     return 1 if failures else 0
 
 

@@ -1,0 +1,4 @@
+-r backend/requirements.txt
+
+pydantic-settings>=2.10,<3
+python-dotenv>=1.1,<2

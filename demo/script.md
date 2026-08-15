@@ -46,4 +46,4 @@ Agent 必須引用推薦率、loss 數與 rejection reason。再輸入：`我們
 | v2 rerun | 10 秒未完成 | cached compare，明說 fixture |
 | 前端白屏 | retry 仍失敗 | 完整錄影＋pitch deck |
 
-上台前執行 `python contracts/check_contract.py --base-url http://127.0.0.1:8000`，並核對 `latest.compare.json` 的日期、n、delta 和 UI。
+上台前執行 `python contracts/check_contract.py http://127.0.0.1:8000`，並核對 `latest.compare.json` 的日期、n、delta 和 UI。

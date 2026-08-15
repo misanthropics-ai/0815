@@ -13,4 +13,6 @@ Run: ingest the manifest, create v2 with `create_version.request.json`, then exe
 python demo/before_after/run_experiment.py --base-url http://127.0.0.1:8000 --mode live
 ```
 
-If delta is below target, inspect rejection reasons and revise only truthful, sourced copy. The backend is absent from this repo snapshot, so `cached_fallback.compare.json` is an illustrative Contract fixture, not a live measurement. Replace it before making an empirical claim.
+If delta is below target, inspect rejection reasons and revise only truthful, sourced copy.
+`cached_fallback.compare.json` is an illustrative Contract fixture, not a live measurement;
+replace it with the integrated backend's `latest.compare.json` before making an empirical claim.
