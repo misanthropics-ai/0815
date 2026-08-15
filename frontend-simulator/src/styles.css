@@ -9,7 +9,7 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .brand-lockup { display: flex; align-items: center; gap: 10px; padding: 0 12px; font: 500 14px 'DM Mono', monospace; letter-spacing: .16em; }
 .brand-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; color: #191c18; background: #d6ed63; }
 .sidebar-label { margin: 71px 12px 13px; color: #80867b; font: 500 10px 'DM Mono', monospace; letter-spacing: .14em; text-transform: uppercase; }
-.nav-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 5px; border-radius: 9px; text-align: left; background: transparent; color: #aeb3a8; }
+.nav-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 5px; border-radius: 9px; text-align: left; text-decoration: none; background: transparent; color: #aeb3a8; }
 .nav-item.active { color: #f7f6ef; background: #2b312a; box-shadow: inset 3px 0 #d6ed63; }
 .nav-item.muted { opacity: .5; cursor: default; }
 .nav-count { margin-left: auto; color: #7b8276; font: 500 10px 'DM Mono', monospace; }
@@ -29,6 +29,12 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 .api-toggle.is-live .toggle-dot { background: #7db31c; }
 .avatar { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; background: #dfe6d1; color: #536335; font: 500 10px 'DM Mono', monospace; }
 .page-wrap { max-width: 1480px; margin: 0 auto; padding: 52px 4.2vw 70px; }
+.error-banner, .status-banner { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; padding: 11px 13px; border-radius: 8px; font-size: 11px; line-height: 1.4; }
+.error-banner { color: #7d332a; border: 1px solid #e3b9ae; background: #fff1ec; }
+.error-banner strong { font-weight: 700; }
+.error-banner button { margin-left: auto; padding: 0 4px; color: #a25a50; background: transparent; font-size: 16px; }
+.status-banner { color: #5f7040; border: 1px solid #d6dfb8; background: #f5f8e7; }
+.status-banner svg { flex: 0 0 auto; color: #82934e; }
 .hero-copy { margin-bottom: 39px; }
 .eyebrow { display: flex; align-items: center; gap: 7px; color: #8e986b; font: 500 10px 'DM Mono', monospace; letter-spacing: .13em; text-transform: uppercase; }
 .hero-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; }
@@ -157,6 +163,7 @@ h1 em { color: #687941; font-family: 'Fraunces', serif; font-weight: 500; letter
 .stability-bar { height: 7px; overflow: hidden; border-radius: 5px; background: #e4e6dc; }
 .stability-bar span { display: block; height: 100%; border-radius: inherit; background: #9dc456; transition: width .5s ease; }
 .text-button { margin-top: 14px; padding: 0; }
+.text-button:disabled { cursor: wait; opacity: .55; }
 .method-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 17px; padding: 11px 13px; border: 1px solid #dddccf; border-radius: 7px; color: #969d91; font-size: 10px; line-height: 1.4; }
 .method-note svg { flex: 0 0 auto; color: #98aa6e; }
 .method-note strong { color: #707967; font-weight: 600; }

@@ -2,18 +2,22 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: GitHub OIDC deploy role and a persistent single-EC2 demo runtime for 0815
 
 Parameters:
-  GitHubOwner:
+  GitHubSubject:
     Type: String
-  GitHubRepository:
-    Type: String
-  GitHubBranch:
-    Type: String
-    Default: main
+    Description: Exact branch-scoped subject returned by the GitHub OIDC API
   GitHubOidcProviderArn:
     Type: String
   EcrRepositoryName:
     Type: String
     Default: ai-rec-diagnostics
+  P4FrontendBucketName:
+    Type: String
+    AllowedPattern: "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+    Description: Globally unique S3 bucket name for the P4 static website
+  P5FrontendBucketName:
+    Type: String
+    AllowedPattern: "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+    Description: Existing P5 static website bucket used for cross-frontend handoff
   ExistingInstanceId:
     Type: String
     Default: ""
@@ -43,6 +47,42 @@ Conditions:
   CreateAppInstance: !Equals [!Ref ExistingInstanceId, ""]
 
 Resources:
+  P4FrontendBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref P4FrontendBucketName
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      Tags:
+        - Key: App
+          Value: ai-rec-diagnostics-p4
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  P4FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref P4FrontendBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadStaticWebsite
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub ${P4FrontendBucket.Arn}/*
+
   AppSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Condition: CreateAppInstance
@@ -156,7 +196,7 @@ Resources:
             Condition:
               StringEquals:
                 "token.actions.githubusercontent.com:aud": sts.amazonaws.com
-                "token.actions.githubusercontent.com:sub": !Sub repo:${GitHubOwner}/${GitHubRepository}:ref:refs/heads/${GitHubBranch}
+                "token.actions.githubusercontent.com:sub": !Ref GitHubSubject
       Policies:
         - PolicyName: DeployApplication
           PolicyDocument:
@@ -192,6 +232,21 @@ Resources:
                   - ssm:GetCommandInvocation
                   - ssm:ListCommandInvocations
                 Resource: "*"
+              - Sid: ListFrontendBuckets
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource:
+                  - !GetAtt P4FrontendBucket.Arn
+                  - !Sub arn:${AWS::Partition}:s3:::${P5FrontendBucketName}
+              - Sid: DeployFrontendObjects
+                Effect: Allow
+                Action:
+                  - s3:DeleteObject
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Sub ${P4FrontendBucket.Arn}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${P5FrontendBucketName}/*
 
 Outputs:
   AwsAccountId:
@@ -207,3 +262,9 @@ Outputs:
       - CreateAppInstance
       - !Sub http://${AppInstance.PublicDnsName}:8000
       - !Ref ExistingPublicApiUrl
+  P4FrontendBucketName:
+    Value: !Ref P4FrontendBucket
+  P4FrontendWebsiteUrl:
+    Value: !GetAtt P4FrontendBucket.WebsiteURL
+  P5FrontendBucketName:
+    Value: !Ref P5FrontendBucketName

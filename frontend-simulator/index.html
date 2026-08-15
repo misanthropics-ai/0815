@@ -5,9 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#171a16" />
     <title>Signal / AI Recommendation Simulator</title>
+    <style>
+      .boot-preview{min-height:100vh;display:grid;grid-template-columns:190px 1fr;background:#f4f1e9;color:#20231e;font:14px Arial,sans-serif}.boot-sidebar{padding:28px 22px;background:#191c18;color:#f5f3ed}.boot-brand{color:#d6ed63;font:600 13px monospace;letter-spacing:.16em}.boot-sidebar p{margin-top:56px;color:#8f9888;font-size:11px;line-height:1.6}.boot-main{max-width:980px;padding:72px 7vw}.boot-kicker{color:#8e986b;font:11px monospace;letter-spacing:.13em}.boot-main h1{max-width:650px;margin:18px 0 14px;font:500 clamp(42px,6vw,72px)/.98 Georgia,serif;letter-spacing:-.055em}.boot-main h1 em{color:#687941}.boot-main>p{max-width:410px;color:#7c8277;line-height:1.55}.boot-result{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:48px}.boot-card{padding:22px;border:1px solid #dcd9cf;border-radius:10px;background:#fbfaf5}.boot-card.after{border-color:#bfce83;background:#f8fbe9}.boot-card small{color:#8b9185;font:11px monospace;text-transform:uppercase}.boot-card strong{display:block;margin-top:12px;color:#4e6225;font:500 42px Georgia,serif}.boot-card p{color:#71796d;font-size:12px;line-height:1.5}.boot-note{margin-top:18px;color:#969d91;font-size:11px}@media(max-width:700px){.boot-preview{grid-template-columns:1fr}.boot-sidebar{display:none}.boot-main{padding:42px 24px}.boot-result{grid-template-columns:1fr}}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-preview" data-demo-preview="p4-before-after">
+        <aside class="boot-sidebar"><div class="boot-brand">SIGNAL</div><p>P4 · Shopper simulator<br />Controlled recommendation intelligence</p></aside>
+        <main class="boot-main">
+          <div class="boot-kicker">P4 · CONTROLLED SIMULATION</div>
+          <h1>Make the invisible<br /><em>advantage rankable.</em></h1>
+          <p>See how one feature edit moves a product from overlooked to recommended.</p>
+          <div class="boot-result"><section class="boot-card"><small>Before · original page</small><strong>75%</strong><p>Product evidence is incomplete.</p></section><section class="boot-card after"><small>After · new signal</small><strong>100%</strong><p>The missing feature is now explicit.</p></section></div>
+          <div class="boot-note">Loading the interactive simulator…</div>
+        </main>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
