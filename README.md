@@ -28,3 +28,4 @@ backend/run.sh                         # API 在 :8000
 - `contracts/types.ts` — 前端可直接 import 的 TypeScript 型別
 - `backend/README.md` — 後端架構 / endpoints / demo 流程
 - `deploy/README.md` — 部署（EC2 一鍵 / App Runner / docker）
+- `demo/README.md` — P6 真實產品資料、before/after 實驗、demo 腳本與 pitch deck

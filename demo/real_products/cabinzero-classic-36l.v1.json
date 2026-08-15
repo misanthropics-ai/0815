@@ -1,0 +1,19 @@
+{
+  "product_id": "cabinzero-classic-36l",
+  "brand": "CabinZero",
+  "display_name": "CabinZero Classic Cabin Backpack 36L",
+  "source": "url",
+  "source_url": "https://www.cabinzero.com/products/classic-cabin-backpack-36l",
+  "fetched_at": "2026-08-15T02:47:36Z",
+  "raw_text": "Classic Cabin Backpack 36L. Meet your next favourite cabin rucksack: light, roomy, and made to skip the baggage carousel for good. The CabinZero Classic Backpack 36L is perfectly sized for airline overheads. Weight 700 g / 1 lb 9 oz. Capacity 36L. Dimensions 45 x 31 x 20 cm / 17.7 x 12.2 x 7.9 in. Devices up to 15.6 inch. Cabin-sized; the 36L can be brought on board for 117 airlines. Price £60.00. Body: 600 denier polyester fabric. Abrasion-resistant fabric. Water-resistant coating. YKK zippers. Lifetime warranty. Side compression straps. Shoulder straps airflow system. Top handle. Side handle. Suspended laptop sleeve. Spacious inner zip pocket. Spacious inner zip mesh pocket. Quick access zip pocket on front panel. Front-loading backpack with clamshell opening for efficient packing. Harness: -.",
+  "attributes": [
+    { "attribute_id": "capacity_size", "value": "36L; 45 x 31 x 20 cm", "evidence": "Capacity 36L. Dimensions 45 x 31 x 20 cm", "confidence": 0.99 },
+    { "attribute_id": "weight", "value": "700 g", "evidence": "Weight 700 g", "confidence": 0.99 },
+    { "attribute_id": "airline_compliance", "value": "Cabin-sized; listed for 117 airlines", "evidence": "Cabin-sized; the 36L can be brought on board for 117 airlines", "confidence": 0.95 },
+    { "attribute_id": "price", "value": "£60.00", "evidence": "Price £60.00", "confidence": 0.99 },
+    { "attribute_id": "durability", "value": "600D polyester, abrasion/water resistance, YKK zippers, lifetime warranty", "evidence": "Body: 600 denier polyester fabric. Abrasion-resistant fabric. Water-resistant coating. YKK zippers. Lifetime warranty", "confidence": 0.98 },
+    { "attribute_id": "organization", "value": "suspended laptop sleeve, three pockets, front-loading clamshell", "evidence": "Suspended laptop sleeve. Spacious inner zip pocket. Spacious inner zip mesh pocket. Quick access zip pocket on front panel. Front-loading backpack with clamshell opening", "confidence": 0.97 },
+    { "attribute_id": "comfort", "value": "shoulder strap airflow system; no structured harness claim", "evidence": "Shoulder straps airflow system", "confidence": 0.9 }
+  ],
+  "version": 1
+}
