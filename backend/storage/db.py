@@ -220,6 +220,17 @@ def get_product_by_ref(ref: str) -> Optional[dict]:
     return get_product(pid, ver)
 
 
+def delete_product(product_id: str) -> int:
+    """Delete ALL versions of a product. Returns number of rows removed."""
+    conn = connect()
+    try:
+        cur = conn.execute("DELETE FROM products WHERE product_id=?", (product_id,))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
 def list_products() -> list[dict]:
     conn = connect()
     try:

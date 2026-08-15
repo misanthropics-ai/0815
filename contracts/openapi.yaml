@@ -60,6 +60,8 @@ paths:
     get: { summary: "取產品 (ref=product_id@vN; 無@v=最新版)", responses: { "200": { description: Product }, "404": { description: ErrorResponse } } }
   /products/{id}/versions:
     post: { summary: "建立修改版並重抽 attributes (before/after 與 debate v2 迴圈)", responses: { "200": { description: Product } } }
+  /products/{id}:
+    delete: { summary: "刪除該產品全部版本 (測試資料清理用)", responses: { "200": { description: "{deleted_versions}" }, "404": { description: ErrorResponse } } }
   /products/{ref}/diagnosis:
     get:
       summary: "取診斷 (優先: 最新完成 run; 次之: batches; 皆無→觸發 batch 回 202)"

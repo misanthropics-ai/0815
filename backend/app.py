@@ -120,7 +120,7 @@ async def health():
 
 @app.get("/taxonomy")
 async def taxonomy(category: Optional[str] = Query(default=None)):
-    return load_taxonomy(category)
+    return load_taxonomy((category or "").strip() or None)
 
 
 @app.get("/engines")
@@ -134,6 +134,7 @@ async def personas(category: Optional[str] = Query(default=None)):
     Custom personas go directly in POST /runs body."""
     from backend.pipeline.intents import default_personas, personas_path
 
+    category = (category or "").strip() or None
     return {
         "category": category,
         "source_file": personas_path(category).name,
@@ -383,6 +384,15 @@ async def create_version(product_id: str, body: VersionCreate):
     from backend.ingestion.service import create_version as _cv
 
     return await _cv(product_id, body.base_version, body.additions, body.change_note)
+
+
+@app.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    """Remove ALL versions of a product (test-data cleanup; frontends: confirm first)."""
+    n = db.delete_product(product_id)
+    if n == 0:
+        raise KeyError(product_id)
+    return {"product_id": product_id, "deleted_versions": n}
 
 
 # ---------------------------------------------------------------- simulate (P2)

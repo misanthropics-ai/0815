@@ -84,10 +84,11 @@ async def extract_attributes(raw_text: str, brand_hint: str, display_hint: str,
     """Return {product_id?, brand, display_name, category, attributes[]}.
 
     category given  => extract against that category's taxonomy (specific file or generic).
-    category absent => extract against the GENERIC taxonomy and let the LLM detect the
-    category; if the detected category has a specific taxonomy file (e.g. travel backpack),
-    re-extract once with it so the demo categories keep their rich attribute set.
+    category absent/blank => extract against the GENERIC taxonomy and let the LLM detect
+    the category; if the detected category has a specific taxonomy file (e.g. travel
+    backpack), re-extract once with it so the demo categories keep their rich attribute set.
     """
+    category = (category or "").strip() or None  # "" from empty form fields == not provided
     detect = category is None
     tax = _tax(category)
     result: Optional[dict] = None
@@ -190,7 +191,7 @@ async def create_product(body: dict) -> dict:
         raise ValueError("source must be 'url' or 'manual_prototype'")
     ext = await extract_attributes(raw_text, brand_hint, display_hint,
                                    category=body.get("category"))
-    category = ext.get("category") or body.get("category")
+    category = ext.get("category") or (body.get("category") or "").strip() or None
     if category:
         # learn (or extend) the category taxonomy from this page; if that changed the
         # attribute set, re-extract once against the category-specific taxonomy
