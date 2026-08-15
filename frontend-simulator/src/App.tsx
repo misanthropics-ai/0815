@@ -490,7 +490,7 @@ export function App() {
                 if (!item) return null;
                 const isSelected = selected.includes(ref);
                 const price = item.attributes.find((attribute) => attribute.attribute_id === "price")?.value || `v${item.version}`;
-                return <button key={ref} className={`candidate-row ${isSelected ? "selected" : ""}`} onClick={() => toggleCandidate(ref)}><span className={`check-box ${isSelected ? "checked" : ""}`}>{isSelected && <Check size={12} />}</span><span className="candidate-name"><b>{item.brand}</b><small>{item.display_name} · v{item.version}</small></span><span className="candidate-price">{price}</span></button>;
+                return <button key={ref} className={`candidate-row ${isSelected ? "selected" : ""}`} onClick={() => toggleCandidate(ref)}><span className={`check-box ${isSelected ? "checked" : ""}`}>{isSelected && <Check size={12} />}</span><span className="candidate-name"><b title={item.brand}>{item.brand}</b><small title={`${item.display_name} · v${item.version}`}>{item.display_name} · v{item.version}</small></span><span className="candidate-price" title={price}>{price}</span></button>;
               })}</div>
               <button className="run-button" disabled={selected.length < 2 || running} onClick={() => void runComparison()}>{running ? <><span className="button-spinner" /> {runPhase === "updated" ? "Running updated version…" : "Running baseline…"}</> : <><Play size={15} fill="currentColor" /> Run both versions</>}</button>
               <div className="run-caption"><LockKeyhole size={12} /> Same intent · same candidates · one content change</div>
