@@ -1,24 +1,35 @@
-import type { CompareResult, CreateProductRequest, DebateMessage, DebateSession, Diagnosis, Product, ProductRef } from '../../contracts/types'
+import type { CompareResult, CreateProductRequest, DebateMessage, DebateSession, Diagnosis, Product, ProductRef, Taxonomy } from '../../contracts/types'
 import productFixture from '../../backend/mock_fixtures/response.post_products.manual.json'
 import diagnosisFixture from '../../backend/mock_fixtures/response.diagnosis.json'
 import sessionFixture from '../../backend/mock_fixtures/response.get_debate_session.json'
 import compareFixture from '../../backend/mock_fixtures/response.metrics_compare.json'
+import taxonomyFixture from '../../backend/mock_fixtures/taxonomy.json'
 
 const API = import.meta.env.VITE_API_BASE?.replace(/\/$/, '')
 const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms))
 export const isMock = !API
-export class ApiFailure extends Error {}
+export class ApiFailure extends Error {
+  constructor(message: string, readonly code?: string, readonly hint?: string) { super(message) }
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<{ status: number; data: T }> {
   const response = await fetch(`${API}${path}`, { ...init, headers: { 'content-type': 'application/json', ...init?.headers } })
   const data = await response.json()
-  if (!response.ok && response.status !== 202) throw new ApiFailure(data.error?.message ?? 'The service could not complete this request.')
+  if (!response.ok && response.status !== 202) {
+    throw new ApiFailure(data.error?.message ?? 'The service could not complete this request.', data.error?.code, data.error?.hint)
+  }
   return { status: response.status, data }
 }
 
 export async function createProduct(input: CreateProductRequest): Promise<Product> {
   if (!API) { await pause(800); return productFixture as Product }
   return (await request<Product>('/products', { method: 'POST', body: JSON.stringify(input) })).data
+}
+
+export async function getTaxonomy(category?: string): Promise<Taxonomy> {
+  if (!API) return taxonomyFixture as Taxonomy
+  const query = category?.trim() ? `?category=${encodeURIComponent(category.trim())}` : ''
+  return (await request<Taxonomy>(`/taxonomy${query}`)).data
 }
 
 export async function getDiagnosis(ref: ProductRef): Promise<{ pending: boolean; data?: Diagnosis }> {

@@ -1,0 +1,149 @@
+name: Deploy AWS demo
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-aws-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: ECR and EC2 deployment
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Validate deployment variables
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_DEPLOY_ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          BEDROCK_MODEL: ${{ vars.BEDROCK_MODEL }}
+        run: |
+          set -euo pipefail
+          for name in AWS_ACCOUNT_ID AWS_REGION AWS_DEPLOY_ROLE_ARN ECR_REPOSITORY EC2_INSTANCE_ID; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing GitHub repository variable: ${name}" >&2
+              exit 1
+            fi
+          done
+          [[ "${AWS_ACCOUNT_ID}" =~ ^[0-9]{12}$ ]]
+          [[ "${AWS_REGION}" =~ ^[a-z]{2}(-[a-z]+)?-[a-z]+-[0-9]+$ ]]
+          [[ "${AWS_DEPLOY_ROLE_ARN}" =~ ^arn:(aws|aws-us-gov|aws-cn):iam::[0-9]{12}:role/[A-Za-z0-9+=,.@_/-]+$ ]]
+          [[ "${ECR_REPOSITORY}" =~ ^[a-z0-9]+([._/-][a-z0-9]+)*$ ]]
+          [[ "${EC2_INSTANCE_ID}" =~ ^i-[0-9a-f]+$ ]]
+          if [[ -n "${BEDROCK_MODEL}" ]]; then
+            [[ "${BEDROCK_MODEL}" =~ ^[A-Za-z0-9._:/@-]+$ ]]
+          fi
+
+      - name: Check out the tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Select immutable image tag
+        id: revision
+        env:
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          image_tag="${TESTED_SHA:-${DISPATCH_SHA}}"
+          if [[ ! "${image_tag}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Unexpected Git revision: ${image_tag}" >&2
+            exit 1
+          fi
+          echo "image_tag=${image_tag}" >>"${GITHUB_OUTPUT}"
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          mask-aws-account-id: true
+          unset-current-credentials: true
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2.1.6
+
+      - name: Build and push immutable image
+        id: image
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.revision.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          image_uri="${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
+          if aws ecr describe-images --region "${AWS_REGION}" --repository-name "${REPOSITORY}" \
+            --image-ids "imageTag=${IMAGE_TAG}" >/dev/null 2>&1; then
+            echo "Reusing existing immutable image ${image_uri}"
+          else
+            docker build --pull --tag "${image_uri}" --file backend/Dockerfile .
+            docker push "${image_uri}"
+          fi
+          echo "image_uri=${image_uri}" >>"${GITHUB_OUTPUT}"
+
+      - name: Deploy through AWS Systems Manager
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.revision.outputs.image_tag }}
+          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          BEDROCK_MODEL: ${{ vars.BEDROCK_MODEL }}
+        run: |
+          set -euo pipefail
+          script_b64="$(base64 -w0 deploy/ssm_deploy.sh)"
+          remote_command="/tmp/0815-ssm-deploy.sh '${AWS_REGION}' '${REGISTRY}' '${REPOSITORY}' '${IMAGE_TAG}' '${BEDROCK_MODEL}'"
+          parameters="$(jq -cn --arg payload "${script_b64}" --arg command "${remote_command}" '{commands:[("echo " + $payload + " | base64 -d > /tmp/0815-ssm-deploy.sh"), "chmod 700 /tmp/0815-ssm-deploy.sh", $command]}')"
+          command_id="$(aws ssm send-command \
+            --region "${AWS_REGION}" \
+            --instance-ids "${INSTANCE_ID}" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy ${IMAGE_TAG}" \
+            --parameters "${parameters}" \
+            --query 'Command.CommandId' \
+            --output text)"
+          set +e
+          aws ssm wait command-executed \
+            --region "${AWS_REGION}" \
+            --command-id "${command_id}" \
+            --instance-id "${INSTANCE_ID}"
+          wait_status=$?
+          set -e
+          aws ssm get-command-invocation \
+            --region "${AWS_REGION}" \
+            --command-id "${command_id}" \
+            --instance-id "${INSTANCE_ID}" \
+            --query '{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}'
+          exit "${wait_status}"
+
+      - name: Deployment summary
+        env:
+          IMAGE_URI: ${{ steps.image.outputs.image_uri }}
+          API_URL: ${{ vars.AWS_API_URL }}
+        run: |
+          {
+            echo "### AWS demo deployment"
+            echo "- Image: \`${IMAGE_URI}\`"
+            echo "- API: ${API_URL}"
+          } >>"${GITHUB_STEP_SUMMARY}"
