@@ -38,7 +38,13 @@ def _err(status: int, code: str, message: str) -> JSONResponse:
 
 @app.exception_handler(ValueError)
 async def _val_err(_: Request, exc: ValueError):
-    return _err(400, "bad_request", str(exc))
+    code = getattr(exc, "code", "bad_request")
+    hint = getattr(exc, "hint", None)
+    status = 422 if hint or code != "bad_request" else 400
+    body = {"error": {"code": code, "message": str(exc)}}
+    if hint:
+        body["error"]["hint"] = hint
+    return JSONResponse(status_code=status, content=body)
 
 
 @app.exception_handler(KeyError)
@@ -75,6 +81,18 @@ async def _startup() -> None:
 
 
 # ---------------------------------------------------------------- health / meta
+
+@app.get("/")
+async def index():
+    return {
+        "service": "AI Recommendation Diagnostics API",
+        "version": "v3",
+        "interactive_docs": "/docs",
+        "health": "/health",
+        "browse": ["/health", "/docs", "/taxonomy", "/products", "/engines", "/runs"],
+        "guide": "see FRONTEND.md / TESTING.md in the repo",
+    }
+
 
 @app.get("/health")
 async def health():

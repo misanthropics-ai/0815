@@ -19,7 +19,7 @@ backend/run.sh                       # API at http://localhost:8000
 # No AWS creds needed — it auto-falls back to mock mode with identical response shapes.
 
 # Option B: deployed backend (shared, live LLM)
-# http://44.214.16.86:8000   ← IP changes if we redeploy; ask backend or run:
+# http://34.227.93.223:8000   ← Elastic IP, stable across redeploys. Status:
 #   python deploy/deploy_ec2.py --status
 ```
 
@@ -163,6 +163,15 @@ POST /products        // manual prototype mode (paste text)
 
 Returns a full `Product` (10–20 s live — show an "extracting attributes…" progress state). Render the attribute table: value+evidence rows, **null rows in grey with "not on page"**. Fixtures: `request/response.post_products.manual.json`.
 
+**URL-mode failures (important UX):** sites that block server-side access (Shopee, some JS-only stores) return `422`:
+
+```json
+{ "error": { "code": "page_not_extractable",  // or "fetch_failed"
+             "message": "...", "hint": "copy the product description ... source=manual_prototype" } }
+```
+
+On these two codes: show the `hint` and **auto-switch the form to paste mode** (`manual_prototype`). Demo line: "if an AI crawler can't read your page, AI can't recommend you — that's the product's whole point."
+
 ### 5.2 Diagnosis page
 
 ```
@@ -278,5 +287,5 @@ shopper context produced a recommendation. For a non-backpack category, call
 3. **Mock vs live is invisible to you** — same shapes. `GET /health` → `bedrock.ready:false` means mock. You can force per-request: `"mode":"mock"` on simulate/batch.
 4. Live LLM calls can take 8–25 s and occasionally retry on AWS throttling — design every waiting state (skeletons/spinners), never white-screen (spec acceptance criterion).
 5. If the backend restarts mid-run, `/runs/{id}/events` sends an `error` event telling you to `POST /runs/{id}/resume` — wire that to a retry button.
-6. Deployed IP (`44.214.16.86`) changes on redeploy; keep the base URL in one env var.
+6. Deployed URL `http://34.227.93.223:8000` is an Elastic IP — stable across redeploys; still keep it in one env var.
 7. Don't invent SSE event types or read backend internals — the contract (`contracts/openapi.yaml` + fixtures) is the only truth. If a shape looks wrong, run `python contracts/check_contract.py http://localhost:8000` and ping backend.
