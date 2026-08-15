@@ -25,7 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      FRONTEND_DEPLOY_ENABLED: ${{ vars.P4_S3_BUCKET != '' && vars.P4_SITE_URL != '' && vars.P5_S3_BUCKET != '' && vars.P5_SITE_URL != '' }}
+      P4_FRONTEND_DEPLOY_ENABLED: ${{ vars.P4_S3_BUCKET != '' && vars.P4_SITE_URL != '' }}
+      P5_FRONTEND_DEPLOY_ENABLED: ${{ vars.P5_S3_BUCKET != '' && vars.P5_SITE_URL != '' }}
 
     steps:
       - name: Validate deployment variables
@@ -81,18 +82,24 @@ jobs:
           mask-aws-account-id: true
           unset-current-credentials: true
 
-      - name: Validate static frontend variables
-        if: env.FRONTEND_DEPLOY_ENABLED == 'true'
+      - name: Validate P4 frontend variables
+        if: env.P4_FRONTEND_DEPLOY_ENABLED == 'true'
         env:
           P4_S3_BUCKET: ${{ vars.P4_S3_BUCKET }}
           P4_SITE_URL: ${{ vars.P4_SITE_URL }}
+        run: |
+          set -euo pipefail
+          [[ "${P4_S3_BUCKET}" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
+          [[ "${P4_SITE_URL}" =~ ^https?:// ]]
+
+      - name: Validate P5 frontend variables
+        if: env.P5_FRONTEND_DEPLOY_ENABLED == 'true'
+        env:
           P5_S3_BUCKET: ${{ vars.P5_S3_BUCKET }}
           P5_SITE_URL: ${{ vars.P5_SITE_URL }}
         run: |
           set -euo pipefail
-          [[ "${P4_S3_BUCKET}" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
           [[ "${P5_S3_BUCKET}" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
-          [[ "${P4_SITE_URL}" =~ ^https?:// ]]
           [[ "${P5_SITE_URL}" =~ ^https?:// ]]
 
       - name: Log in to Amazon ECR
@@ -154,7 +161,7 @@ jobs:
           exit "${wait_status}"
 
       - name: Set up Node.js for static frontends
-        if: env.FRONTEND_DEPLOY_ENABLED == 'true'
+        if: env.P4_FRONTEND_DEPLOY_ENABLED == 'true' || env.P5_FRONTEND_DEPLOY_ENABLED == 'true'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24"
@@ -164,7 +171,7 @@ jobs:
             frontend-diagnosis/package-lock.json
 
       - name: Build P4 Shopper Simulator
-        if: env.FRONTEND_DEPLOY_ENABLED == 'true'
+        if: env.P4_FRONTEND_DEPLOY_ENABLED == 'true'
         working-directory: frontend-simulator
         env:
           VITE_API_BASE: ${{ vars.AWS_API_URL }}
@@ -176,7 +183,7 @@ jobs:
           npm run build
 
       - name: Build P5 Diagnosis and Debate
-        if: env.FRONTEND_DEPLOY_ENABLED == 'true'
+        if: env.P5_FRONTEND_DEPLOY_ENABLED == 'true'
         working-directory: frontend-diagnosis
         env:
           VITE_API_BASE: ${{ vars.AWS_API_URL }}
@@ -185,15 +192,21 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy static frontends to S3
-        if: env.FRONTEND_DEPLOY_ENABLED == 'true'
+      - name: Deploy P4 Shopper Simulator to S3
+        if: env.P4_FRONTEND_DEPLOY_ENABLED == 'true'
         env:
           P4_S3_BUCKET: ${{ vars.P4_S3_BUCKET }}
-          P5_S3_BUCKET: ${{ vars.P5_S3_BUCKET }}
         run: |
           set -euo pipefail
           aws s3 sync frontend-simulator/dist "s3://${P4_S3_BUCKET}" --delete --exclude index.html --cache-control "public,max-age=31536000,immutable"
           aws s3 cp frontend-simulator/dist/index.html "s3://${P4_S3_BUCKET}/index.html" --cache-control "no-cache" --content-type "text/html"
+
+      - name: Deploy P5 Diagnosis and Debate to S3
+        if: env.P5_FRONTEND_DEPLOY_ENABLED == 'true'
+        env:
+          P5_S3_BUCKET: ${{ vars.P5_S3_BUCKET }}
+        run: |
+          set -euo pipefail
           aws s3 sync frontend-diagnosis/dist "s3://${P5_S3_BUCKET}" --delete --exclude index.html --cache-control "public,max-age=31536000,immutable"
           aws s3 cp frontend-diagnosis/dist/index.html "s3://${P5_S3_BUCKET}/index.html" --cache-control "no-cache" --content-type "text/html"
 
@@ -203,16 +216,20 @@ jobs:
           API_URL: ${{ vars.AWS_API_URL }}
           P4_SITE_URL: ${{ vars.P4_SITE_URL }}
           P5_SITE_URL: ${{ vars.P5_SITE_URL }}
-          FRONTEND_DEPLOY_ENABLED: ${{ env.FRONTEND_DEPLOY_ENABLED }}
+          P4_FRONTEND_DEPLOY_ENABLED: ${{ env.P4_FRONTEND_DEPLOY_ENABLED }}
+          P5_FRONTEND_DEPLOY_ENABLED: ${{ env.P5_FRONTEND_DEPLOY_ENABLED }}
         run: |
           {
             echo "### AWS demo deployment"
             echo "- Image: \`${IMAGE_URI}\`"
             echo "- API: ${API_URL}"
-            if [[ "${FRONTEND_DEPLOY_ENABLED}" == "true" ]]; then
+            if [[ "${P4_FRONTEND_DEPLOY_ENABLED}" == "true" ]]; then
               echo "- P4: ${P4_SITE_URL}"
+            fi
+            if [[ "${P5_FRONTEND_DEPLOY_ENABLED}" == "true" ]]; then
               echo "- P5: ${P5_SITE_URL}"
-            else
+            fi
+            if [[ "${P4_FRONTEND_DEPLOY_ENABLED}" != "true" && "${P5_FRONTEND_DEPLOY_ENABLED}" != "true" ]]; then
               echo "- Frontends: skipped (run bootstrap_cicd.py --configure-github, then dispatch again)"
             fi
           } >>"${GITHUB_STEP_SUMMARY}"
