@@ -89,13 +89,14 @@ describe('PaywalledDiagnosisReport', () => {
 })
 
 describe('latestProductVersions', () => {
-  it('uses creation time rather than the API alphabetic product order', () => {
+  it('keeps every latest product version and orders history by creation time', () => {
     const products = [
       { product_id: 'zebra', version: 1, created_at: '2026-08-15T08:00:00Z' },
       { product_id: 'alpha', version: 1, created_at: '2026-08-15T10:00:00Z' },
       { product_id: 'alpha', version: 2, created_at: '2026-08-15T11:00:00Z' },
+      { product_id: 'beta', version: 1, created_at: '2026-08-15T09:00:00Z' },
     ] as Product[]
 
-    expect(latestProductVersions(products).map(product => product.ref ?? `${product.product_id}@v${product.version}`)).toEqual(['alpha@v2', 'zebra@v1'])
+    expect(latestProductVersions(products).map(product => `${product.product_id}@v${product.version}`)).toEqual(['alpha@v2', 'beta@v1', 'zebra@v1'])
   })
 })
