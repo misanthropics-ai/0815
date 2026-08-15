@@ -1,69 +1,31 @@
-import { useState } from 'react'
-import { diagnosis, product } from './mock'
+import { useEffect, useMemo, useState } from 'react'
+import type { CompareResult, DebateMessage, Defect, Diagnosis, Product } from '../../contracts/types'
+import { ApiFailure, createDebate, createProduct, getCompare, getDiagnosis, isMock, streamDebate } from './api'
 
-type Page = 'intake' | 'diagnosis'
+type View = 'intake' | 'evidence' | 'diagnosis' | 'debate'
+const pct = (n: number) => `${Math.round(n * 100)}%`
+const label = (s: string) => s.replaceAll('_', ' ')
 
-const label = (value: string) => value.replaceAll('_', ' ')
-const percentage = (value: number) => `${Math.round(value * 100)}%`
+export default function App() {
+  const [view, setView] = useState<View>('intake'), [mode, setMode] = useState<'url' | 'manual_prototype'>('url')
+  const [input, setInput] = useState('https://www.cabinzero.com/products/classic-36l'), [product, setProduct] = useState<Product | null>(null)
+  const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState('')
+  const [focus, setFocus] = useState<string | undefined>(), [sessionId, setSessionId] = useState(''), [messages, setMessages] = useState<DebateMessage[]>([])
+  const [draft, setDraft] = useState('我的背包明明很舒適，你們的分析有問題'), [streaming, setStreaming] = useState(false), [compare, setCompare] = useState<CompareResult | null>(null), [progress, setProgress] = useState('')
+  const ref = product?.ref ?? `${product?.product_id}@v${product?.version}`
 
-function App() {
-  const [page, setPage] = useState<Page>('intake')
-  const [inputMode, setInputMode] = useState<'url' | 'text'>('url')
-  const [input, setInput] = useState(product.sourceUrl)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [showEvidence, setShowEvidence] = useState(false)
-
-  const analyze = () => {
-    if (!input.trim()) return
-    setIsAnalyzing(true)
-    window.setTimeout(() => { setIsAnalyzing(false); setPage('diagnosis') }, 850)
-  }
-
-  return (
-    <main className="shell">
-      <aside className="sidebar">
-        <a className="brand" href="#" onClick={(event) => { event.preventDefault(); setPage('intake') }}>
-          <span className="brand-mark">S</span><span>Signal Audit</span>
-        </a>
-        <p className="workspace">WORKSPACE</p>
-        <nav>
-          <button className={page === 'intake' ? 'nav-item active' : 'nav-item'} onClick={() => setPage('intake')}><span>＋</span> Add product</button>
-          <button className={page === 'diagnosis' ? 'nav-item active' : 'nav-item'} onClick={() => setPage('diagnosis')}><span>◈</span> Diagnosis</button>
-          <button className="nav-item" disabled><span>◌</span> Debate <em>soon</em></button>
-        </nav>
-        <div className="sidebar-foot"><span className="dot" /> Mock mode · Contract v2</div>
-      </aside>
-
-      <section className="content">
-        {page === 'intake' ? (
-          <>
-            <header className="page-heading"><div><p className="eyebrow">PRODUCT EVIDENCE AUDIT</p><h1>Find what AI cannot see.</h1><p>Inspect the signals your product page gives an AI before it recommends a competitor.</p></div><span className="stage">01 · INTAKE</span></header>
-            <section className="intake-card">
-              <div className="toggle" aria-label="Input type"><button className={inputMode === 'url' ? 'selected' : ''} onClick={() => setInputMode('url')}>Product URL</button><button className={inputMode === 'text' ? 'selected' : ''} onClick={() => setInputMode('text')}>Product description</button></div>
-              <label htmlFor="product-input">{inputMode === 'url' ? 'Link to a public product page' : 'Paste your product description'}</label>
-              {inputMode === 'url' ? <input id="product-input" value={input} onChange={(event) => setInput(event.target.value)} placeholder="https://…" /> : <textarea id="product-input" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Describe the product, its materials, specs and use cases…" />}
-              <div className="intake-actions"><p>We extract only evidence stated on the page. Missing claims remain unknown.</p><button className="primary" disabled={isAnalyzing || !input.trim()} onClick={analyze}>{isAnalyzing ? 'Extracting evidence…' : 'Analyze product →'}</button></div>
-            </section>
-            <section className="preview"><div><p className="eyebrow">DEMO DATASET</p><h2>CabinZero Classic 36L</h2><p>Use the contract fixture to preview the completed audit.</p></div><button className="secondary" onClick={() => setPage('diagnosis')}>Open sample diagnosis</button></section>
-          </>
-        ) : (
-          <>
-            <header className="product-header"><div><button className="back" onClick={() => setPage('intake')}>← Products</button><p className="eyebrow">DIAGNOSIS · {product.productRef}</p><h1>{product.displayName}</h1><a href={product.sourceUrl} target="_blank" rel="noreferrer">{product.sourceUrl.replace('https://', '')} ↗</a></div><span className="stage">02 · DIAGNOSIS</span></header>
-            <section className="score-grid">
-              <article className="score-card main-score"><p>Recommendation share</p><strong>{percentage(diagnosis.recommendationShare)}</strong><span>across {diagnosis.simulations} simulated decisions</span></article>
-              <article className="score-card"><p>Competitive gap</p><div className="versus"><span>CZ <b>{percentage(diagnosis.recommendationShare)}</b></span><i>vs</i><span>Osprey <b>{percentage(diagnosis.competitor.share)}</b></span></div><div className="bar"><span style={{ width: percentage(diagnosis.recommendationShare) }} /></div></article>
-              <article className="score-card"><p>Strongest signals</p>{diagnosis.winners.map((item) => <div className="signal" key={item.name}><span>{item.name}</span><b>{percentage(item.share)}</b></div>)}</article>
-            </section>
-            <section className="section-title"><div><p className="eyebrow">EVIDENCE GAPS</p><h2>Why recommendations are being lost</h2><p>Ranked by impact on your recommendation share.</p></div><span className="count">{diagnosis.defects.length} findings</span></section>
-            <section className="defect-list">
-              {diagnosis.defects.map((defect) => <article className="defect-card" key={defect.attribute}><div className="defect-top"><span className={`severity ${defect.severity}`}>{defect.severity}</span><span className="attribute">{label(defect.attribute)}</span><span className="loss">{percentage(defect.loss)} lost in cluster</span></div><h3>{defect.headline}</h3><div className="defect-columns"><blockquote>{defect.reason}</blockquote><p><b>Competitor evidence</b>{defect.contrast}</p></div><footer><p><b>Suggested fix</b>{defect.fix}</p><button className="discuss" onClick={() => window.alert('Debate view is the next P5 milestone.')}>Discuss this →</button></footer></article>)}
-            </section>
-            <section className="attributes"><div className="attribute-heading"><div><p className="eyebrow">EXTRACTED PRODUCT EVIDENCE</p><h2>What the page actually states</h2></div><button className="text-button" onClick={() => setShowEvidence((value) => !value)}>{showEvidence ? 'Hide evidence' : 'Show evidence'}</button></div><div className="attribute-table">{product.attributes.map((attribute) => <div className={attribute.value ? 'attribute-row' : 'attribute-row unknown'} key={attribute.attribute_id}><span>{label(attribute.attribute_id)}</span><b>{attribute.value ?? '? Not found on page'}</b>{showEvidence && <small>{attribute.evidence ?? 'No supporting text was extracted.'}</small>}</div>)}</div></section>
-          </>
-        )}
-      </section>
-    </main>
-  )
+  const analyze = async () => { try { setBusy(true); setError(''); const body = mode === 'url' ? { source: 'url' as const, source_url: input } : { source: 'manual_prototype' as const, brand: 'My brand', display_name: 'New product', raw_text: input }; const item = await createProduct(body); setProduct(item); setView('evidence') } catch (e) { setError(e instanceof Error ? e.message : 'Could not analyze this product.') } finally { setBusy(false) } }
+  const loadDiagnosis = async () => { if (!ref) return; try { setBusy(true); setError(''); for (let i = 0; i < 40; i++) { const result = await getDiagnosis(ref); if (result.data) { setDiagnosis(result.data); setView('diagnosis'); return } await new Promise(r => setTimeout(r, 3000)) } throw new Error('Diagnosis is still running. Please retry in a moment.') } catch (e) { setError(e instanceof Error ? e.message : 'Diagnosis failed.') } finally { setBusy(false) } }
+  const beginDebate = async (defect?: Defect) => { if (!ref) return; try { setBusy(true); const session = await createDebate(ref, defect?.defect_id); setFocus(defect?.headline); setSessionId(session.session_id); setMessages(session.messages); setCompare(null); setView('debate') } catch (e) { setError(e instanceof Error ? e.message : 'Could not start debate.') } finally { setBusy(false) } }
+  const send = async () => { if (!draft.trim() || streaming) return; const user = { role: 'user' as const, text: draft, ts: new Date().toISOString() }; setMessages(m => [...m, user, { role: 'assistant', text: '', ts: new Date().toISOString() }]); setDraft(''); setStreaming(true); setError(''); try { await streamDebate(sessionId, user.text, token => setMessages(m => { const next = [...m]; next[next.length - 1] = { ...next[next.length - 1], text: next[next.length - 1].text + token }; return next }), async action => { setProgress('Rewriting product evidence → v2 created → re-running comparison…'); if (!action.compare_url) return; for (let i = 0; i < 40; i++) { const result = await getCompare(action.compare_url); if (result.data) { setCompare(result.data); setProgress('Comparison complete'); return } await new Promise(r => setTimeout(r, 3000)) } }) } catch (e) { setError(e instanceof Error ? e.message : 'Debate failed.') } finally { setStreaming(false) } }
+  return <main className="shell"><aside className="sidebar"><a className="brand" href="#" onClick={e => { e.preventDefault(); setView('intake') }}><span className="brand-mark">S</span>Signal Audit</a><p className="workspace">WORKSPACE</p><nav><button className={view === 'intake' ? 'nav-item active' : 'nav-item'} onClick={() => setView('intake')}>＋ Add product</button><button className={view === 'diagnosis' ? 'nav-item active' : 'nav-item'} disabled={!diagnosis} onClick={() => setView('diagnosis')}>◈ Diagnosis</button><button className={view === 'debate' ? 'nav-item active' : 'nav-item'} disabled={!sessionId} onClick={() => setView('debate')}>◌ Debate</button></nav><div className="sidebar-foot"><span className="dot" />{isMock ? 'Demo fixture mode' : 'Connected API'}</div></aside><section className="content">{error && <div className="error"><b>Something needs attention.</b> {error}<button onClick={() => setError('')}>×</button></div>}
+    {view === 'intake' && <><header className="page-heading"><div><p className="eyebrow">PRODUCT EVIDENCE AUDIT</p><h1>Find what AI cannot see.</h1><p>Analyze any public product URL or pasted product description.</p></div><span className="stage">01 · INTAKE</span></header><section className="intake-card"><div className="toggle"><button className={mode === 'url' ? 'selected' : ''} onClick={() => setMode('url')}>Product URL</button><button className={mode === 'manual_prototype' ? 'selected' : ''} onClick={() => setMode('manual_prototype')}>Product description</button></div><label>{mode === 'url' ? 'Link to a public product page' : 'Paste your product description'}</label>{mode === 'url' ? <input value={input} onChange={e => setInput(e.target.value)} /> : <textarea value={input} onChange={e => setInput(e.target.value)} />}<div className="intake-actions"><p>{isMock ? 'Demo mode uses CabinZero fixture data. Set VITE_API_BASE to analyze arbitrary products.' : 'We only use evidence stated on the supplied page.'}</p><button className="primary" onClick={analyze} disabled={busy || !input.trim()}>{busy ? 'Extracting attributes…' : 'Analyze product →'}</button></div></section></>}
+    {view === 'evidence' && product && <><Header product={product} stage="02 · EVIDENCE" /><section className="attributes full"><div className="attribute-heading"><div><p className="eyebrow">EXTRACTED PRODUCT EVIDENCE</p><h2>What the page actually states</h2><p>Grey question marks are claims an AI cannot verify from the source.</p></div><button className="primary" onClick={loadDiagnosis} disabled={busy}>{busy ? 'Building diagnosis…' : 'Continue to diagnosis →'}</button></div><Attributes product={product} /></section></>}
+    {view === 'diagnosis' && diagnosis && <><Header product={product!} stage="03 · DIAGNOSIS" /><section className="score-grid"><article className="score-card main-score"><p>Recommendation share</p><strong>{pct(diagnosis.overall.recommendation_share)}</strong><span>across {diagnosis.overall.n_simulations} simulations</span></article><article className="score-card"><p>Considered by AI</p><strong className="plain-score">{pct(diagnosis.overall.consideration_share)}</strong><div className="bar"><span style={{ width: pct(diagnosis.overall.consideration_share) }} /></div></article><article className="score-card"><p>Retrieval rate</p><strong className="plain-score">{pct(diagnosis.overall.retrieved_rate ?? 0)}</strong><div className="bar"><span style={{ width: pct(diagnosis.overall.retrieved_rate ?? 0) }} /></div></article></section><section className="section-title"><div><p className="eyebrow">EVIDENCE GAPS</p><h2>Why recommendations are being lost</h2><p>{diagnosis.exec_summary}</p></div><span className="count">{diagnosis.defects.length} findings</span></section><section className="defect-list">{diagnosis.defects.map(d => <DefectCard key={d.defect_id} defect={d} onDiscuss={() => beginDebate(d)} />)}</section></>}
+    {view === 'debate' && <><header className="page-heading"><div><p className="eyebrow">EVIDENCE DEBATE</p><h1>Challenge the diagnosis.</h1><p>{focus ?? 'Give the agent concrete product evidence it may be missing.'}</p></div><span className="stage">04 · DEBATE</span></header><section className="chat">{messages.length === 0 && <div className="empty-chat">Ask why this product is losing — then add a concrete fact that was missing from its page.</div>}{messages.map((m, i) => <article className={`bubble ${m.role}`} key={i}><small>{m.role === 'user' ? 'YOU' : 'SIGNAL AUDIT'}</small><p>{m.text || <span className="cursor">▍</span>}</p></article>)}{progress && <div className="progress-card"><span className="dot" /> {progress}</div>}{compare && <Compare compare={compare} />}</section><div className="composer"><textarea value={draft} onChange={e => setDraft(e.target.value)} disabled={streaming} placeholder="Explain what the product page is missing…" /><button className="primary" onClick={send} disabled={streaming || !draft.trim()}>{streaming ? 'Analyzing…' : 'Send →'}</button></div></>}
+  </section></main>
 }
-
-export default App
+function Header({ product, stage }: { product: Product; stage: string }) { return <header className="product-header"><div><p className="eyebrow">{stage} · {product.ref ?? `${product.product_id}@v${product.version}`}</p><h1>{product.display_name}</h1>{product.source_url && <a href={product.source_url} target="_blank" rel="noreferrer">{product.source_url.replace('https://', '')} ↗</a>}</div><span className="stage">{stage}</span></header> }
+function Attributes({ product }: { product: Product }) { return <div className="attribute-table">{product.attributes.map(a => <div className={a.value ? 'attribute-row' : 'attribute-row unknown'} key={a.attribute_id}><span>{label(a.attribute_id)}</span><b>{a.value ?? '? Not found on page'}</b><small>{a.evidence ?? 'No supporting text was extracted.'}</small></div>)}</div> }
+function DefectCard({ defect, onDiscuss }: { defect: Defect; onDiscuss: () => void }) { return <article className="defect-card"><div className="defect-top"><span className={`severity ${defect.severity}`}>{defect.severity}</span><span className={`gap ${defect.gap ?? 'unclear'}`}>{label(defect.gap ?? 'unclear')}</span><span className="attribute">{label(defect.attribute_id)}</span><span className="loss">{pct(defect.evidence.losing_share_in_cluster)} · {defect.evidence.cluster_id}</span></div><h3>{defect.headline}</h3><div className="defect-columns"><blockquote>“{defect.evidence.sample_rejection_reasons[0]}”</blockquote><p><b>Competitor evidence</b>{defect.evidence.competitor_contrast || 'No competitor evidence recorded.'}</p></div><footer><p><b>Suggested fix</b>{defect.suggested_fix}</p><button className="discuss" onClick={onDiscuss}>Discuss this →</button></footer>{defect.content_patch && <pre>{defect.content_patch}</pre>}</article> }
+function Compare({ compare }: { compare: CompareResult }) { return <section className="compare"><p className="eyebrow">EVIDENCE IMPACT · {compare.cluster_id}</p><h2>{pct(compare.a.recommendation_share)} <span>→</span> {pct(compare.b.recommendation_share)}</h2><strong>+{pct(compare.delta_recommendation)} recommendation share</strong><ul>{compare.changes_applied.map((c, i) => <li key={i}>{c}</li>)}</ul></section> }
