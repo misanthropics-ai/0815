@@ -1,0 +1,70 @@
+{
+  "case_id": "comfort-evidence-lift",
+  "intent": {
+    "intent_id": "impact-demo-comfort",
+    "text": "Most comfortable travel backpack for walking all day",
+    "cluster_id": "comfort_carry",
+    "attributes": ["comfort"],
+    "language": "en"
+  },
+  "competitor_refs": [
+    "osprey-farpoint-40@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "cotopaxi-allpa-35l@v1"
+  ],
+  "changes_applied": [
+    "Features a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear."
+  ],
+  "before": {
+    "product_id": "p4-demo-cabinzero-classic-36l",
+    "version": 1,
+    "brand": "CabinZero",
+    "display_name": "CabinZero Classic 36L",
+    "source": "manual_prototype",
+    "source_url": "https://www.cabinzero.com/products/classic-36l",
+    "category": "travel backpack",
+    "raw_text": "CabinZero Classic 36L Cabin Backpack. The Classic 36L is a simple, ultra-light cabin bag. It weighs 760 g and measures 44 x 30 x 24 cm. Made from 600D polyester with YKK zippers, a wide-opening compartment, an internal zipped mesh pocket, and a 10-year warranty. Price: $79.95.",
+    "attributes": [
+      {"attribute_id": "price", "value": "$79.95", "evidence": "Price: $79.95.", "confidence": 0.97},
+      {"attribute_id": "weight", "value": "760 g", "evidence": "It weighs 760 g.", "confidence": 0.97},
+      {"attribute_id": "comfort", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "airline_compliance", "value": "44 x 30 x 24 cm", "evidence": "It measures 44 x 30 x 24 cm.", "confidence": 0.92},
+      {"attribute_id": "capacity_size", "value": "36L", "evidence": "The Classic 36L", "confidence": 0.95},
+      {"attribute_id": "organization", "value": "wide-opening compartment and internal mesh pocket", "evidence": "a wide-opening compartment, an internal zipped mesh pocket", "confidence": 0.8},
+      {"attribute_id": "durability", "value": "600D polyester and YKK zippers", "evidence": "Made from 600D polyester with YKK zippers", "confidence": 0.85},
+      {"attribute_id": "warranty", "value": "10-year warranty", "evidence": "a 10-year warranty", "confidence": 0.95},
+      {"attribute_id": "style_design", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "security", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "sustainability", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "brand_reputation", "value": null, "evidence": null, "confidence": 0.0}
+    ],
+    "parent_version": null,
+    "change_note": null
+  },
+  "after": {
+    "product_id": "p4-demo-cabinzero-classic-36l",
+    "version": 2,
+    "brand": "CabinZero",
+    "display_name": "CabinZero Classic 36L",
+    "source": "manual_prototype",
+    "source_url": "https://www.cabinzero.com/products/classic-36l",
+    "category": "travel backpack",
+    "raw_text": "CabinZero Classic 36L Cabin Backpack. The Classic 36L is a simple, ultra-light cabin bag. It weighs 760 g and measures 44 x 30 x 24 cm. Made from 600D polyester with YKK zippers, a wide-opening compartment, an internal zipped mesh pocket, and a 10-year warranty. Price: $79.95.\n\nFeatures a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear.",
+    "attributes": [
+      {"attribute_id": "price", "value": "$79.95", "evidence": "Price: $79.95.", "confidence": 0.97},
+      {"attribute_id": "weight", "value": "760 g", "evidence": "It weighs 760 g.", "confidence": 0.97},
+      {"attribute_id": "comfort", "value": "Ventilated mesh back panel and extra-thick memory foam shoulder straps", "evidence": "Features a ventilated mesh back panel for airflow and an extra-thick memory foam shoulder strap system, lab-tested to eliminate pressure pain over 6 continuous hours of wear.", "confidence": 1.0},
+      {"attribute_id": "airline_compliance", "value": "44 x 30 x 24 cm", "evidence": "It measures 44 x 30 x 24 cm.", "confidence": 0.92},
+      {"attribute_id": "capacity_size", "value": "36L", "evidence": "The Classic 36L", "confidence": 0.95},
+      {"attribute_id": "organization", "value": "wide-opening compartment and internal mesh pocket", "evidence": "a wide-opening compartment, an internal zipped mesh pocket", "confidence": 0.8},
+      {"attribute_id": "durability", "value": "600D polyester and YKK zippers", "evidence": "Made from 600D polyester with YKK zippers", "confidence": 0.85},
+      {"attribute_id": "warranty", "value": "10-year warranty", "evidence": "a 10-year warranty", "confidence": 0.95},
+      {"attribute_id": "style_design", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "security", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "sustainability", "value": null, "evidence": null, "confidence": 0.0},
+      {"attribute_id": "brand_reputation", "value": null, "evidence": null, "confidence": 0.0}
+    ],
+    "parent_version": 1,
+    "change_note": "impact-demo:comfort-evidence-lift"
+  }
+}

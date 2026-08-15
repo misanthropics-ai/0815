@@ -18,6 +18,7 @@ TAXONOMY_PATH = BACKEND_DIR / "taxonomy" / "taxonomy.json"
 PERSONAS_DIR = BACKEND_DIR / "personas"
 PERSONAS_PATH = PERSONAS_DIR / "default.json"
 DB_PATH = DATA_DIR / "app.db"
+IMPACT_DB_PATH = DATA_DIR / "impact_demo.db"
 
 
 def _load_dotenv(path: Path) -> None:

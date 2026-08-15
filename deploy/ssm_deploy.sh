@@ -130,6 +130,22 @@ if [[ "${healthy}" != "true" ]]; then
   exit 1
 fi
 
+if ! docker exec "${container_name}" python -c '
+import json
+import urllib.request
+
+with urllib.request.urlopen("http://127.0.0.1:8000/impact-demo", timeout=20) as response:
+    case = json.load(response)
+assert case["before"]["version"] == 1
+assert case["after"]["version"] == 2
+assert case["before"]["product_id"] == case["after"]["product_id"]
+assert len(case["competitor_refs"]) >= 2
+'; then
+  echo "new container did not expose a valid seeded P4 impact demo" >&2
+  docker logs --tail 200 "${container_name}" >&2 || true
+  exit 1
+fi
+
 if [[ "${legacy_service_was_active}" == "true" ]]; then
   systemctl disable backend.service >/dev/null 2>&1 || true
 fi

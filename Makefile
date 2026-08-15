@@ -9,7 +9,9 @@ CHECK_PATHS := \
 	backend/pipeline/engines/claude_sim.py \
 	backend/pipeline/intents.py \
 	backend/pipeline/runner.py \
+	backend/seeds/seed.py \
 	backend/storage/db.py \
+	backend/storage/impact_db.py \
 	backend/taxonomy \
 	contracts \
 	deploy/bootstrap_cicd.py \

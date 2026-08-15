@@ -22,7 +22,7 @@ from backend.llm.bedrock import LLMError, get_bedrock
 from backend.pipeline import funnel as funnel_mod
 from backend.pipeline import runner
 from backend.pipeline.engines import engine_status
-from backend.storage import db
+from backend.storage import db, impact_db
 from backend.taxonomy import load_taxonomy
 from contracts.schemas import RunCreateRequest
 
@@ -94,7 +94,15 @@ async def index():
         "version": "v3",
         "interactive_docs": "/docs",
         "health": "/health",
-        "browse": ["/health", "/docs", "/taxonomy", "/products", "/engines", "/runs"],
+        "browse": [
+            "/health",
+            "/impact-demo",
+            "/docs",
+            "/taxonomy",
+            "/products",
+            "/engines",
+            "/runs",
+        ],
         "guide": "see FRONTEND.md / TESTING.md in the repo",
     }
 
@@ -114,8 +122,22 @@ async def health():
         },
         "engines": engine_status(),
         "products": len(db.list_products()),
+        "impact_demo": {
+            "ready": impact_db.get_case() is not None,
+            "products": impact_db.count_products(),
+            "database": config.IMPACT_DB_PATH.name,
+        },
         "library_intents": db.count_intents("library"),
     }
+
+
+@app.get("/impact-demo")
+async def impact_demo(case_id: str = Query(default="comfort-evidence-lift")):
+    """Stable P4 case backed by an isolated, deployment-seeded database."""
+    case = impact_db.get_case(case_id)
+    if not case:
+        raise KeyError(case_id)
+    return case
 
 
 @app.get("/taxonomy")
@@ -383,7 +405,7 @@ async def list_products():
 
 @app.get("/products/{ref}")
 async def get_product(ref: str):
-    p = db.get_product_by_ref(ref)
+    p = db.get_product_by_ref(ref) or impact_db.get_product_by_ref(ref)
     if not p:
         raise KeyError(ref)
     return p
@@ -667,7 +689,8 @@ async def metrics_compare(a: str, b: str, cluster: str):
             "ci95_recommendation": s["ci95_recommendation"],
         }
 
-    pa, pb = db.get_product_by_ref(a), db.get_product_by_ref(b)
+    pa = db.get_product_by_ref(a) or impact_db.get_product_by_ref(a)
+    pb = db.get_product_by_ref(b) or impact_db.get_product_by_ref(b)
     changes: list[str] = []
     if pa and pb and pa["product_id"] == pb["product_id"]:
         older, newer = (pa, pb) if pa["version"] < pb["version"] else (pb, pa)
