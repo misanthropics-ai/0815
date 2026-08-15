@@ -355,6 +355,7 @@ class ProductCreate(BaseModel):
     raw_text: Optional[str] = None
     product_id: Optional[str] = None
     category: Optional[str] = None  # omit => auto-detected from the page text
+    personas: Optional[list] = None  # vendor-defined target customers (PersonaProfile | str)
 
 
 class VersionCreate(BaseModel):
@@ -395,17 +396,33 @@ async def create_version(product_id: str, body: VersionCreate):
     return await _cv(product_id, body.base_version, body.additions, body.change_note)
 
 
-class CategoryPatch(BaseModel):
-    category: str
+class ProductPatch(BaseModel):
+    category: Optional[str] = None
+    personas: Optional[list] = None          # PersonaProfile dicts or strings; [] clears
 
 
 @app.patch("/products/{product_id}")
-async def patch_product_category(product_id: str, body: CategoryPatch):
-    """Fix a product's category on all versions (repairs inconsistent auto-detection)."""
-    n = db.set_product_category(product_id, (body.category or "").strip() or None)
-    if n == 0:
-        raise KeyError(product_id)
-    return {"product_id": product_id, "category": body.category, "updated_versions": n}
+async def patch_product(product_id: str, body: ProductPatch):
+    """Fix category and/or set vendor target personas on all versions of a product."""
+    if body.category is None and body.personas is None:
+        raise ValueError("provide category and/or personas")
+    updated: dict = {}
+    if body.category is not None:
+        n = db.set_product_category(product_id, (body.category or "").strip() or None)
+        if n == 0:
+            raise KeyError(product_id)
+        updated["category"] = body.category
+        updated["updated_versions"] = n
+    if body.personas is not None:
+        from backend.pipeline.intents import normalize_personas
+
+        profiles = normalize_personas(body.personas, body.category) if body.personas else None
+        n = db.set_product_personas(product_id, profiles)
+        if n == 0:
+            raise KeyError(product_id)
+        updated["personas"] = [p["persona_id"] for p in (profiles or [])]
+        updated["updated_versions"] = n
+    return {"product_id": product_id, **updated}
 
 
 @app.delete("/products/{product_id}")
@@ -537,10 +554,19 @@ async def get_decision(decision_id: str):
 
 
 @app.get("/products/{ref}/diagnosis")
-async def product_diagnosis(ref: str, retry: bool = False):
+async def product_diagnosis(ref: str, retry: bool = False,
+                            deadline_s: Optional[float] = Query(default=None, ge=5, le=600),
+                            min_decisions: Optional[int] = Query(default=None, ge=1, le=200),
+                            depth: str = Query(default="standard")):
+    """Completion modes — default waits for ALL simulation workers
+    (depth=quick|standard|deep scales worker count 12/18/48). Keep polling with
+    ?deadline_s=N to get a partial diagnosis (partial:true) from workers finished
+    so far once N seconds elapse; ?min_decisions=K declares done at K decisions."""
     from backend.diagnosis.service import get_or_build
 
-    diag, pending = await get_or_build(ref, allow_trigger=True, force_retry=retry)
+    diag, pending = await get_or_build(ref, allow_trigger=True, force_retry=retry,
+                                       deadline_s=deadline_s, min_decisions=min_decisions,
+                                       depth=depth)
     if diag:
         return diag
     return JSONResponse(status_code=202, content=pending or {"status": "running"})

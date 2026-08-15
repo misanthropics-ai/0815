@@ -1,63 +1,706 @@
 {
-  "version": 1,
+  "version": 2,
   "profiles": [
     {
       "persona_id": "value_focused_shopper",
       "label": "Value-focused shopper",
-      "use_cases": ["everyday use"],
       "criteria": [
-        { "attribute": "price", "operator": "minimize", "importance": "must" },
-        { "attribute": "quality", "operator": "maximize", "importance": "should" }
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        }
       ],
-      "notes": ["Wants the fewest meaningful compromises for the price"]
+      "use_cases": [
+        "everyday use"
+      ],
+      "notes": [
+        "Fewest meaningful compromises for the price"
+      ]
     },
     {
       "persona_id": "busy_professional",
       "label": "Busy professional",
-      "occupation": "professional",
-      "use_cases": ["frequent daily use", "work"],
       "criteria": [
-        { "attribute": "ease_of_use", "operator": "maximize", "importance": "must" },
-        { "attribute": "durability", "operator": "maximize", "importance": "should" }
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "should"
+        }
       ],
-      "context": { "usage_frequency": "daily" },
-      "notes": ["Limited time for setup or maintenance"]
+      "occupation": "professional",
+      "use_cases": [
+        "frequent daily use",
+        "work"
+      ],
+      "context": {
+        "usage_frequency": "daily"
+      }
     },
     {
       "persona_id": "first_time_buyer",
       "label": "First-time buyer",
-      "use_cases": ["learning the product category", "occasional use"],
       "criteria": [
-        { "attribute": "ease_of_use", "operator": "maximize", "importance": "must" },
-        { "attribute": "brand_reputation", "operator": "maximize", "importance": "should" }
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "brand_reputation",
+          "operator": "maximize",
+          "importance": "should"
+        }
       ],
-      "notes": ["Needs clear trade-offs and low-risk recommendations"]
+      "use_cases": [
+        "learning the category",
+        "occasional use"
+      ],
+      "notes": [
+        "Wants low-risk, clearly explained choices"
+      ]
     },
     {
       "persona_id": "experienced_power_user",
       "label": "Experienced power user",
-      "use_cases": ["advanced workflows", "frequent use"],
       "criteria": [
-        { "attribute": "performance", "operator": "maximize", "importance": "must" },
-        { "attribute": "features", "operator": "maximize", "importance": "should" }
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "features",
+          "operator": "maximize",
+          "importance": "should"
+        }
       ],
-      "context": { "experience_level": "advanced" },
-      "notes": ["Accepts complexity when it produces meaningful capability"]
+      "use_cases": [
+        "advanced workflows"
+      ],
+      "context": {
+        "experience_level": "advanced"
+      }
     },
     {
       "persona_id": "ecosystem_constrained_buyer",
       "label": "Existing-ecosystem buyer",
-      "use_cases": ["adding the product to an existing setup"],
       "criteria": [
         {
           "attribute": "compatibility",
-          "operator": "supports",
-          "value": "existing setup",
+          "operator": "maximize",
           "importance": "must"
         },
-        { "attribute": "ease_of_use", "operator": "maximize", "importance": "should" }
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "should"
+        }
       ],
-      "notes": ["Compatibility is more important than optional features"]
+      "use_cases": [
+        "adding to an existing setup"
+      ]
+    },
+    {
+      "persona_id": "budget_student",
+      "label": "Budget-constrained student",
+      "criteria": [
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "age": 20,
+      "occupation": "student",
+      "budget": {
+        "max_amount": 50,
+        "currency": "USD",
+        "flexibility": "hard"
+      },
+      "use_cases": [
+        "dorm life",
+        "daily basics"
+      ]
+    },
+    {
+      "persona_id": "premium_perfectionist",
+      "label": "Premium quality perfectionist",
+      "criteria": [
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "budget": {
+        "max_amount": 800,
+        "currency": "USD",
+        "flexibility": "soft"
+      },
+      "notes": [
+        "Pays more for the objectively best option"
+      ]
+    },
+    {
+      "persona_id": "gift_buyer",
+      "label": "Gift buyer",
+      "criteria": [
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "brand_reputation",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "availability",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "birthday gift"
+      ],
+      "notes": [
+        "Needs safe, impressive, returnable choices"
+      ],
+      "relationship_to_buyer": "gift for a family member"
+    },
+    {
+      "persona_id": "family_household_buyer",
+      "label": "Family household buyer",
+      "criteria": [
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "shared family use",
+        "kids around"
+      ]
+    },
+    {
+      "persona_id": "senior_simplicity_seeker",
+      "label": "Senior simplicity seeker",
+      "criteria": [
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "brand_reputation",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "age": 68,
+      "use_cases": [
+        "simple everyday use"
+      ],
+      "notes": [
+        "Avoids apps and complex setup"
+      ]
+    },
+    {
+      "persona_id": "tech_early_adopter",
+      "label": "Tech early adopter",
+      "criteria": [
+        {
+          "attribute": "features",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "latest tech",
+        "smart home"
+      ],
+      "context": {
+        "experience_level": "enthusiast"
+      }
+    },
+    {
+      "persona_id": "eco_conscious_buyer",
+      "label": "Eco-conscious buyer",
+      "criteria": [
+        {
+          "attribute": "sustainability",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "low-impact living"
+      ],
+      "notes": [
+        "Checks materials, repairability, certifications"
+      ]
+    },
+    {
+      "persona_id": "small_space_dweller",
+      "label": "Small-space city dweller",
+      "criteria": [
+        {
+          "attribute": "size_dimensions",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "studio apartment"
+      ],
+      "context": {
+        "living_space": "studio"
+      }
+    },
+    {
+      "persona_id": "frequent_traveler",
+      "label": "On-the-go frequent flyer",
+      "criteria": [
+        {
+          "attribute": "size_dimensions",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "trips",
+        "on the go"
+      ],
+      "context": {
+        "travel_days_per_year": 120
+      }
+    },
+    {
+      "persona_id": "review_skeptic_researcher",
+      "label": "Review-skeptic researcher",
+      "criteria": [
+        {
+          "attribute": "brand_reputation",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "extensive comparison before buying"
+      ],
+      "notes": [
+        "Distrusts marketing; wants third-party proof"
+      ]
+    },
+    {
+      "persona_id": "deal_hunter",
+      "label": "Impulse deal hunter",
+      "criteria": [
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "availability",
+          "operator": "maximize",
+          "importance": "must"
+        }
+      ],
+      "use_cases": [
+        "sales and promos"
+      ],
+      "notes": [
+        "Buys today if the deal is real"
+      ]
+    },
+    {
+      "persona_id": "accessibility_first_buyer",
+      "label": "Accessibility-first buyer",
+      "criteria": [
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "compatibility",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "one-handed / limited-mobility use"
+      ],
+      "notes": [
+        "Physical accessibility is non-negotiable"
+      ]
+    },
+    {
+      "persona_id": "tradesperson_heavy_user",
+      "label": "Heavy-duty tradesperson",
+      "criteria": [
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "occupation": "tradesperson",
+      "use_cases": [
+        "daily jobsite use"
+      ],
+      "context": {
+        "usage_intensity": "heavy"
+      }
+    },
+    {
+      "persona_id": "design_led_buyer",
+      "label": "Design-led buyer",
+      "criteria": [
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "visible in a curated home"
+      ],
+      "notes": [
+        "It has to look right first"
+      ]
+    },
+    {
+      "persona_id": "spec_sheet_engineer",
+      "label": "Spec-sheet engineer",
+      "criteria": [
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "compatibility",
+          "operator": "maximize",
+          "importance": "must"
+        }
+      ],
+      "occupation": "engineer",
+      "use_cases": [
+        "technical evaluation"
+      ],
+      "notes": [
+        "Wants numbers, standards, measured claims"
+      ]
+    },
+    {
+      "persona_id": "low_maintenance_parent",
+      "label": "Low-maintenance busy parent",
+      "criteria": [
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "no time for upkeep"
+      ],
+      "context": {
+        "kids": 2
+      }
+    },
+    {
+      "persona_id": "dorm_room_starter",
+      "label": "Dorm-room starter",
+      "criteria": [
+        {
+          "attribute": "price",
+          "operator": "minimize",
+          "importance": "must"
+        },
+        {
+          "attribute": "size_dimensions",
+          "operator": "minimize",
+          "importance": "must"
+        }
+      ],
+      "age": 19,
+      "occupation": "student",
+      "budget": {
+        "max_amount": 40,
+        "currency": "USD",
+        "flexibility": "hard"
+      },
+      "use_cases": [
+        "first apartment basics"
+      ]
+    },
+    {
+      "persona_id": "remote_work_home_office",
+      "label": "Remote-work home office",
+      "criteria": [
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "must"
+        }
+      ],
+      "occupation": "remote worker",
+      "use_cases": [
+        "8h daily home-office use"
+      ]
+    },
+    {
+      "persona_id": "content_creator",
+      "label": "Content creator",
+      "criteria": [
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "design",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "features",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "occupation": "creator",
+      "use_cases": [
+        "filming/streaming setup"
+      ]
+    },
+    {
+      "persona_id": "health_conscious_buyer",
+      "label": "Health-conscious buyer",
+      "criteria": [
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "sustainability",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "family health"
+      ],
+      "notes": [
+        "Cares about materials, BPA, emissions, noise"
+      ]
+    },
+    {
+      "persona_id": "rural_limited_service",
+      "label": "Rural buyer far from service",
+      "criteria": [
+        {
+          "attribute": "availability",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "must"
+        }
+      ],
+      "use_cases": [
+        "no nearby repair or fast shipping"
+      ],
+      "notes": [
+        "Support and parts availability decide it"
+      ]
+    },
+    {
+      "persona_id": "upgrade_replacer",
+      "label": "Upgrader replacing an old model",
+      "criteria": [
+        {
+          "attribute": "performance",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "compatibility",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "replacing a 5-year-old model"
+      ],
+      "notes": [
+        "Needs a clearly better generation, not a side-grade"
+      ]
+    },
+    {
+      "persona_id": "warranty_worrier",
+      "label": "Warranty-first worrier",
+      "criteria": [
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "brand_reputation",
+          "operator": "maximize",
+          "importance": "must"
+        }
+      ],
+      "use_cases": [
+        "long-term ownership"
+      ],
+      "notes": [
+        "Reads warranty terms before specs"
+      ]
+    },
+    {
+      "persona_id": "shared_household_coordinator",
+      "label": "Multi-user household coordinator",
+      "criteria": [
+        {
+          "attribute": "ease_of_use",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "compatibility",
+          "operator": "maximize",
+          "importance": "should"
+        },
+        {
+          "attribute": "durability",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "3+ people sharing one device"
+      ]
+    },
+    {
+      "persona_id": "quiet_night_owl",
+      "label": "Quiet-operation night owl",
+      "criteria": [
+        {
+          "attribute": "features",
+          "operator": "maximize",
+          "importance": "must"
+        },
+        {
+          "attribute": "quality",
+          "operator": "maximize",
+          "importance": "should"
+        }
+      ],
+      "use_cases": [
+        "late-night use near sleeping family"
+      ],
+      "context": {
+        "noise_sensitivity": "high"
+      },
+      "notes": [
+        "Noise level is the first question"
+      ]
     }
   ]
 }

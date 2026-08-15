@@ -342,7 +342,8 @@ def _trigger_cluster_ids(product: dict) -> list[str]:
 
 
 async def _trigger_batches(product: dict, cluster_ids: list[str],
-                           batch_ids: dict[str, str]) -> None:
+                           batch_ids: dict[str, str],
+                           runs: int = 1, max_intents: int = 6) -> None:
     import time as _time
 
     from backend.decision.simulate import run_batch
@@ -351,8 +352,10 @@ async def _trigger_batches(product: dict, cluster_ids: list[str],
     candidates = [ref] + _competitor_refs(product)
     t0 = _time.time()
     log("diagnosis.trigger", ref=ref, clusters=cluster_ids, n_candidates=len(candidates))
+    personas = product.get("personas") or None
     results = await asyncio.gather(  # batches run in PARALLEL (was sequential)
-        *[run_batch(cid, candidates, runs=1, max_intents=6, batch_id=batch_ids[cid])
+        *[run_batch(cid, candidates, runs=runs, max_intents=max_intents,
+                    batch_id=batch_ids[cid], personas=personas)
           for cid in cluster_ids],
         return_exceptions=True)
     total = 0
@@ -396,7 +399,9 @@ def _trigger_state_payload(ref: str) -> dict:
 
 
 async def get_or_build(product_ref: str, allow_trigger: bool = True,
-                       force_retry: bool = False) -> tuple[Optional[dict], Optional[dict]]:
+                       force_retry: bool = False, deadline_s: Optional[float] = None,
+                       min_decisions: Optional[int] = None,
+                       depth: str = "standard") -> tuple[Optional[dict], Optional[dict]]:
     """Return (diagnosis, pending). pending is set when a batch set was triggered."""
     product = db.get_product_by_ref(product_ref)
     if not product:
@@ -406,7 +411,20 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True,
     run = _find_run_for_brand(product["brand"], product.get("category"))
     if run and run.get("funnel_summary") and run.get("report"):
         return diagnosis_from_run(product, run), None
-    if product["ref"] in _TRIGGERED:  # running (no partials) or failed (surfaced, no re-trigger)
+    if product["ref"] in _TRIGGERED:
+        info = _TRIGGERED[product["ref"]]
+        if info.get("status") == "running" and (deadline_s or min_decisions):
+            import time as _time
+            done = sum(len(db.get_decisions_by_batch(b))
+                       for b in (info.get("batch_ids") or {}).values())
+            elapsed = _time.time() - info.get("started_at", _time.time())
+            if (min_decisions and done >= min_decisions) or \
+                    (deadline_s and elapsed >= deadline_s and done >= 3):
+                partial = diagnosis_from_batches(product)
+                if partial:  # batches keep running; later GETs return fuller data
+                    partial["partial"] = True
+                    partial["progress"] = _trigger_state_payload(product["ref"]).get("progress")
+                    return partial, None
         return None, _trigger_state_payload(product["ref"])
     diag = diagnosis_from_batches(product)
     if diag:
@@ -426,10 +444,15 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True,
             }
         cluster_ids = _trigger_cluster_ids(product)
         if product["ref"] not in _TRIGGERED:
+            import time as _time
+            runs, max_intents = {"quick": (1, 4), "standard": (1, 6),
+                                 "deep": (2, 8)}.get(depth, (1, 6))
             batch_ids = {cid: db.new_id("batch") for cid in cluster_ids}
             _TRIGGERED[product["ref"]] = {"status": "running", "clusters": cluster_ids,
-                                          "batch_ids": batch_ids}
+                                          "batch_ids": batch_ids,
+                                          "started_at": _time.time(), "depth": depth}
             asyncio.get_running_loop().create_task(
-                _trigger_batches(product, cluster_ids, batch_ids))
+                _trigger_batches(product, cluster_ids, batch_ids,
+                                 runs=runs, max_intents=max_intents))
         return None, _trigger_state_payload(product["ref"])
     return None, None
