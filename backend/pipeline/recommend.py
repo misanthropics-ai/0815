@@ -116,7 +116,10 @@ def build_defect_skeletons(run_cfg: dict, funnel_summary: dict, evidence: dict,
                 "type": "losing_cluster", "attribute_id": attr, "cluster_id": cid,
                 "losing_share_in_cluster": round(1 - cs.get("recommendation_share", 0), 3),
                 "n_losses": len(lset) or cs.get("considered", 0),
-                "sample_rejection_reasons": [l["text"] for l in lset[:3]],
+                "sample_rejection_reasons": [l["text"] for l in lset[:3]] or
+                                            [f"cluster {cid} lost "
+                                             f"{int((1 - cs.get('recommendation_share', 0)) * 100)}% "
+                                             "of decisions (no attribute-mapped quotes)"],
                 "competitor_contrast": "", "gap": "unclear", "gap_rationale": "",
                 "clusters": [cid], "impact": round(cs.get("n", 0) * (1 - cs.get("recommendation_share", 0)), 2),
             })
