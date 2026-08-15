@@ -1,0 +1,19 @@
+{
+  "product_id": "cotopaxi-allpa-35l",
+  "brand": "Cotopaxi",
+  "display_name": "Cotopaxi Allpa 35L Travel Pack",
+  "source": "url",
+  "source_url": "https://www.cotopaxi.com/products/allpa-35l-travel-pack-4",
+  "fetched_at": "2026-08-15T02:47:36Z",
+  "raw_text": "Allpa 35L Travel Pack. Price $230. Capacity 35L. Dimensions 22 x 12 x 10in (56 x 30 x 25cm). Weight 2 lb 15 oz (1.33kg). Better weight distribution and air mesh shoulder straps for an ultra-comfortable carry. Tuckable shoulder straps and hip belt. Designed to transfer weight to hip belt. Ergonomically comfortable shoulder straps. Suitcase-style, full-wrap zipper opening. Internal pocket configuration: one large, one medium and one small. Stretch mesh water bottle pocket. Front zip accessory pocket with internal organization and key clip. 15-inch padded and fleece-lined laptop sleeve. Security anti-theft YKK zippers. Shell: 100% recycled 840D TPU-coated nylon and recycled 840D ballistic ripstop nylon.",
+  "attributes": [
+    { "attribute_id": "capacity_size", "value": "35L; 56 x 30 x 25 cm", "evidence": "Capacity 35L. Dimensions 22 x 12 x 10in (56 x 30 x 25cm)", "confidence": 0.99 },
+    { "attribute_id": "weight", "value": "1.33 kg", "evidence": "Weight 2 lb 15 oz (1.33kg)", "confidence": 0.99 },
+    { "attribute_id": "airline_compliance", "value": null, "evidence": null, "confidence": 0.0 },
+    { "attribute_id": "price", "value": "$230", "evidence": "Price $230", "confidence": 0.99 },
+    { "attribute_id": "durability", "value": "recycled 840D TPU-coated and ballistic ripstop nylon; YKK zippers", "evidence": "Security anti-theft YKK zippers. Shell: 100% recycled 840D TPU-coated nylon and recycled 840D ballistic ripstop nylon", "confidence": 0.98 },
+    { "attribute_id": "organization", "value": "full-wrap opening, 3 internal pockets, bottle/accessory pockets, laptop sleeve", "evidence": "Suitcase-style, full-wrap zipper opening. Internal pocket configuration: one large, one medium and one small. Stretch mesh water bottle pocket. Front zip accessory pocket with internal organization and key clip. 15-inch padded and fleece-lined laptop sleeve", "confidence": 0.98 },
+    { "attribute_id": "comfort", "value": "air-mesh ergonomic shoulder straps and weight-transferring hip belt", "evidence": "Tuckable shoulder straps and hip belt. Designed to transfer weight to hip belt", "confidence": 0.97 }
+  ],
+  "version": 1
+}

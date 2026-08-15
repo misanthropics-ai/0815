@@ -52,5 +52,42 @@ jobs:
       - name: Validate API contracts
         run: PYTHON=python make contract
 
+      - name: Validate P6 demo data
+        run: PYTHON=python make demo
+
       - name: Run tests
         run: PYTHON=python make test
+
+  frontend:
+    name: Build ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: Shopper Simulator
+            directory: frontend-simulator
+          - app: Diagnosis and Debate
+            directory: frontend-diagnosis
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: ${{ matrix.directory }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build

@@ -324,6 +324,23 @@ def count_intents(run_id: str = "library") -> int:
         conn.close()
 
 
+def prune_intents(run_id: str, keep_intent_ids: set[str]) -> None:
+    """Remove derived intent rows that no longer exist in their committed fixture."""
+    conn = connect()
+    try:
+        if keep_intent_ids:
+            placeholders = ",".join("?" for _ in keep_intent_ids)
+            conn.execute(
+                f"DELETE FROM intents WHERE run_id=? AND intent_id NOT IN ({placeholders})",
+                [run_id, *sorted(keep_intent_ids)],
+            )
+        else:
+            conn.execute("DELETE FROM intents WHERE run_id=?", (run_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 # ---------------------------------------------------------------- responses
 
 def save_response(r: dict) -> None:

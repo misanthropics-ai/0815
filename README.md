@@ -11,6 +11,9 @@ Information Gap 與 Product Gap，並輸出可執行的修正建議及 before/af
 backend/          # FastAPI：pipeline、ingestion、simulate、diagnosis、debate
 contracts/        # 正式 API 契約、Python/TypeScript 型別與驗證器
 deploy/           # AWS App Runner 部署與 EC2 fallback
+demo/             # P6 真實資料、before/after 實驗與簡報素材
+frontend-simulator/ # P4 Shopper Simulator
+frontend-diagnosis/ # P5 Diagnosis + Debate
 contract-samples/ # 舊版契約樣本，僅供參考
 scripts/          # 本機環境與 Bedrock 驗證工具
 tests/            # 自動測試
@@ -36,6 +39,8 @@ API 啟動於 `http://localhost:8000`。不設定 AWS credentials 時可使用 m
 make check      # lint、format、contract 與測試
 make format     # 自動整理 Python 格式
 make contract   # 驗證正式 contract 與 fixtures
+make demo       # 驗證 P6 資料與實驗設定
+make frontend   # 安裝並建置兩個前端
 make bedrock    # 使用目前 AWS credentials 測試 Bedrock
 ```
 
@@ -45,6 +50,7 @@ make bedrock    # 使用目前 AWS credentials 測試 Bedrock
 - [`contracts/types.ts`](contracts/types.ts)：前端可直接 import 的 TypeScript 型別
 - [`backend/README.md`](backend/README.md)：後端架構、endpoints 與 demo 流程
 - [`deploy/README.md`](deploy/README.md)：EC2、App Runner 與 Docker 部署
+- [`demo/README.md`](demo/README.md)：P6 資料、before/after 實驗、講稿與 pitch deck
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)：團隊開發與 PR 流程
 
 ## CI/CD

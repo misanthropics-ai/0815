@@ -1,0 +1,25 @@
+{
+  "_status": "illustrative_cached_contract_fixture_not_a_live_measurement",
+  "_replace_after": "Run run_experiment.py against the integrated backend and commit latest.compare.json.",
+  "cluster_id": "comfort_carry",
+  "n_per_side": 40,
+  "a": {
+    "product_ref": "cabinzero-classic-36l@v1",
+    "recommendation_share": 0.12,
+    "consideration_share": 0.66,
+    "ci95_recommendation": [0.05, 0.24]
+  },
+  "b": {
+    "product_ref": "cabinzero-classic-36l@v2",
+    "recommendation_share": 0.55,
+    "consideration_share": 0.83,
+    "ci95_recommendation": [0.4, 0.69]
+  },
+  "delta_recommendation": 0.43,
+  "changes_applied": [
+    "added owner-supplied back-panel and strap claims with a verification warning",
+    "added a bounded carry-comfort FAQ",
+    "added two attributed independent review summaries"
+  ],
+  "diff_url": "/demo/before_after/cabinzero.v1_v2.diff.md"
+}

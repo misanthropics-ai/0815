@@ -25,7 +25,7 @@ python contracts/check_contract.py http://localhost:8000
 
 | Stage | 模組 | 內容 |
 |---|---|---|
-| 1. Intent Generation | `pipeline/intents.py` | Claude 依結構化 persona+category 每個 cluster 生成 realistic buyer intents（10–300 條，attribute tags）；旅行背包離線使用 163 條 library，其他品類使用 category-aware templates |
+| 1. Intent Generation | `pipeline/intents.py` | Claude 依結構化 persona+category 每個 cluster 生成 realistic buyer intents（10–300 條，attribute tags）；旅行背包離線使用 164 條 library，其他品類使用 category-aware templates |
 | 2. Query Execution | `pipeline/engines/` | 對每條 intent 跑每個 engine，記錄完整 response + citations + search trace |
 | 3. Funnel Parsing | `pipeline/funnel.py` | **LLM-as-judge**：Retrieved（citations 有品牌證據，另有 deterministic 比對）→ Considered（進入比較敘述）→ Recommended（最終推薦）；Considered 未 Recommended → 抽逐字 **stated loss reasons** |
 | 4. Attribution | `pipeline/attribution.py` | loss reasons → attribute taxonomy（keyword + LLM 映射）；**evidence audit**：各品牌可檢索內容的 per-attribute 證據密度 → information_gap / product_gap / mixed 分類 |

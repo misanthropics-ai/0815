@@ -17,6 +17,7 @@ development dependencies.
 ```bash
 make format
 make check
+make frontend
 ```
 
 The same checks run in GitHub Actions for every pull request targeting `main`.

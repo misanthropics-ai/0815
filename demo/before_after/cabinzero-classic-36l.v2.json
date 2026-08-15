@@ -1,0 +1,20 @@
+{
+  "product_id": "cabinzero-classic-36l",
+  "brand": "CabinZero",
+  "display_name": "CabinZero Classic Cabin Backpack 36L — evidence-rich prototype",
+  "source": "manual_prototype",
+  "source_url": null,
+  "raw_text": "Classic Cabin Backpack 36L. Weight 700 g. Capacity 36L. Dimensions 45 x 31 x 20 cm. Cabin-sized; listed for 117 airlines. Price £60.00. Body: 600 denier polyester fabric. Abrasion-resistant fabric. Water-resistant coating. YKK zippers. Lifetime warranty. Suspended laptop sleeve. Spacious inner zip pocket. Spacious inner zip mesh pocket. Quick access zip pocket. Front-loading clamshell opening. PROPOSED BACK-SUPPORT COPY — OWNER VERIFICATION REQUIRED BEFORE PUBLICATION: a ventilated air-mesh back panel keeps airflow moving; 12 mm padded shoulder straps and an adjustable sternum strap distribute the load. CARRY-COMFORT FAQ: Is this the right bag for an all-day walk? For light-to-moderate loads, the curved foam shoulder straps are designed for comfortable urban carry. The Classic 36L has no load-bearing hip belt or internal frame. INDEPENDENT REVIEW SUMMARIES: Pack Hacker found the straps comfortable when the pack was not overloaded. A Classic 36L owner reported carrying it for over an hour without problems, but not for long hiking.",
+  "attributes": [
+    { "attribute_id": "capacity_size", "value": "36L; 45 x 31 x 20 cm", "evidence": "Capacity 36L. Dimensions 45 x 31 x 20 cm", "confidence": 0.99 },
+    { "attribute_id": "weight", "value": "700 g", "evidence": "Weight 700 g", "confidence": 0.99 },
+    { "attribute_id": "airline_compliance", "value": "Cabin-sized; listed for 117 airlines", "evidence": "Cabin-sized; listed for 117 airlines", "confidence": 0.95 },
+    { "attribute_id": "price", "value": "£60.00", "evidence": "Price £60.00", "confidence": 0.99 },
+    { "attribute_id": "durability", "value": "600D polyester, abrasion/water resistance, YKK, lifetime warranty", "evidence": "Body: 600 denier polyester fabric. Abrasion-resistant fabric. Water-resistant coating. YKK zippers. Lifetime warranty", "confidence": 0.98 },
+    { "attribute_id": "organization", "value": "laptop sleeve, pockets, clamshell", "evidence": "Suspended laptop sleeve. Spacious inner zip pocket. Spacious inner zip mesh pocket. Quick access zip pocket. Front-loading clamshell opening", "confidence": 0.97 },
+    { "attribute_id": "comfort", "value": "proposed ventilated panel, 12 mm padded straps and sternum strap; owner verification required", "evidence": "PROPOSED BACK-SUPPORT COPY — OWNER VERIFICATION REQUIRED BEFORE PUBLICATION", "confidence": 0.55 }
+  ],
+  "version": 2,
+  "parent_version": 1,
+  "change_note": "Controlled prototype; back-support hardware claim is owner-supplied and must be verified."
+}

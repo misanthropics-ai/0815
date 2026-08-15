@@ -1,0 +1,16 @@
+{
+  "cluster_id": "comfort_carry",
+  "baseline_ref": "cabinzero-classic-36l@v1",
+  "treatment_ref": "cabinzero-classic-36l@v2",
+  "fixed_competitors": [
+    "osprey-farpoint-40@v1",
+    "decathlon-forclaz-travel500-40l@v1",
+    "cotopaxi-allpa-35l@v1"
+  ],
+  "runs": 2,
+  "expected_intents": 20,
+  "expected_decisions_per_side": 40,
+  "max_intents": 20,
+  "cached": false,
+  "minimum_delta_recommendation": 0.2
+}

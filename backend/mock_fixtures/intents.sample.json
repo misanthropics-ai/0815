@@ -1,7 +1,7 @@
 {
   "version": 1,
   "category": "travel_backpack",
-  "count": 163,
+  "count": 164,
   "intents": [
     {
       "intent_id": "lib_budget_value_00",
@@ -737,6 +737,19 @@
         "weight"
       ],
       "persona": "a hobby photographer carrying a mirrorless kit",
+      "language": "en",
+      "source": "library"
+    },
+    {
+      "intent_id": "lib_comfort_carry_11",
+      "text": "best 36L carry-on backpack with padded shoulder straps and a breathable back panel for all-day city walking",
+      "cluster_id": "comfort_carry",
+      "cluster_label": "Comfort / Long Carry",
+      "attributes": [
+        "comfort",
+        "capacity_size"
+      ],
+      "persona": "a city traveler walking all day",
       "language": "en",
       "source": "library"
     },

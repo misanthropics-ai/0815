@@ -1,0 +1,64 @@
+import type { CompareResult, CreateProductRequest, DebateMessage, DebateSession, Diagnosis, Product, ProductRef } from '../../contracts/types'
+import productFixture from '../../backend/mock_fixtures/response.post_products.manual.json'
+import diagnosisFixture from '../../backend/mock_fixtures/response.diagnosis.json'
+import sessionFixture from '../../backend/mock_fixtures/response.get_debate_session.json'
+import compareFixture from '../../backend/mock_fixtures/response.metrics_compare.json'
+
+const API = import.meta.env.VITE_API_BASE?.replace(/\/$/, '')
+const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms))
+export const isMock = !API
+export class ApiFailure extends Error {}
+
+async function request<T>(path: string, init?: RequestInit): Promise<{ status: number; data: T }> {
+  const response = await fetch(`${API}${path}`, { ...init, headers: { 'content-type': 'application/json', ...init?.headers } })
+  const data = await response.json()
+  if (!response.ok && response.status !== 202) throw new ApiFailure(data.error?.message ?? 'The service could not complete this request.')
+  return { status: response.status, data }
+}
+
+export async function createProduct(input: CreateProductRequest): Promise<Product> {
+  if (!API) { await pause(800); return productFixture as Product }
+  return (await request<Product>('/products', { method: 'POST', body: JSON.stringify(input) })).data
+}
+
+export async function getDiagnosis(ref: ProductRef): Promise<{ pending: boolean; data?: Diagnosis }> {
+  if (!API) { await pause(500); return { pending: false, data: diagnosisFixture as Diagnosis } }
+  const result = await request<Diagnosis>(`/products/${encodeURIComponent(ref)}/diagnosis`)
+  return result.status === 202 ? { pending: true } : { pending: false, data: result.data }
+}
+
+export async function createDebate(ref: ProductRef, focus?: string): Promise<DebateSession> {
+  if (!API) return { session_id: 'mock-debate', product_ref: ref, messages: [] }
+  const created = await request<{ session_id: string; product_ref: ProductRef }>('/debate/sessions', { method: 'POST', body: JSON.stringify({ product_ref: ref, focus_defect_id: focus }) })
+  return { ...created.data, messages: [] }
+}
+
+export async function getCompare(url: string): Promise<{ pending: boolean; data?: CompareResult }> {
+  if (!API) { await pause(700); return { pending: false, data: compareFixture as CompareResult } }
+  const result = await request<CompareResult>(url)
+  return result.status === 202 ? { pending: true } : { pending: false, data: result.data }
+}
+
+export async function streamDebate(sessionId: string, text: string, onToken: (text: string) => void, onAction: (action: any) => void): Promise<void> {
+  if (!API) {
+    const reply = '這正是問題的核心：產品有優點，但頁面沒寫，AI 就當它不存在。把可驗證的背板、肩帶與測試資訊寫上頁面，再重跑模擬，才能證明推薦率是否改變。'
+    for (const word of reply.match(/.{1,7}/g) ?? []) { await pause(45); onToken(word) }
+    onAction({ type: 'create_version_and_rerun', status: 'started', params: { additions: ['Ventilated mesh back panel and memory foam shoulder straps.'], cluster_id: 'weight_minimal' }, base_ref: 'cabinzero-classic-36l@v1', new_ref: 'cabinzero-classic-36l@v2', compare_url: '/metrics/compare' })
+    return
+  }
+  const response = await fetch(`${API}/debate/sessions/${sessionId}/messages`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'text/event-stream' }, body: JSON.stringify({ text }) })
+  if (!response.ok || !response.body) throw new ApiFailure('The debate stream could not be opened.')
+  const reader = response.body.getReader(), decoder = new TextDecoder(); let buffer = ''
+  while (true) {
+    const { value, done } = await reader.read(); if (done) return
+    buffer += decoder.decode(value, { stream: true }); let boundary
+    while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+      const block = buffer.slice(0, boundary); buffer = buffer.slice(boundary + 2)
+      const event = block.match(/^event: (.+)$/m)?.[1]; const raw = block.match(/^data: (.+)$/m)?.[1]
+      if (!event || !raw) continue; const data = JSON.parse(raw)
+      if (event === 'token') onToken(data.text); else if (event === 'action') onAction(data.action); else if (event === 'error') throw new ApiFailure(data.message)
+    }
+  }
+}
+
+export const sampleSession = sessionFixture as DebateSession

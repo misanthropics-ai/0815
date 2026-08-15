@@ -135,15 +135,28 @@ def persona_summary(profile: dict) -> str:
 
 
 def ensure_library_loaded() -> int:
-    n = db.count_intents("library")
-    if n:
-        return n
     path = config.FIXTURES_DIR / "intents.sample.json"
     if not path.exists():
         return 0
     data = json.loads(path.read_text(encoding="utf-8"))
     rows = [{**i, "run_id": "library", "source": "library"} for i in data["intents"]]
-    db.save_intents(rows)
+    expected_ids = {row["intent_id"] for row in rows}
+    existing = {row["intent_id"]: row for row in db.get_intents("library")}
+
+    def signature(row: dict) -> tuple:
+        return (
+            row.get("text"),
+            row.get("cluster_id"),
+            tuple(row.get("attributes") or []),
+            row.get("persona"),
+            row.get("language", "en"),
+        )
+
+    changed = [row for row in rows if signature(existing.get(row["intent_id"], {})) != signature(row)]
+    if changed:
+        db.save_intents(changed)
+    if set(existing) != expected_ids:
+        db.prune_intents("library", expected_ids)
     return len(rows)
 
 

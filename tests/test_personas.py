@@ -6,7 +6,12 @@ import pytest
 from pydantic import ValidationError
 
 from backend import config
-from backend.pipeline.intents import library_sample, normalize_personas, personas_path
+from backend.pipeline.intents import (
+    ensure_library_loaded,
+    library_sample,
+    normalize_personas,
+    personas_path,
+)
 from backend.storage import db
 from backend.taxonomy import load_taxonomy, taxonomy_path
 from contracts.schemas import PersonaProfile, RunCreateRequest, SearchCriterion
@@ -152,3 +157,36 @@ def test_mock_unknown_category_uses_generic_templates(tmp_path, monkeypatch) -> 
     assert all(row["source"] == "template" for row in rows)
     assert all("computer monitor" in row["text"] for row in rows)
     assert all("travel backpack" not in row["text"] for row in rows)
+
+
+def test_library_fixture_syncs_existing_database(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(config, "DB_PATH", tmp_path / "library-sync.db")
+    db.init_db()
+    db.save_intents(
+        [
+            {
+                "intent_id": "lib_comfort_carry_00",
+                "run_id": "library",
+                "text": "stale text",
+                "cluster_id": "comfort_carry",
+                "attributes": ["other"],
+            },
+            {
+                "intent_id": "removed_fixture_row",
+                "run_id": "library",
+                "text": "obsolete",
+                "cluster_id": "other",
+                "attributes": ["other"],
+            },
+        ]
+    )
+
+    expected = ensure_library_loaded()
+    rows = db.get_intents("library")
+
+    assert expected == 164
+    assert len(rows) == 164
+    assert "removed_fixture_row" not in {row["intent_id"] for row in rows}
+    synced = next(row for row in rows if row["intent_id"] == "lib_comfort_carry_00")
+    assert synced["text"] == "most comfortable travel backpack for walking all day"

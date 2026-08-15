@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-08-15T02:47:36Z",
+  "taxonomy": "../../backend/taxonomy/taxonomy.json",
+  "products": [
+    { "product_id": "cabinzero-classic-36l", "source_url": "https://www.cabinzero.com/products/classic-cabin-backpack-36l", "output": "cabinzero-classic-36l.v1.json" },
+    { "product_id": "osprey-farpoint-40", "source_url": "https://www.osprey.com/gb/farpoint-40-s26", "output": "osprey-farpoint-40.v1.json" },
+    { "product_id": "decathlon-forclaz-travel500-40l", "source_url": "https://www.decathlon.com/products/forclaz-travel-500-organizer-40-l-backpack-338564", "output": "decathlon-forclaz-travel500-40l.v1.json" },
+    { "product_id": "cotopaxi-allpa-35l", "source_url": "https://www.cotopaxi.com/products/allpa-35l-travel-pack-4", "output": "cotopaxi-allpa-35l.v1.json" }
+  ]
+}

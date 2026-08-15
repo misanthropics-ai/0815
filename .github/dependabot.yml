@@ -17,3 +17,21 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend-simulator
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      simulator-dependencies:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend-diagnosis
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      diagnosis-dependencies:
+        patterns: ["*"]
