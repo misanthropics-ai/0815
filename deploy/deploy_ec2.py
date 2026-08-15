@@ -58,6 +58,11 @@ def ensure_instance_profile(iam) -> str | None:
         except iam.exceptions.NoSuchEntityException:
             iam.create_role(RoleName=ROLE, AssumeRolePolicyDocument=json.dumps(trust))
         iam.put_role_policy(RoleName=ROLE, PolicyName="bedrock", PolicyDocument=json.dumps(policy))
+        try:  # SSM access for in-place debugging (aws ssm start-session)
+            iam.attach_role_policy(RoleName=ROLE,
+                                   PolicyArn="arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore")
+        except ClientError:
+            pass
         try:
             iam.get_instance_profile(InstanceProfileName=PROFILE)
         except iam.exceptions.NoSuchEntityException:
@@ -124,6 +129,23 @@ systemctl daemon-reload && systemctl enable --now backend
 """
 
 
+def ensure_eip(ec2) -> dict | None:
+    """Reuse (or allocate) an Elastic IP tagged app=TAG => stable URL across redeploys."""
+    try:
+        addrs = ec2.describe_addresses(
+            Filters=[{"Name": "tag:app", "Values": [TAG]}])["Addresses"]
+        if addrs:
+            return addrs[0]
+        alloc = ec2.allocate_address(
+            Domain="vpc",
+            TagSpecifications=[{"ResourceType": "elastic-ip",
+                                "Tags": [{"Key": "app", "Value": TAG}]}])
+        return {"AllocationId": alloc["AllocationId"], "PublicIp": alloc["PublicIp"]}
+    except ClientError as e:
+        print(f"  ! Elastic IP unavailable ({e.response['Error']['Code']}); using dynamic IP")
+        return None
+
+
 def find_instance(ec2) -> dict | None:
     out = ec2.describe_instances(Filters=[
         {"Name": "tag:app", "Values": [TAG]},
@@ -185,10 +207,17 @@ def deploy() -> None:
         else:
             raise
     iid = inst["InstanceId"]
-    print("instance:", iid, "(waiting for public IP...)")
+    print("instance:", iid, "(waiting for running state...)")
     ec2.get_waiter("instance_running").wait(InstanceIds=[iid])
-    desc = ec2.describe_instances(InstanceIds=[iid])["Reservations"][0]["Instances"][0]
-    ip = desc.get("PublicIpAddress")
+    eip = ensure_eip(ec2)
+    if eip:
+        ec2.associate_address(AllocationId=eip["AllocationId"], InstanceId=iid,
+                              AllowReassociation=True)
+        ip = eip["PublicIp"]
+        print("elastic IP associated — URL stays the same across redeploys")
+    else:
+        desc = ec2.describe_instances(InstanceIds=[iid])["Reservations"][0]["Instances"][0]
+        ip = desc.get("PublicIpAddress")
     print(f"\nLAUNCHED: http://{ip}:8000  (boot + pip install takes ~2-4 min)")
     print(f"health:   http://{ip}:8000/health")
     if profile is None:
@@ -204,6 +233,8 @@ def status() -> None:
         return
     ip = inst.get("PublicIpAddress")
     print(inst["InstanceId"], inst["State"]["Name"], f"http://{ip}:8000/health" if ip else "")
+    print("(elastic IP — stable across redeploys)" if ensure_eip(ec2) and
+          ensure_eip(ec2).get("PublicIp") == ip else "(dynamic IP)")
 
 
 def terminate() -> None:

@@ -19,7 +19,7 @@ backend/run.sh                       # API at http://localhost:8000
 # No AWS creds needed — it auto-falls back to mock mode with identical response shapes.
 
 # Option B: deployed backend (shared, live LLM)
-# http://44.214.16.86:8000   ← IP changes if we redeploy; ask backend or run:
+# http://34.227.93.223:8000   ← Elastic IP, stable across redeploys. Status:
 #   python deploy/deploy_ec2.py --status
 ```
 
@@ -247,5 +247,5 @@ GET  /runs/{id}/report    → full report JSON; ?format=md returns renderable ma
 3. **Mock vs live is invisible to you** — same shapes. `GET /health` → `bedrock.ready:false` means mock. You can force per-request: `"mode":"mock"` on simulate/batch.
 4. Live LLM calls can take 8–25 s and occasionally retry on AWS throttling — design every waiting state (skeletons/spinners), never white-screen (spec acceptance criterion).
 5. If the backend restarts mid-run, `/runs/{id}/events` sends an `error` event telling you to `POST /runs/{id}/resume` — wire that to a retry button.
-6. Deployed IP (`44.214.16.86`) changes on redeploy; keep the base URL in one env var.
+6. Deployed URL `http://34.227.93.223:8000` is an Elastic IP — stable across redeploys; still keep it in one env var.
 7. Don't invent SSE event types or read backend internals — the contract (`contracts/openapi.yaml` + fixtures) is the only truth. If a shape looks wrong, run `python contracts/check_contract.py http://localhost:8000` and ping backend.

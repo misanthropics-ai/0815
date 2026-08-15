@@ -74,6 +74,18 @@ async def _startup() -> None:
 
 # ---------------------------------------------------------------- health / meta
 
+@app.get("/")
+async def index():
+    return {
+        "service": "AI Recommendation Diagnostics API",
+        "version": "v3",
+        "interactive_docs": "/docs",
+        "health": "/health",
+        "browse": ["/health", "/docs", "/taxonomy", "/products", "/engines", "/runs"],
+        "guide": "see FRONTEND.md / TESTING.md in the repo",
+    }
+
+
 @app.get("/health")
 async def health():
     br = get_bedrock()
