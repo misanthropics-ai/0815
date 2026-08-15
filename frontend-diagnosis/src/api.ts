@@ -45,6 +45,11 @@ export async function createProduct(input: CreateProductRequest): Promise<Produc
   return (await request<Product>('/products', { method: 'POST', body: JSON.stringify(input) })).data
 }
 
+export async function listProducts(): Promise<Product[]> {
+  if (!API) return [productFixture as Product]
+  return (await request<{ products: Product[] }>('/products')).data.products
+}
+
 export async function getTaxonomy(category?: string): Promise<Taxonomy> {
   if (!API) return taxonomyFixture as Taxonomy
   const query = category?.trim() ? `?category=${encodeURIComponent(category.trim())}` : ''

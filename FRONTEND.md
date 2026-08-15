@@ -165,7 +165,13 @@ Returns a full `Product` (10–20 s live — show an "extracting attributes…" 
 
 **Categories (cross-product support):** add optional `"category"` to POST /products (e.g. `"wireless earbuds"`). Omit it and the extractor **auto-detects** the category from the page text. The first product of a new category makes the backend **learn a category-specific taxonomy** from the page (e.g. kettles get `temperature_control`, `heating_speed`, `keep_warm_hold`…), and later same-category products can extend it — so a `null` attribute means "the category's players advertise this, your page doesn't". Always render attribute chips from `product.attributes` (it's the exact set used) or fetch `GET /taxonomy?category=...`. Competitors in diagnosis/runs stay within the same category automatically. Note: the first product of a brand-new category takes ~2× longer to ingest (taxonomy generation + re-extraction).
 
-**Personas:** `GET /personas?category=...` returns the default structured persona profiles for that category (backpack set or generic set) — use it to build a persona picker; pass the chosen/edited profiles into `POST /runs` `personas`.
+**Personas:** `GET /personas?category=...` returns the default structured persona profiles for that category (backpack set or generic set) — use it to build a persona picker; pass the chosen/edited profiles into `POST /runs` `personas`. **Vendor target audiences:** store personas ON the product (`POST /products` `personas: [...]` or `PATCH /products/{id} {"personas": [...]}`) — diagnosis then simulates *those* customers: intents are generated from each persona's budget/use-cases/criteria and tagged `persona_id`. Clear with `personas: []`.
+
+**Diagnosis completion modes** (`GET /products/{ref}/diagnosis`):
+- default — waits for ALL simulation workers; `?depth=quick|standard|deep` scales worker count (≈12/18/48 decisions)
+- `?deadline_s=45` — keep polling with this param: once 45 s elapse you get a **partial diagnosis** (`"partial": true`, includes `progress`) built from the workers finished so far; batches keep running, later polls return fuller numbers
+- `?min_decisions=12` — declare done as soon as 12 decisions exist
+- `?retry=true` — clear a failed state and re-trigger
 
 **URL-mode failures (important UX):** sites that block server-side access (Shopee, some JS-only stores) return `422`:
 

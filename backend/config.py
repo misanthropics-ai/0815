@@ -55,6 +55,7 @@ DEFAULT_ENGINES = (env("DEFAULT_ENGINES") or "sim-sonnet,sim-haiku").split(",")
 # --- Pipeline knobs ---
 ENGINE_CONCURRENCY = int(env("ENGINE_CONCURRENCY", "6"))
 JUDGE_CONCURRENCY = int(env("JUDGE_CONCURRENCY", "4"))
+BATCH_CONCURRENCY = int(env("BATCH_CONCURRENCY", "10"))
 SOURCE_FETCH_TIMEOUT_S = float(env("SOURCE_FETCH_TIMEOUT_S", "8"))
 SOURCE_FETCH_MAX = int(env("SOURCE_FETCH_MAX", "40"))
 

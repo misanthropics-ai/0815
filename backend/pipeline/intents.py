@@ -375,6 +375,7 @@ CATEGORY_INTENTS_SCHEMA = {
                     "text": {"type": "string"},
                     "cluster_id": {"type": "string"},
                     "attributes": {"type": "array", "items": {"type": "string"}},
+                    "persona_id": {"type": "string"},
                 },
                 "required": ["text", "cluster_id"],
             },
@@ -391,7 +392,29 @@ def category_library_id(category: Optional[str]) -> str:
     return f"library:{slug}"
 
 
-async def ensure_category_intents(category: Optional[str], per_cluster: int = 5) -> list[dict]:
+def _persona_lines(profiles: list[dict]) -> str:
+    lines = []
+    for p in profiles[:30]:
+        bits = [p.get("label", p.get("persona_id", "?"))]
+        if p.get("occupation"):
+            bits.append(str(p["occupation"]))
+        if p.get("age"):
+            bits.append(f"age {p['age']}")
+        b = p.get("budget") or {}
+        if b.get("max_amount"):
+            bits.append(f"budget ≤{b['max_amount']} {b.get('currency', '')}".strip())
+        if p.get("use_cases"):
+            bits.append("uses: " + ", ".join(p["use_cases"][:3]))
+        crit = [f"{c.get('attribute')}({c.get('importance', 'should')})"
+                for c in (p.get("criteria") or [])[:3]]
+        if crit:
+            bits.append("cares: " + ", ".join(crit))
+        lines.append(f"- [{p.get('persona_id')}] " + "; ".join(bits))
+    return "\n".join(lines)
+
+
+async def ensure_category_intents(category: Optional[str], per_cluster: int = 5,
+                                  personas: Optional[list] = None) -> list[dict]:
     """Reusable intent library for a category (drives /simulate/batch + diagnosis).
 
     Backpack (demo default) => the built-in 163-intent library. Any other
@@ -399,8 +422,16 @@ async def ensure_category_intents(category: Optional[str], per_cluster: int = 5)
     intents when Bedrock is up, template fallback otherwise. Cached in the
     intents table under run_id "library:{slug}".
     """
+    plist = normalize_personas(personas, category) if personas else None
+    prompt_personas = plist or default_personas(category)  # defaults now drive intents too
     lib_id = category_library_id(category)
-    if lib_id == "library":
+    if plist:
+        import hashlib as _hl
+        ph = _hl.sha1(json.dumps(plist, sort_keys=True, ensure_ascii=False)
+                      .encode()).hexdigest()[:8]
+        base = lib_id if lib_id != "library" else "library:travel_backpack"
+        lib_id = f"{base}:p{ph}"
+    elif lib_id == "library":
         ensure_library_loaded()
         return db.get_intents("library")
     existing = db.get_intents(lib_id)
@@ -418,10 +449,17 @@ async def ensure_category_intents(category: Optional[str], per_cluster: int = 5)
             f'- {c["id"]}: {c["label"]} — {c["description"]} (attributes: {", ".join(c["attributes"])})'
             for c in cls
         )
+        persona_block = ""
+        if prompt_personas:
+            persona_block = ("\nGenerate the intents AS these target customer personas — every "
+                             "intent is written from ONE persona's perspective (their budget, "
+                             "use cases and priorities) and tagged with that persona_id:\n"
+                             + _persona_lines(prompt_personas) + "\n")
         prompt = (
             f'Generate realistic buyer intents for the product category "{category}" — the '
             "queries real consumers type into AI shopping assistants when deciding what to buy.\n"
-            f"For EACH cluster below produce {per_cluster} distinct intents (mix short "
+            + persona_block
+            + f"For EACH cluster below produce {per_cluster} distinct intents (mix short "
             "search-style queries and longer contextual asks; vary personas, budgets and use "
             f"cases; no near-duplicates):\n{cluster_block}\n"
             "Tag each intent with its cluster_id and 1-3 attribute ids from: "
@@ -439,11 +477,14 @@ async def ensure_category_intents(category: Optional[str], per_cluster: int = 5)
                 cid = it.get("cluster_id")
                 if it.get("text") and cid in valid_cl:
                     attrs = [a for a in (it.get("attributes") or []) if a in valid_attrs][:3]
+                    valid_pids = {p.get("persona_id") for p in (prompt_personas or [])}
                     rows.append(
                         {
                             "text": it["text"].strip(),
                             "cluster_id": cid,
                             "attributes": attrs or valid_cl[cid]["attributes"][:3],
+                            "persona_id": (it.get("persona_id")
+                                           if it.get("persona_id") in valid_pids else None),
                         }
                     )
         except Exception:

@@ -15,6 +15,7 @@ import re
 import time
 from typing import AsyncIterator, Optional
 
+from backend import config
 from backend.llm import bedrock
 from backend.llm.bedrock import LLMError, cache_key_for, get_bedrock
 from backend.llm.jsonutil import extract_json
@@ -385,12 +386,14 @@ def wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
                     cached: bool = True, max_intents: int = 12,
-                    batch_id: Optional[str] = None, mode: Optional[str] = None) -> dict:
+                    batch_id: Optional[str] = None, mode: Optional[str] = None,
+                    personas: Optional[list] = None) -> dict:
     from backend.pipeline.intents import ensure_category_intents
 
-    # intents must match the candidates' category (TVs get TV intents, not backpack ones)
+    # intents must match the candidates' category (TVs get TV intents, not backpack
+    # ones); vendor-defined target personas scope the intent set when provided
     products = {ref: _get_product(ref) for ref in candidates}
-    library = await ensure_category_intents(_category_of(products))
+    library = await ensure_category_intents(_category_of(products), personas=personas)
     intents = [i for i in library if i["cluster_id"] == cluster_id][:max_intents]
     if not intents:
         intents = library[:max_intents]
@@ -404,7 +407,7 @@ async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
         n_intents=len(intents), runs=runs, n_candidates=len(candidates))
     use_llm = _use_llm(mode)
     model = get_bedrock().fast if use_llm else None
-    sem = asyncio.Semaphore(4)
+    sem = asyncio.Semaphore(config.BATCH_CONCURRENCY)
     decisions: list[dict] = []
     errors = 0
 

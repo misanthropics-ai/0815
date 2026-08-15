@@ -242,11 +242,15 @@ async def create_product(body: dict) -> dict:
         "brand": ext["brand"],
         "display_name": ext["display_name"],
         "category": category,
+        "personas": None,
         "source": source,
         "source_url": body.get("source_url"),
         "raw_text": raw_text,
         "attributes": ext["attributes"],
     }
+    if body.get("personas"):
+        from backend.pipeline.intents import normalize_personas
+        product["personas"] = normalize_personas(body["personas"], product.get("category"))
     db.upsert_product(product)
     product["ref"] = f"{product['product_id']}@v1"
     return product
@@ -270,6 +274,7 @@ async def create_version(product_id: str, base_version: int, additions: list[str
         "brand": base["brand"],
         "display_name": base["display_name"],
         "category": base.get("category"),
+        "personas": base.get("personas"),
         "source": base["source"],
         "source_url": base["source_url"],
         "raw_text": raw_text,
