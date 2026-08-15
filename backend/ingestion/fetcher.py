@@ -60,16 +60,17 @@ def unwrap_url(url: str) -> str:
     return url
 
 
-async def fetch_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
-    """Return (title, cleaned_text).
+async def fetch_page(url: str, timeout: float = 20.0) -> dict:
+    """Return {"title", "text", "images": [urls]}.
 
-    Tries a browser UA first, then a crawler UA (some sites only serve
-    structured data to crawlers). Returns the best (longest) result even if
-    thin — the ingestion service decides whether it's extractable.
+    Tries a browser UA first, then a crawler UA. Returns the best (longest)
+    text even if thin — the ingestion service decides whether it's extractable.
+    Also collects product image URLs (page tags + raw-HTML scan + site
+    adapters) for the vision-extraction fallback.
     Raises the last httpx error only if every attempt failed at HTTP level.
     """
     url = unwrap_url(url)
-    best: tuple[str, str] = ("", "")
+    best: tuple[str, str, str] = ("", "", "")  # title, text, html
     last_exc: Exception | None = None
     for ua in (UA, UA_CRAWLER):
         try:
@@ -79,16 +80,105 @@ async def fetch_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
                 resp = await client.get(url)
                 resp.raise_for_status()
             title, text = clean_html(resp.text)
-            if len(text) >= MIN_USEFUL_CHARS:
-                return title, text
             if len(text) > len(best[1]):
-                best = (title, text)
+                best = (title, text, resp.text)
+            if len(text) >= MIN_USEFUL_CHARS:
+                break
         except httpx.HTTPError as e:
             last_exc = e
             continue
     if not best[1] and last_exc is not None:
         raise last_exc
-    return best
+    title, text, html = best
+    images = collect_image_urls(html, url)
+    extra_imgs, extra_text = await _site_adapter(url, timeout)
+    for u in extra_imgs:
+        if u not in images:
+            images.append(u)
+    if extra_text:
+        text = (text + "\n\nSite data:\n" + extra_text)[:16000]
+    return {"title": title, "text": text, "images": images[:12]}
+
+
+async def fetch_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
+    """Back-compat wrapper: (title, cleaned_text)."""
+    page = await fetch_page(url, timeout)
+    return page["title"], page["text"]
+
+
+IMG_EXT_RE = re.compile(r"https?://[^\s\"'<>\\]+?\.(?:jpg|jpeg|png|webp)", re.I)
+SKIP_IMG_HINTS = ("icon", "logo", "sprite", "avatar", "button", "1x1", "pixel")
+
+
+def collect_image_urls(html: str, base_url: str) -> list[str]:
+    """Product-image candidates: og/twitter meta, <img> tags, raw-HTML scan."""
+    from urllib.parse import urljoin
+    out: list[str] = []
+
+    def add(u: str | None) -> None:
+        if not u:
+            return
+        u = urljoin(base_url, u.strip())
+        low = u.lower()
+        if not low.startswith("http"):
+            return
+        if any(h in low for h in SKIP_IMG_HINTS):
+            return
+        if u not in out:
+            out.append(u)
+
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        for m in soup.find_all("meta"):
+            key = (m.get("property") or m.get("name") or "").lower()
+            if key in ("og:image", "og:image:secure_url", "twitter:image"):
+                add(m.get("content"))
+        for img in soup.find_all("img"):
+            for attr in ("src", "data-src", "data-original", "data-lazy-src"):
+                add(img.get(attr))
+    except Exception:
+        pass
+    for u in IMG_EXT_RE.findall(html or "")[:40]:
+        add(u)
+    return out
+
+
+async def _site_adapter(url: str, timeout: float) -> tuple[list[str], str]:
+    """Site-specific enrichment for JS-heavy shops. Currently: PChome 24h."""
+    m = re.search(r"24h\.pchome\.com\.tw/prod/([A-Z0-9-]+)", url, re.I)
+    if not m:
+        return [], ""
+    pid = m.group(1)
+    imgs: list[str] = []
+    extra: list[str] = []
+    headers = {"User-Agent": UA, "Referer": "https://24h.pchome.com.tw/"}
+    async with httpx.AsyncClient(timeout=timeout, headers=headers) as client:
+        try:
+            r = await client.get(
+                f"https://ecapi-cdn.pchome.com.tw/ecshop/prodapi/v2/prod?id={pid}&fields=Id,Name,Pic,Price")
+            for item in (r.json() or {}).values():
+                pic = (item or {}).get("Pic") or {}
+                for k in ("B", "S"):
+                    if pic.get(k):
+                        imgs.append("https://cs-a.ecimg.tw" + pic[k])
+                if item.get("Name"):
+                    extra.append(str(item["Name"]))
+        except Exception:
+            pass
+        try:  # JSONP-style desc endpoint carries slogan/statement text
+            r = await client.get(
+                f"https://ecapi-cdn.pchome.com.tw/ecshop/prodapi/v2/prod/{pid}/desc&fields=Meta,Kword,Stmt,Slogan&_callback=x")
+            mjson = re.search(r"x\((\{.*\})\);", r.text, re.S)
+            if mjson:
+                data = json.loads(mjson.group(1))
+                for item in data.values():
+                    for k in ("Slogan", "Stmt", "Kword"):
+                        v = (item or {}).get(k)
+                        if v and str(v).strip():
+                            extra.append(str(v).strip())
+        except Exception:
+            pass
+    return imgs, "\n".join(extra)
 
 
 def _jsonld_blocks(soup: BeautifulSoup) -> list[str]:

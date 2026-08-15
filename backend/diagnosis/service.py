@@ -239,6 +239,32 @@ def diagnosis_from_batches(product: dict) -> Optional[dict]:
             })
             salience_added += 1
 
+    # --- image-only specs: extracted via vision => invisible to AI crawlers
+    img_attrs = [a["attribute_id"] for a in product["attributes"]
+                 if a.get("source") == "image" and a.get("value")]
+    if img_attrs:
+        defects.append({
+            "defect_id": f"def_{len(defects) + 1:03d}",
+            "type": "positioning",
+            "attribute_id": img_attrs[0],
+            "severity": "high" if len(img_attrs) >= 3 else "medium",
+            "headline": f"{len(img_attrs)} spec(s) exist ONLY inside images "
+                        f"({', '.join(img_attrs[:5])}) — AI crawlers cannot read "
+                        "image-only content",
+            "evidence": {"cluster_id": "overall",
+                         "losing_share_in_cluster": round(1 - rec / n, 3),
+                         "n_losses": len(img_attrs),
+                         "sample_rejection_reasons": [
+                             f"'{a}' was recovered by our vision pass from a product image — "
+                             "text-only AI crawlers see nothing" for a in img_attrs[:3]],
+                         "competitor_contrast": ""},
+            "suggested_fix": "Duplicate every image-only spec into page TEXT: spec table rows, "
+                             "first-screen bullets and schema.org properties. Images are "
+                             "invisible to most AI retrieval.",
+            "gap": "information_gap",
+            "image_only": True,
+        })
+
     # order by severity (high → medium → low), then impact; renumber ids to match
     sev_rank = {"high": 0, "medium": 1, "low": 2}
     defects.sort(key=lambda d: (sev_rank.get(d["severity"], 3), -d["evidence"]["n_losses"]))

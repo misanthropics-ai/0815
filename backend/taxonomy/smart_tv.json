@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "category": "smart_tv",
+  "learned": true,
+  "attributes": [
+    {
+      "id": "display_technology",
+      "label": "Display Technology",
+      "description": "Panel type (QLED, OLED, Mini-LED, etc.) that determines color volume, contrast, and brightness capability.",
+      "keywords": [
+        "qled",
+        "oled",
+        "mini-led",
+        "neo qled",
+        "ips",
+        "va panel",
+        "量子點",
+        "面板",
+        "miniled",
+        "oled顯示"
+      ]
+    },
+    {
+      "id": "resolution",
+      "label": "Resolution",
+      "description": "Native pixel count of the screen — 4K UHD, 8K, or Full HD — defining sharpness and detail.",
+      "keywords": [
+        "4k",
+        "8k",
+        "uhd",
+        "full hd",
+        "1080p",
+        "2160p",
+        "解析度",
+        "畫素",
+        "ultra hd"
+      ]
+    },
+    {
+      "id": "screen_size",
+      "label": "Screen Size",
+      "description": "Diagonal screen measurement in inches, a primary filter for room fit and viewing distance.",
+      "keywords": [
+        "吋",
+        "inch",
+        "55吋",
+        "65吋",
+        "75吋",
+        "85吋",
+        "screen size",
+        "尺寸",
+        "型"
+      ]
+    },
+    {
+      "id": "refresh_rate",
+      "label": "Refresh Rate & Motion Handling",
+      "description": "Native and effective refresh rate (Hz) plus motion-smoothing technology, critical for sports and gaming.",
+      "keywords": [
+        "120hz",
+        "144hz",
+        "60hz",
+        "refresh rate",
+        "motion smoothing",
+        "運動平滑",
+        "dlg",
+        "memc",
+        "高刷",
+        "幀率"
+      ]
+    },
+    {
+      "id": "hdr_support",
+      "label": "HDR Support",
+      "description": "HDR formats supported (Dolby Vision, HDR10+, HDR10, HLG) affecting highlight detail and color depth.",
+      "keywords": [
+        "dolby vision",
+        "hdr10+",
+        "hdr10",
+        "hlg",
+        "杜比視界",
+        "高動態範圍",
+        "hdr",
+        "bright",
+        "peak brightness",
+        "nits"
+      ]
+    },
+    {
+      "id": "smart_platform",
+      "label": "Smart TV Platform & App Ecosystem",
+      "description": "Operating system and app store (Google TV, Tizen, webOS, Android TV) determining content access and UI experience.",
+      "keywords": [
+        "google tv",
+        "android tv",
+        "tizen",
+        "webos",
+        "app store",
+        "智慧電視",
+        "應用程式",
+        "google play",
+        "airplay",
+        "作業系統"
+      ]
+    },
+    {
+      "id": "gaming_features",
+      "label": "Gaming Features",
+      "description": "Low input lag, VRR, ALLM, HDMI 2.1 bandwidth, and dedicated game modes for console and PC gaming.",
+      "keywords": [
+        "input lag",
+        "vrr",
+        "allm",
+        "hdmi 2.1",
+        "game mode",
+        "遊戲模式",
+        "dlg",
+        "freesync",
+        "g-sync",
+        "低延遲"
+      ]
+    },
+    {
+      "id": "audio_quality",
+      "label": "Audio Quality & Sound System",
+      "description": "Built-in speaker wattage, audio formats (Dolby Atmos, DTS), and sound enhancement technologies.",
+      "keywords": [
+        "dolby atmos",
+        "dts",
+        "watts",
+        "speaker",
+        "音效",
+        "杜比全景聲",
+        "soundbar",
+        "音響",
+        "woofer",
+        "聲音"
+      ]
+    },
+    {
+      "id": "connectivity_ports",
+      "label": "Connectivity & Ports",
+      "description": "Number and type of HDMI, USB, Wi-Fi, Bluetooth, and other ports for devices and peripherals.",
+      "keywords": [
+        "hdmi",
+        "usb",
+        "wi-fi",
+        "bluetooth",
+        "藍牙",
+        "無線",
+        "ethernet",
+        "接口",
+        "連接埠",
+        "wifi 6"
+      ]
+    },
+    {
+      "id": "processor_memory",
+      "label": "Processor & Memory (RAM/Storage)",
+      "description": "SoC performance, RAM, and internal storage affecting UI responsiveness, app loading, and multitasking.",
+      "keywords": [
+        "ram",
+        "rom",
+        "記憶體",
+        "儲存",
+        "processor",
+        "chip",
+        "處理器",
+        "gb",
+        "storage",
+        "晶片"
+      ]
+    },
+    {
+      "id": "picture_calibration",
+      "label": "Picture Calibration & Color Accuracy",
+      "description": "Color gamut coverage (DCI-P3, sRGB), factory calibration, and local dimming zones for accurate, vivid images.",
+      "keywords": [
+        "dci-p3",
+        "色域",
+        "local dimming",
+        "color accuracy",
+        "色彩校正",
+        "色準",
+        "gamut",
+        "好萊塢",
+        "quantum dot",
+        "區域調光"
+      ]
+    },
+    {
+      "id": "design_installation",
+      "label": "Design, Bezels & Installation",
+      "description": "Bezel width, stand style, VESA mount compatibility, and overall form factor for room aesthetics and wall mounting.",
+      "keywords": [
+        "bezel",
+        "壁掛",
+        "vesa",
+        "stand",
+        "slim",
+        "超薄",
+        "邊框",
+        "wall mount",
+        "腳架",
+        "安裝"
+      ]
+    },
+    {
+      "id": "price",
+      "label": "Price / Value",
+      "description": "Price, budget fit and overall value",
+      "keywords": [
+        "price",
+        "cost",
+        "budget",
+        "affordable",
+        "value",
+        "discount"
+      ]
+    },
+    {
+      "id": "brand_reputation",
+      "label": "Brand Reputation",
+      "description": "Reviews, support and brand trust",
+      "keywords": [
+        "review",
+        "rating",
+        "reputation",
+        "support",
+        "trusted",
+        "brand"
+      ]
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "description": "Category-specific attributes not yet normalized",
+      "keywords": []
+    }
+  ],
+  "clusters": [
+    {
+      "id": "cinephile",
+      "label": "Cinephile & Streaming Enthusiast",
+      "description": "Buyers who prioritize the best possible picture and sound quality for movies, TV shows, and streaming services at home.",
+      "attributes": [
+        "display_technology",
+        "hdr_support",
+        "picture_calibration",
+        "audio_quality"
+      ]
+    },
+    {
+      "id": "gamer",
+      "label": "Console & PC Gamer",
+      "description": "Buyers who need high refresh rates, low input lag, HDMI 2.1, and VRR support for a competitive or immersive gaming experience.",
+      "attributes": [
+        "gaming_features",
+        "refresh_rate",
+        "connectivity_ports",
+        "display_technology"
+      ]
+    },
+    {
+      "id": "smart_home_streamer",
+      "label": "Smart Home & Streaming-First User",
+      "description": "Buyers who care most about the smart platform ecosystem, voice assistants, app availability, and seamless integration with other smart devices.",
+      "attributes": [
+        "smart_platform",
+        "connectivity_ports",
+        "processor_memory",
+        "audio_quality"
+      ]
+    },
+    {
+      "id": "large_room_upgrade",
+      "label": "Large Room / Big-Screen Upgrader",
+      "description": "Buyers choosing a TV primarily based on screen size and resolution to fill a living room or home theater space.",
+      "attributes": [
+        "screen_size",
+        "resolution",
+        "design_installation",
+        "picture_calibration"
+      ]
+    },
+    {
+      "id": "budget_value",
+      "label": "Value-Conscious Everyday Buyer",
+      "description": "Buyers balancing overall performance across picture, smart features, and build quality against cost, often comparing mid-range models.",
+      "attributes": [
+        "processor_memory",
+        "smart_platform",
+        "resolution",
+        "refresh_rate"
+      ]
+    }
+  ]
+}
