@@ -64,6 +64,8 @@ SSE 事件只有：`token / action / progress / error / done`（simulate 的最�
 3. 使用者給新資訊（中文也行）→ agent 產生英文頁面文案 → 自動建 `@v2` + 重抽 attributes + 背景跑 before/after batches
 4. `GET /metrics/compare?a=...@v1&b=...@v2&cluster=...` → delta 揭曉（實測 +25pt）
 
+> **注意**：run 預設自動選每個產品的**最新版本**。debate 產生 v2 之後，要跑「v1 baseline」對照 run 時請在 POST /runs 明確給 `product_refs`（例如 `["cabinzero-classic-36l@v1", ...]`）。
+
 ## 設定（backend/.env）
 
 | 變數 | 說明 |
