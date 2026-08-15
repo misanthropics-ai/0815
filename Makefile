@@ -2,6 +2,8 @@ PYTHON ?= .venv/bin/python
 CHECK_PATHS := \
 	backend/app.py \
 	backend/config.py \
+	backend/decision \
+	backend/diagnosis \
 	backend/pipeline/attribution.py \
 	backend/pipeline/corpus.py \
 	backend/pipeline/engines/claude_sim.py \

@@ -359,7 +359,7 @@ async def _trigger_batches(product: dict, cluster_ids: list[str],
           for cid in cluster_ids],
         return_exceptions=True)
     total = 0
-    for cid, res in zip(cluster_ids, results):
+    for cid, res in zip(cluster_ids, results, strict=False):
         if isinstance(res, BaseException):
             log("diagnosis.batch_error", ref=ref, cluster=cid, error=str(res)[:200])
         else:
