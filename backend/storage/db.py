@@ -262,6 +262,22 @@ def set_product_category(product_id: str, category: Optional[str]) -> int:
         conn.close()
 
 
+def delete_batch_decisions_for_product(product_ref: str) -> int:
+    """Remove a product's batch simulation decisions (fresh re-diagnosis after
+    persona/category changes). Pipeline-run funnel data is untouched."""
+    conn = connect()
+    try:
+        cur = conn.execute(
+            "DELETE FROM decisions WHERE batch_id IS NOT NULL AND candidates_json LIKE ?",
+            (f'%"{product_ref}"%',))
+        conn.execute("DELETE FROM batches WHERE candidates_json LIKE ?",
+                     (f'%"{product_ref}"%',))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
 def delete_product(product_id: str) -> int:
     """Delete ALL versions of a product. Returns number of rows removed."""
     conn = connect()

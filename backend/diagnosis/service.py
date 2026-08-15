@@ -406,8 +406,9 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True,
     product = db.get_product_by_ref(product_ref)
     if not product:
         raise KeyError(product_ref)
-    if force_retry:
+    if force_retry:  # full fresh diagnosis: clear failed state AND old batch decisions
         _TRIGGERED.pop(product["ref"], None)
+        db.delete_batch_decisions_for_product(product["ref"])
     run = _find_run_for_brand(product["brand"], product.get("category"))
     if run and run.get("funnel_summary") and run.get("report"):
         return diagnosis_from_run(product, run), None
