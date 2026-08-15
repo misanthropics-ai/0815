@@ -128,6 +128,15 @@ async def engines():
     return {"available": engine_status(), "default": config.DEFAULT_ENGINES}
 
 
+@app.get("/logs")
+async def logs(n: int = Query(default=200, ge=1, le=800), event: Optional[str] = None):
+    """Recent in-process events (bedrock calls w/ latency, batches, diagnosis stages).
+    Filter with ?event=bedrock / ?event=batch / ?event=diagnosis."""
+    from backend.loglib import recent
+
+    return {"events": recent(n, event_prefix=event)}
+
+
 @app.get("/personas")
 async def personas(category: Optional[str] = Query(default=None)):
     """Default persona profiles for a category (frontend persona pickers).
@@ -515,10 +524,10 @@ async def get_decision(decision_id: str):
 
 
 @app.get("/products/{ref}/diagnosis")
-async def product_diagnosis(ref: str):
+async def product_diagnosis(ref: str, retry: bool = False):
     from backend.diagnosis.service import get_or_build
 
-    diag, pending = await get_or_build(ref, allow_trigger=True)
+    diag, pending = await get_or_build(ref, allow_trigger=True, force_retry=retry)
     if diag:
         return diag
     return JSONResponse(status_code=202, content=pending or {"status": "running"})

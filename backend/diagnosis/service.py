@@ -177,30 +177,73 @@ def _trigger_cluster_ids(product: dict) -> list[str]:
     return [c["id"] for c in tax["clusters"]][:3]
 
 
-async def _trigger_batches(product: dict, cluster_ids: list[str]) -> None:
+async def _trigger_batches(product: dict, cluster_ids: list[str],
+                           batch_ids: dict[str, str]) -> None:
+    import time as _time
+
     from backend.decision.simulate import run_batch
+    from backend.loglib import log
     ref = product["ref"]
     candidates = [ref] + _competitor_refs(product)
-    for cid in cluster_ids:
-        try:
-            await run_batch(cid, candidates, runs=2, max_intents=8)
-        except Exception:
-            continue
-    _TRIGGERED.pop(ref, None)
+    t0 = _time.time()
+    log("diagnosis.trigger", ref=ref, clusters=cluster_ids, n_candidates=len(candidates))
+    results = await asyncio.gather(  # batches run in PARALLEL (was sequential)
+        *[run_batch(cid, candidates, runs=1, max_intents=6, batch_id=batch_ids[cid])
+          for cid in cluster_ids],
+        return_exceptions=True)
+    total = 0
+    for cid, res in zip(cluster_ids, results):
+        if isinstance(res, BaseException):
+            log("diagnosis.batch_error", ref=ref, cluster=cid, error=str(res)[:200])
+        else:
+            total += len(res.get("decision_ids") or [])
+    log("diagnosis.batches_done", ref=ref, ms=int((_time.time() - t0) * 1000),
+        n_decisions=total)
+    if total == 0:
+        # keep the entry in FAILED state so polling surfaces the problem instead of
+        # silently re-triggering forever; clear with ?retry=true
+        _TRIGGERED[ref] = {"status": "failed", "clusters": cluster_ids, "batch_ids": batch_ids,
+                           "detail": "all diagnosis batches produced 0 decisions — check GET "
+                                     "/logs for bedrock/batch errors, then retry with "
+                                     "GET /products/{ref}/diagnosis?retry=true"}
+    else:
+        _TRIGGERED.pop(ref, None)
 
 
-async def get_or_build(product_ref: str, allow_trigger: bool = True
-                       ) -> tuple[Optional[dict], Optional[dict]]:
+def _trigger_state_payload(ref: str) -> dict:
+    info = _TRIGGERED.get(ref) or {}
+    batches = []
+    done_sum, exp_sum = 0, 0
+    for cid, bid in (info.get("batch_ids") or {}).items():
+        b = db.get_batch(bid)
+        done = len(db.get_decisions_by_batch(bid))
+        expected = (b["n_intents"] * b["runs"]) if b and b.get("n_intents") else None
+        batches.append({"cluster_id": cid, "batch_id": bid,
+                        "status": (b or {}).get("status") or "pending",
+                        "decisions_done": done, "decisions_expected": expected})
+        done_sum += done
+        exp_sum += expected or 0
+    return {"status": info.get("status", "running"),
+            "detail": info.get("detail", "diagnosis batches running"),
+            "clusters": info.get("clusters", []),
+            "progress": {"decisions_done": done_sum,
+                         "decisions_expected": exp_sum or None,
+                         "batches": batches}}
+
+
+async def get_or_build(product_ref: str, allow_trigger: bool = True,
+                       force_retry: bool = False) -> tuple[Optional[dict], Optional[dict]]:
     """Return (diagnosis, pending). pending is set when a batch set was triggered."""
     product = db.get_product_by_ref(product_ref)
     if not product:
         raise KeyError(product_ref)
+    if force_retry:
+        _TRIGGERED.pop(product["ref"], None)
     run = _find_run_for_brand(product["brand"], product.get("category"))
     if run and run.get("funnel_summary") and run.get("report"):
         return diagnosis_from_run(product, run), None
-    if product["ref"] in _TRIGGERED:  # trigger batches still running — no partial diagnosis
-        return None, {"status": "running", "detail": "diagnosis batches running",
-                      "clusters": _TRIGGERED[product["ref"]].get("clusters", [])}
+    if product["ref"] in _TRIGGERED:  # running (no partials) or failed (surfaced, no re-trigger)
+        return None, _trigger_state_payload(product["ref"])
     diag = diagnosis_from_batches(product)
     if diag:
         return diag, None
@@ -217,8 +260,10 @@ async def get_or_build(product_ref: str, allow_trigger: bool = True
             }
         cluster_ids = _trigger_cluster_ids(product)
         if product["ref"] not in _TRIGGERED:
-            _TRIGGERED[product["ref"]] = {"status": "running", "clusters": cluster_ids}
-            asyncio.get_running_loop().create_task(_trigger_batches(product, cluster_ids))
-        return None, {"status": "running", "detail": "diagnosis batches running",
-                      "clusters": cluster_ids}
+            batch_ids = {cid: db.new_id("batch") for cid in cluster_ids}
+            _TRIGGERED[product["ref"]] = {"status": "running", "clusters": cluster_ids,
+                                          "batch_ids": batch_ids}
+            asyncio.get_running_loop().create_task(
+                _trigger_batches(product, cluster_ids, batch_ids))
+        return None, _trigger_state_payload(product["ref"])
     return None, None

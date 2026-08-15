@@ -10,6 +10,7 @@ import asyncio
 import json
 import math
 import re
+import time
 from functools import lru_cache
 from typing import Awaitable, Callable, Optional, Union
 
@@ -405,6 +406,8 @@ async def ensure_category_intents(category: Optional[str], per_cluster: int = 5)
     existing = db.get_intents(lib_id)
     if existing:
         return existing
+    from backend.loglib import log
+    t0 = time.time()
     tax = load_taxonomy(category)
     cls = tax["clusters"][:6]
     valid_cl = {c["id"]: c for c in cls}
@@ -467,4 +470,6 @@ async def ensure_category_intents(category: Optional[str], per_cluster: int = 5)
             }
         )
     db.save_intents(rows)
+    log("intents.category_library", category=str(category), lib=lib_id, n=len(rows),
+        ms=int((time.time() - t0) * 1000))
     return rows
