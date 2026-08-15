@@ -175,10 +175,18 @@ function brandKey(brand: string): string {
   return brand.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
+function categoryKey(category: string | null | undefined): string {
+  return (category || "travel backpack").toLocaleLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
 function latestCompetitors(items: Product[], target: Product): Product[] {
+  const otherBrands = items.filter((item) => (
+    item.product_id !== target.product_id && brandKey(item.brand) !== brandKey(target.brand)
+  ));
+  const sameCategory = otherBrands.filter((item) => categoryKey(item.category) === categoryKey(target.category));
+  const pool = sameCategory.length > 0 ? sameCategory : otherBrands;
   const latest = new Map<string, Product>();
-  for (const item of items) {
-    if (item.product_id === target.product_id || brandKey(item.brand) === brandKey(target.brand)) continue;
+  for (const item of pool) {
     const current = latest.get(item.product_id);
     if (!current || item.version > current.version) latest.set(item.product_id, item);
   }
