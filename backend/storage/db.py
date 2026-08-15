@@ -793,6 +793,15 @@ def save_diagnosis(key: str, product_ref: str, source: str, payload: dict) -> No
         conn.close()
 
 
+def delete_diagnosis(key: str) -> None:
+    conn = connect()
+    try:
+        conn.execute("DELETE FROM diagnoses WHERE key=?", (key,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_diagnosis(key: str) -> Optional[dict]:
     conn = connect()
     try:
