@@ -12,6 +12,7 @@ import asyncio
 import json
 import math
 import random
+import time
 from typing import AsyncIterator, Optional
 
 from backend import config
@@ -305,6 +306,10 @@ async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
     runs = max(1, min(5, runs))
     db.create_batch({"batch_id": batch_id, "cluster_id": cluster_id, "candidates": candidates,
                      "runs": runs, "status": "running", "n_intents": len(intents)})
+    from backend.loglib import log
+    t0 = time.time()
+    log("batch.start", batch_id=batch_id, cluster=cluster_id,
+        n_intents=len(intents), runs=runs, n_candidates=len(candidates))
     use_llm = _use_llm(mode)
     model = get_bedrock().fast if use_llm else None
     sem = asyncio.Semaphore(4)
@@ -320,8 +325,10 @@ async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
                 d["batch_id"] = batch_id
                 db.save_decision(d)
                 decisions.append(d)
-            except Exception:
+            except Exception as e:  # noqa: BLE001
                 errors += 1
+                if errors <= 3:  # surface the first few causes, don't spam
+                    log("batch.decision_error", batch_id=batch_id, error=str(e)[:180])
 
     await asyncio.gather(*[one(it, r) for it in intents for r in range(runs)])
     n = len(decisions)
@@ -338,6 +345,8 @@ async def run_batch(cluster_id: str, candidates: list[str], *, runs: int = 3,
                      "runs": runs, "status": status, "n_intents": len(intents),
                      "shares": shares, "decision_ids": [d["decision_id"] for d in decisions],
                      "error": f"{errors} decision errors" if errors else None})
+    log("batch.done", batch_id=batch_id, cluster=cluster_id, status=status,
+        ms=int((time.time() - t0) * 1000), n_decisions=n, errors=errors)
     out = db.get_batch(batch_id)
     out["n_decisions"] = n
     return out

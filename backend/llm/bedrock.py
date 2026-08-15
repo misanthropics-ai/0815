@@ -226,19 +226,29 @@ class BedrockLLM:
             kwargs["system"] = [{"text": system}]
         if tool_config:
             kwargs["toolConfig"] = tool_config
+        from backend.loglib import log
         attempts = 6
+        t0 = time.time()
         for attempt in range(attempts):
             try:
                 with self._sem:
-                    return self._runtime().converse(**kwargs)
+                    out = self._runtime().converse(**kwargs)
+                log("bedrock.converse", model=model.rsplit(".", 1)[-1][:40],
+                    ms=int((time.time() - t0) * 1000), retries=attempt)
+                return out
             except Exception as e:
                 code = _err_code(e)
                 if code in AUTH_ERRORS:
                     raise LLMError(f"AWS credentials invalid/expired ({code}). Refresh backend/.env.",
                                    code="aws_auth") from e
                 if code in RETRYABLE and attempt < attempts - 1:
-                    time.sleep(min(25.0, (1.4 * (2 ** attempt)) + random.uniform(0, 1.2)))
+                    sleep_s = min(25.0, (1.4 * (2 ** attempt)) + random.uniform(0, 1.2))
+                    log("bedrock.throttled", code=code, attempt=attempt,
+                        sleep_s=round(sleep_s, 1))
+                    time.sleep(sleep_s)
                     continue
+                log("bedrock.error", code=code or "unknown",
+                    ms=int((time.time() - t0) * 1000))
                 if code:
                     raise LLMError(f"bedrock error {code}: {e}", code=code) from e
                 raise LLMError(f"bedrock call failed: {e}") from e

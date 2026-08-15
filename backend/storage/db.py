@@ -220,6 +220,18 @@ def get_product_by_ref(ref: str) -> Optional[dict]:
     return get_product(pid, ver)
 
 
+def set_product_category(product_id: str, category: Optional[str]) -> int:
+    """Set category on ALL versions of a product. Returns rows updated."""
+    conn = connect()
+    try:
+        cur = conn.execute("UPDATE products SET category=? WHERE product_id=?",
+                           (category, product_id))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
 def delete_product(product_id: str) -> int:
     """Delete ALL versions of a product. Returns number of rows removed."""
     conn = connect()
