@@ -96,7 +96,9 @@ function inlineMarkdown(text: string) {
 function ContentPatch({ text }: { text: string }) {
   const json = parseJsonBlock(text)
   if (json !== null) return <details className="json-patch"><summary>View ready-to-paste JSON-LD</summary><pre>{JSON.stringify(json, null, 2)}</pre></details>
-  return <section className="content-patch"><p className="eyebrow">READY-TO-PASTE COPY</p><MarkdownMessage text={text} /></section>
+  const isTemplate = /^\s*\[template\]\s*/i.test(text)
+  const copy = text.replace(/^\s*\[template\]\s*/i, '')
+  return <section className={`content-patch${isTemplate ? ' template-patch' : ''}`}><p className="eyebrow">{isTemplate ? 'DRAFT TEMPLATE' : 'READY-TO-PASTE COPY'}</p>{isTemplate && <p className="template-note">Use this structure, then replace it with product-specific facts, numbers and proof before publishing.</p>}<MarkdownMessage text={copy} /></section>
 }
 function parseJsonBlock(text: string): unknown | null {
   const candidate = text.trim().replace(/^```(?:json|jsonld)?\s*/i, '').replace(/\s*```$/, '')
