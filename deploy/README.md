@@ -3,7 +3,7 @@
 建議的 demo／staging 流程是：
 
 ```text
-pull request -> CI -> merge main -> GitHub OIDC -> ECR -> SSM -> EC2 Docker
+pull request -> CI -> merge main -> GitHub OIDC -> ECR/SSM/EC2 + S3 frontends
 ```
 
 - PR 只執行 lint、contract、測試、前端 build 與 Docker smoke test。
@@ -11,6 +11,7 @@ pull request -> CI -> merge main -> GitHub OIDC -> ECR -> SSM -> EC2 Docker
 - GitHub OIDC 換取短期 AWS credentials，不保存 access key 或 session token。
 - ECR tag 是不可變的 commit SHA；部署失敗時遠端腳本會復原上一個映像。
 - SQLite 放在 Docker named volume `ai-rec-data`，換版不會刪除資料。
+- P4/P5 會在 build 時注入 API 與彼此的 URL，再同步到獨立 S3 website buckets。
 
 ## 一次性建立 AWS 環境
 
@@ -29,8 +30,13 @@ python deploy/bootstrap_cicd.py --configure-github
 - account-level GitHub OIDC provider；
 - immutable ECR repository（保留最近 30 個映像）；
 - CloudFormation stack 與 GitHub deploy role；
+- P4 S3 website bucket（保留策略；刪除 stack 不會刪內容）；
 - GitHub repository variables：`AWS_ACCOUNT_ID`、`AWS_REGION`、
-  `AWS_DEPLOY_ROLE_ARN`、`ECR_REPOSITORY`、`EC2_INSTANCE_ID`、`AWS_API_URL`。
+  `AWS_DEPLOY_ROLE_ARN`、`ECR_REPOSITORY`、`EC2_INSTANCE_ID`、`AWS_API_URL`、
+  `P4_S3_BUCKET`、`P4_SITE_URL`、`P5_S3_BUCKET`、`P5_SITE_URL`。
+
+預設沿用 `ai-rec-diagnostics-p5-<account-id>` 作為既有 P5 bucket，並建立
+`ai-rec-diagnostics-p4-<account-id>`。若名稱不同，可傳入 `--p4-bucket`／`--p5-bucket`。
 
 bootstrap 會從 GitHub API 讀取實際 OIDC subject prefix；新 repo 使用包含 owner ID 與 repo
 ID 的 immutable subject，IAM trust 會鎖定該固定 ID 與 `main` branch，不依賴可能改名的
@@ -58,6 +64,8 @@ workflow 合併進 `main` 後，到 GitHub Actions 手動執行一次 `Deploy AW
 ```bash
 curl "$(gh variable get AWS_API_URL)/health"
 python contracts/check_contract.py "$(gh variable get AWS_API_URL)"
+curl "$(gh variable get P4_SITE_URL)"
+curl "$(gh variable get P5_SITE_URL)"
 ```
 
 如果映像啟動或 health check 失敗，workflow 會失敗且 EC2 會嘗試重啟上一個映像。若需要

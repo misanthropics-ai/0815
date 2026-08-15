@@ -5,6 +5,13 @@ import { ApiFailure, createDebate, createProduct, getCompare, getDiagnosis, getT
 type View = 'intake' | 'evidence' | 'diagnosis' | 'debate'
 const pct = (n: number) => `${Math.round(n * 100)}%`
 const label = (s: string) => s.replaceAll('_', ' ')
+const simulatorBase = import.meta.env.VITE_SIMULATOR_URL?.trim().replace(/\/$/, '')
+
+const simulatorHref = (compare: CompareResult) => {
+  if (!simulatorBase) return undefined
+  const params = new URLSearchParams({ before: compare.a.product_ref, after: compare.b.product_ref, cluster: compare.cluster_id })
+  return `${simulatorBase}/?${params}`
+}
 
 export default function App() {
   const [view, setView] = useState<View>('intake'), [mode, setMode] = useState<'url' | 'manual_prototype'>('url')
@@ -50,4 +57,4 @@ function inlineMarkdown(text: string) {
   })
 }
 function DefectCard({ defect, fieldLabel, onDiscuss }: { defect: Defect; fieldLabel: (id: string) => string; onDiscuss: () => void }) { return <article className="defect-card"><div className="defect-top"><span className={`severity ${defect.severity}`}>{defect.severity}</span><span className={`gap ${defect.gap ?? 'unclear'}`}>{label(defect.gap ?? 'unclear')}</span><span className="attribute">{fieldLabel(defect.attribute_id)}</span><span className="loss">{pct(defect.evidence.losing_share_in_cluster)} · {defect.evidence.cluster_id}</span></div><h3>{defect.headline}</h3><div className="defect-columns"><blockquote>“{defect.evidence.sample_rejection_reasons[0]}”</blockquote><p><b>Competitor evidence</b>{defect.evidence.competitor_contrast || 'No competitor evidence recorded.'}</p></div><footer><p><b>Suggested fix</b>{defect.suggested_fix}</p><button className="discuss" onClick={onDiscuss}>Discuss this →</button></footer>{defect.content_patch && <pre>{defect.content_patch}</pre>}</article> }
-function Compare({ compare }: { compare: CompareResult }) { return <section className="compare"><p className="eyebrow">EVIDENCE IMPACT · {compare.cluster_id}</p><h2>{pct(compare.a.recommendation_share)} <span>→</span> {pct(compare.b.recommendation_share)}</h2><strong>+{pct(compare.delta_recommendation)} recommendation share</strong><ul>{compare.changes_applied.map((c, i) => <li key={i}>{c}</li>)}</ul></section> }
+function Compare({ compare }: { compare: CompareResult }) { const href = simulatorHref(compare); return <section className="compare"><p className="eyebrow">EVIDENCE IMPACT · {compare.cluster_id}</p><h2>{pct(compare.a.recommendation_share)} <span>→</span> {pct(compare.b.recommendation_share)}</h2><strong>+{pct(compare.delta_recommendation)} recommendation share</strong><ul>{compare.changes_applied.map((c, i) => <li key={i}>{c}</li>)}</ul>{href && <a className="simulator-link" href={href}>Open the before / after simulator →</a>}</section> }

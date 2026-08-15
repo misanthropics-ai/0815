@@ -25,6 +25,10 @@ OIDC_AUDIENCE = "sts.amazonaws.com"
 APP_TAG = "ai-rec-diagnostics"
 
 
+def s3_website_url(bucket: str, region: str) -> str:
+    return f"http://{bucket}.s3-website-{region}.amazonaws.com"
+
+
 def github_subject(
     owner: str,
     repository: str,
@@ -312,6 +316,12 @@ def main() -> int:
     parser.add_argument("--github-repository", default="0815")
     parser.add_argument("--github-branch", default="main")
     parser.add_argument("--ecr-repository", default="ai-rec-diagnostics")
+    parser.add_argument(
+        "--p4-bucket", help="P4 static website bucket (default: account-scoped name)"
+    )
+    parser.add_argument(
+        "--p5-bucket", help="Existing P5 static website bucket (default: account-scoped name)"
+    )
     parser.add_argument("--instance-type", default="t3.small")
     parser.add_argument("--allowed-cidr", default="0.0.0.0/0")
     parser.add_argument("--vpc-id")
@@ -326,6 +336,8 @@ def main() -> int:
     session = boto3.Session(region_name=args.region)
     identity = session.client("sts").get_caller_identity()
     account_id = identity["Account"]
+    p4_bucket = args.p4_bucket or f"ai-rec-diagnostics-p4-{account_id}"
+    p5_bucket = args.p5_bucket or f"ai-rec-diagnostics-p5-{account_id}"
     oidc_subject = resolve_github_subject(
         args.github_owner,
         args.github_repository,
@@ -379,6 +391,8 @@ def main() -> int:
         "GitHubSubject": oidc_subject,
         "GitHubOidcProviderArn": oidc_arn,
         "EcrRepositoryName": args.ecr_repository,
+        "P4FrontendBucketName": p4_bucket,
+        "P5FrontendBucketName": p5_bucket,
         "ExistingInstanceId": existing["InstanceId"] if existing else "",
         "ExistingPublicApiUrl": api_url,
         "VpcId": vpc_id,
@@ -400,6 +414,10 @@ def main() -> int:
         "ECR_REPOSITORY": outputs["EcrRepositoryName"],
         "EC2_INSTANCE_ID": outputs["InstanceId"],
         "AWS_API_URL": outputs["PublicApiUrl"],
+        "P4_S3_BUCKET": outputs["P4FrontendBucketName"],
+        "P4_SITE_URL": outputs["P4FrontendWebsiteUrl"],
+        "P5_S3_BUCKET": outputs["P5FrontendBucketName"],
+        "P5_SITE_URL": s3_website_url(outputs["P5FrontendBucketName"], args.region),
     }
     if args.configure_github:
         configure_github(repo, github_variables)
