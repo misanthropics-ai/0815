@@ -93,6 +93,7 @@ export interface Product {
   ref?: ProductRef;
   category?: string | null;        // drives which taxonomy applies; auto-detected if omitted
   image_derived_attributes?: AttributeId[]; // populated by POST /products when vision filled gaps
+  created_at?: string;
 }
 
 export interface CreateProductRequest {
